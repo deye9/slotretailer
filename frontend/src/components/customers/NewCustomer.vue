@@ -97,8 +97,14 @@ export default {
   },
   methods: {
     handleBlur() {
-      this.phone = this.phone.replace('0','+234');
-      this.phone1 = this.phone1.replace('0','+234');
+      if (this.phone.charAt(0) === '0') {
+        this.phone = this.phone.replace('0', '+234');
+      }
+
+      if (this.phone1.charAt(0) === '0') {
+        this.phone1 = this.phone1.replace('0', '+234');
+      }
+      
       document.getElementById("update").disabled = false;
       let details = `phone = '${this.phone}' or phone = '${this.phone1}' or phone1 = '${this.phone}' or phone1 = '${this.phone1}'`;
 

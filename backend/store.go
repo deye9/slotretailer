@@ -28,7 +28,7 @@ func GetStore() (store Store, err error) {
 }
 
 // SaveStore creates / updates the store in the database
-func SaveStore(store map[string]interface{}) (id int, err error) {
+func SaveStore(store map[string]interface{}) (id int64, err error) {
 
 	if store["id"] == nil {
 		if result, err := MaptoInsert(store, "store"); err == nil {
@@ -40,7 +40,7 @@ func SaveStore(store map[string]interface{}) (id int, err error) {
 	}
 
 	if result, err := MaptoUpdate(store, "store", "id"); err == nil {
-		id = int(store["id"].(float64))
+		id = int64(store["id"].(float64))
 		if err = Modify(result); err != nil {
 			CheckError("Error updating the store data.", err, false)
 		}

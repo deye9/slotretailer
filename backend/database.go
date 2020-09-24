@@ -3,8 +3,10 @@ package service
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -13,14 +15,14 @@ import (
 
 // DbConn returns a pointer to the current DBConnection object
 var DbConn *sql.DB
-var username string = "root"
-var password string = "slot"
+var username string = "appuser"
+var password string = "password"
 var dbname string = "retail"
-var hostname string = "127.0.0.1:3306"
+var hostname string = "localhost:3306"
 
 // Build out the DSN to the database.
 func dsn() string {
-	return fmt.Sprintf("%s:%s@tcp(%s)/%s", username, password, hostname, dbName)
+	return fmt.Sprintf("%s:%s@tcp(%s)/%s?multiStatements=true", username, password, hostname, dbname)
 }
 
 // Setup performs all needed operations
@@ -122,6 +124,42 @@ func MaptoReplace(mapData map[string]interface{}, tableName string) (string, err
 	return cmd + "(" + strings.TrimSuffix(keys, ",") + ") VALUES (" + strings.TrimSuffix(values, ",") + ");", nil
 }
 
+// structToInsertUpdate converts a struct to a sqllite3 replace statement
+func structToInsertUpdate(value interface{}, tableName string) string {
+	cmd := ""
+	update := ""
+	var ok bool
+	var listSlice []interface{}
+
+	if listSlice, ok = value.([]interface{}); !ok {
+		fmt.Println("Argument is not a slice")
+	}
+
+	// Get the keys
+	var keys []string
+	for key := range listSlice[0].(map[string]interface{}) {
+		keys = append(keys, key)
+	}
+
+	// Sort the keys
+	sort.Strings(keys)
+
+	for _, _value := range listSlice {
+		var cmdValues []string
+		_Value := _value.(map[string]interface{})
+		for _, val := range keys {
+			cleanedData := strings.Replace(fmt.Sprintf("%v", _Value[val]), "'", "\\'", -1)
+			cmdValues = append(cmdValues, fmt.Sprintf("'%v'", cleanedData))
+			update += fmt.Sprintf("%s = '%v', ", val, cleanedData)
+		}
+
+		// joining the string array by ", " separator
+		cmd += "INSERT INTO " + tableName + "(" + strings.Join(keys, ", ") + ") VALUES (" + strings.Join(cmdValues, ", ") + ") ON DUPLICATE KEY UPDATE " + strings.TrimSuffix(update, ", ") + ";  \n"
+	}
+
+	return cmd + "\n"
+}
+
 // MaptoInsert converts a map to a sql insert statement
 func MaptoInsert(mapData map[string]interface{}, tableName string) (string, error) {
 	cmd := "INSERT INTO " + tableName
@@ -155,18 +193,21 @@ func MaptoUpdate(mapData map[string]interface{}, tableName, tableKey string) (st
 
 // Get retrieves data from the data store.
 func Get(selectQuery string) (rows *sql.Rows, err error) {
-	return DbConn.Query("USE " + dbname + "; " + selectQuery)
+	return DbConn.Query(selectQuery)
 }
 
 // Insert creates record(s) in the data store.
-func Insert(insertQuery string) (id int, err error) {
+func Insert(insertQuery string) (id int64, err error) {
+	insertQuery = strings.Replace(insertQuery, "'true'", "true", -1)
+	insertQuery = strings.Replace(insertQuery, "'false'", "false", -1)
+
+	var row driver.Result
 	tx, _ := DbConn.Begin()
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	if _, err = DbConn.ExecContext(ctx, "USE "+dbname+"; "+insertQuery); err == nil {
-		row := tx.QueryRow("select last_insert_rowid()") // SQLite specific
-		err = row.Scan(&id)
+	if row, err = DbConn.ExecContext(ctx, insertQuery); err == nil {
+		id, err = row.LastInsertId()
 	}
 
 	tx.Commit()
@@ -175,11 +216,14 @@ func Insert(insertQuery string) (id int, err error) {
 
 // Modify removes / updates record(s) from the data store.
 func Modify(modificationQuery string) (err error) {
+	modificationQuery = strings.Replace(modificationQuery, "'true'", "true", -1)
+	modificationQuery = strings.Replace(modificationQuery, "'false'", "false", -1)
+
 	tx, _ := DbConn.Begin()
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	_, err = DbConn.ExecContext(ctx, "USE "+dbname+"; "+modificationQuery)
+	_, err = DbConn.ExecContext(ctx, modificationQuery)
 	tx.Commit()
 	return
 }

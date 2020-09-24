@@ -73,11 +73,14 @@ func RemoveCustomer(id int) (err error) {
 }
 
 // NewCustomer creates a new Customer in the database
-func NewCustomer(customer map[string]interface{}) (id int, err error) {
+func NewCustomer(customer map[string]interface{}) (id int64, err error) {
 	if result, err := MaptoInsert(customer, "customers"); err == nil {
 		if id, err = Insert(result); err != nil {
 			CheckError("Error inserting the Customer(s).", err, false)
 		}
+	} else {
+		CheckError("Error mapping the Customer(s) to SQL.", err, false)
+		return 0, err
 	}
 
 	return

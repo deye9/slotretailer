@@ -77,7 +77,7 @@ func RemoveUser(id int) (err error) {
 }
 
 // NewUser creates a new user in the database
-func NewUser(user map[string]interface{}) (id int, err error) {
+func NewUser(user map[string]interface{}) (id int64, err error) {
 	if result, err := MaptoInsert(user, "users"); err == nil {
 		if id, err = Insert(result); err != nil {
 			CheckError("Error inserting the user.", err, false)

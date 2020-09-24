@@ -53,6 +53,7 @@ func scheduler(tick *time.Ticker, done chan bool) {
 
 func task(t time.Time) {
 	fmt.Println("work started at ", t)
+
 	getAllData()
 
 	time.Sleep(2 * time.Second)
@@ -79,7 +80,7 @@ func getAllData() error {
 			CheckError("Error unmarshalling data.", err, false)
 			return err
 		}
-		cmd = structToReplace(response, key)
+		cmd = structToInsertUpdate(response, key)
 
 		if err = Modify(cmd); err != nil {
 			CheckError("Error saving HTTPGET result. ", err, false)

@@ -3,7 +3,7 @@ USE retail;
 CREATE TABLE IF NOT EXISTS products (
     id           INT AUTO_INCREMENT PRIMARY KEY,
     itemcode     VARCHAR(255) NOT NULL UNIQUE,
-	itemname     VARCHAR(255) NOT NULL UNIQUE,
+	itemname     VARCHAR(255) NOT NULL,
 	codebars     VARCHAR(255) NOT NULL,
 	onhand       INT,
 	minlevel     INT,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS customers (
     phone1      VARCHAR(255) NOT NULL UNIQUE,
 	city        VARCHAR(255) NOT NULL,
 	email       VARCHAR(255) NOT NULL,
-	synced      INT,
+	synced      boolean,
     created_by  INT NOT NULL,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP NULL,
@@ -34,12 +34,12 @@ CREATE TABLE IF NOT EXISTS orders (
     id        INT AUTO_INCREMENT PRIMARY KEY,
     docentry  INT,
 	docnum    INT,
-	canceled  INT,
+	canceled  boolean,
 	cardcode  VARCHAR(255) NOT NULL,
 	cardname  VARCHAR(255) NOT NULL,
 	vatsum    REAL,
 	doctotal  REAL,
-	synced    INT,
+	synced    boolean,
     created_by   INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL,
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS users (
    lastname     VARCHAR(255) NOT NULL,
    email        VARCHAR(255) NOT NULL,
    password     VARCHAR(255) NOT NULL,
-   isadmin      INT NOT NULL DEFAULT 0,
+   isadmin      boolean NOT NULL DEFAULT false,
    created_by   INT NOT NULL,
    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    updated_at   TIMESTAMP NULL,
@@ -80,12 +80,13 @@ CREATE TABLE IF NOT EXISTS store (
     products    VARCHAR(255) NOT NULL,
     customers   VARCHAR(255) NOT NULL,
     sync_interval INT NOT NULL DEFAULT 5,
+    sapkey      VARCHAR(255) NOT NULL,
     created_by   INT NOT NULL,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP NULL,
     deleted_at  TIMESTAMP NULL
 );
 
-INSERT INTO `users` (firstname, lastname, email, password, created_by, isadmin) 
-SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, 1
+REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) 
+SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true
 WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');

@@ -3,7 +3,6 @@ package service
 import (
 	"database/sql"
 	"fmt"
-	"strings"
 )
 
 // GetOrder returns a instance belonging to the Order id passed in
@@ -57,34 +56,55 @@ func RemoveOrder(id int) (err error) {
 
 // NewOrder creates a new Order in the database
 func NewOrder(order map[string]interface{}) (err error) {
-	OrderID := 0
+	master := ""
+	detail := ""
+
 	// Get a new reference to the ordered items and remove it from the map.
 	itemsOrdered := order["items"]
 	delete(order, "items")
 
-	// Insert the sales order
-	if result, err := MaptoInsert(order, "orders"); err == nil {
-		if OrderID, err = Insert(result); err != nil {
-			CheckError("Error inserting the Orders.", err, false)
-			return err
-		}
-	} else {
-		CheckError("Error Mapping the Orders.", err, false)
+	// Get the master insert query
+	if master, err = MaptoInsert(order, "orders"); err != nil {
+		CheckError("Error Mapping the Order to SQL.", err, false)
 		return err
 	}
 
-	// Insert the sales order items
+	// Get the details insert query
 	for _, _value := range itemsOrdered.([]interface{}) {
-		if result, err := MaptoInsert(_value.(map[string]interface{}), "ordereditems"); err == nil {
-			if _, err = Insert(strings.ReplaceAll(result, "''", string(OrderID))); err != nil {
-				CheckError("Error inserting the Ordered Items.", err, false)
-				return err
-			}
-		} else {
-			CheckError("Error Mapping the Ordered Items.", err, false)
+		if detail, err = MaptoInsert(_value.(map[string]interface{}), "ordereditems"); err != nil {
+			CheckError("Error Mapping the Ordered Items to SQL.", err, false)
 			return err
 		}
 	}
+
+	fmt.Println("Master is: ", master)
+	fmt.Println("Detail is: ", detail)
+	
+	// Build out the needed queries
+
+	// // Insert the sales order
+	// if result, err := MaptoInsert(order, "orders"); err == nil {
+	// 	if OrderID, err = Insert(result); err != nil {
+	// 		CheckError("Error inserting the Orders.", err, false)
+	// 		return err
+	// 	}
+	// } else {
+	// 	CheckError("Error Mapping the Order to SQL.", err, false)
+	// 	return err
+	// }
+
+	// // Insert the sales order items
+	// for _, _value := range itemsOrdered.([]interface{}) {
+	// 	if result, err := MaptoInsert(_value.(map[string]interface{}), "ordereditems"); err == nil {
+	// 		if _, err = Insert(strings.ReplaceAll(result, "''", string(OrderID))); err != nil {
+	// 			CheckError("Error inserting the Ordered Items.", err, false)
+	// 			return err
+	// 		}
+	// 	} else {
+	// 		CheckError("Error Mapping the Ordered Items.", err, false)
+	// 		return err
+	// 	}
+	// }
 	return
 }
 
