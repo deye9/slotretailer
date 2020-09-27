@@ -14,6 +14,14 @@ CREATE TABLE IF NOT EXISTS products (
 	vat          REAL
 );
 
+CREATE TABLE IF NOT EXISTS vouchers (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    code         VARCHAR(255) NOT NULL UNIQUE,
+    amount        REAL,
+    valid_until  TIMESTAMP,
+	created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS customers (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     cardcode    VARCHAR(255) NOT NULL,
@@ -40,6 +48,8 @@ CREATE TABLE IF NOT EXISTS orders (
 	vatsum    REAL,
 	doctotal  REAL,
 	synced    boolean,
+    paymenttype VARCHAR(255) NOT NULL,
+    paymentdetails VARCHAR(255) NOT NULL,
     created_by   INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL,
@@ -79,6 +89,7 @@ CREATE TABLE IF NOT EXISTS store (
     orders      VARCHAR(255) NOT NULL,
     products    VARCHAR(255) NOT NULL,
     customers   VARCHAR(255) NOT NULL,
+    vouchers    VARCHAR(255) NOT NULL,
     sync_interval INT NOT NULL DEFAULT 5,
     sapkey      VARCHAR(255) NOT NULL,
     created_by   INT NOT NULL,

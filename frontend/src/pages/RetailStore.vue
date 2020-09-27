@@ -1,7 +1,7 @@
 <template>
   <section>
-    <h3>Editing Store [{{name}} : {{email}}]</h3>
-    <hr />
+    <!-- <h3>Editing Store: {{name}}</h3>
+    <hr /> -->
 
     <div class="form-row">
       <div class="form-group col">
@@ -33,29 +33,39 @@
         <input type="text" class="form-control" placeholder="SAP Store Identifier" v-model="sapkey" />
       </div>
     </div>
-    <h3>API Endpoints:</h3>
-    <hr />
-    <div class="form-row">
-      <div class="form-group col">
-        <label for="orders">Orders API</label>
-        <input type="text" class="form-control" placeholder="Orders API" v-model="orders" />
+
+    <div class="card">
+      <div class="card-header">
+        API Endpoints:
       </div>
-      <div class="form-group col">
-        <label for="products">Products API</label>
-        <input type="text" class="form-control" placeholder="Products API" v-model="products" />
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group col">
+            <label for="orders">Orders API</label>
+            <input type="text" class="form-control" placeholder="Orders API" v-model="orders" />
+          </div>
+          <div class="form-group col">
+            <label for="products">Products API</label>
+            <input type="text" class="form-control" placeholder="Products API" v-model="products" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col">
+            <label for="customers">Customers API</label>
+            <input type="text" class="form-control" placeholder="Customers API" v-model="customers" />
+          </div>
+          <div class="form-group col">
+            <label for="vouchers">Vouchers API</label>
+            <input type="text" class="form-control" placeholder="Vouchers API" v-model="vouchers" />
+          </div>
+          <div class="form-group col">
+            <label for="sync_interval">Sync Interval in Minutes</label>
+            <input type="text" class="form-control" placeholder="Sync Interval" v-model="sync_interval" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary float-right" @click="StoreDetails">{{buttontext}}</button>
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group col">
-        <label for="customers">Customers API</label>
-        <input type="text" class="form-control" placeholder="Customers API" v-model="customers" />
-      </div>
-      <div class="form-group col">
-        <label for="sync_interval">Sync Interval in Minutes</label>
-        <input type="text" class="form-control" placeholder="Sync Interval" v-model="sync_interval" />
-      </div>
-    </div>
-    <button type="submit" class="btn btn-primary float-right" @click="StoreDetails">{{buttontext}}</button>
   </section>
 </template>
 
@@ -74,6 +84,7 @@ export default {
       orders: null,
       sapkey: null,
       address: null,
+      vouchers: null,
       products: null,
       customers: null,
       created_by: null,
@@ -92,6 +103,7 @@ export default {
         this.sapkey = store.sapkey;
         this.orders = store.orders;
         this.address = store.address;
+        this.vouchers = store.vouchers;
         this.products = store.products;
         this.customers = store.customers;
         this.sync_interval = store.sync_interval;
@@ -104,8 +116,7 @@ export default {
         }
       },
       (err) => {
-        this.$store.state.notify.category = "error";
-        this.$store.state.notify.message = "Error! " + err;
+        this.$toast.error("Error! " + err);
       }
     );
   },
@@ -120,6 +131,7 @@ export default {
         sapkey: this.sapkey,
         orders: this.orders,
         address: this.address,
+        vouchers: this.vouchers,
         products: this.products,
         customers: this.customers,
         updated_at: moment().format(),
@@ -130,21 +142,16 @@ export default {
       // Validate the payload.
       for (var attribute in this.store) {
         if (this.store[attribute] === "" || this.store[attribute] === null) {
-          this.$store.state.notify.category = "error";
-          this.$store.state.notify.message =
-            "Error! " + attribute + " cannot be " + this.store[attribute];
+          this.$toast.error("Error! " + attribute + " cannot be " + this.store[attribute]);
           return;
         }
       }
 
       window.backend.SaveStore(this.store).then(() => {
-          this.$store.state.notify.category = "success";
-          this.$store.state.notify.message =
-            "Success! Store details successfully modified.";
+        this.$toast.success("Success! Store details successfully modified.")
         },
         (err) => {
-          this.$store.state.notify.category = "error";
-          this.$store.state.notify.message = "Error! " + err;
+          this.$toast.error("Error! " + err);
         }
       );
     },

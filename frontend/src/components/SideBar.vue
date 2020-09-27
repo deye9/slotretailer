@@ -1,39 +1,35 @@
 <template>
-  <nav
-    id="sidebarMenu"
-    class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse"
-    style="margin-top:4em; margin-left: -1em;"
-  >
+  <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" style="margin-top:4em; margin-left: -1em;">
     <div class="sidebar-sticky pt-3">
       <ul class="nav flex-column">
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <span data-feather="home"></span>
           <router-link :to="{ name: 'dashboard' }" class="nav-link active">Dashboard</router-link>
-        </li>
-        <li class="nav-item">
+        </li> -->
+        <!-- <li class="nav-item">
           <span data-feather="home"></span>
           <router-link to="/users/" class="nav-link active">User Flow</router-link>
         </li>
         <li class="nav-item">
           <span data-feather="home"></span>
           <router-link to="/products/" class="nav-link active">Inventory</router-link>
-        </li>
-        <li class="nav-item">
+        </li> -->
+        <!-- <li class="nav-item">
           <span data-feather="home"></span>
           <router-link to="/customers/" class="nav-link active">Customers</router-link>
         </li>
         <li class="nav-item">
           <span data-feather="home"></span>
           <router-link to="/orders/" class="nav-link active">Sales Order</router-link>
-        </li>
-        <li class="nav-item">
+        </li> -->
+        <!-- <li class="nav-item">
           <span data-feather="home"></span>
           <router-link :to="{ name: 'retailstore' }" class="nav-link active">Store Details</router-link>
         </li>
         <li class="nav-item">
           <span data-feather="home"></span>
           <router-link :to="{ name: 'sync' }" class="nav-link active">Sync Details</router-link>
-        </li>
+        </li> -->
         <li class="nav-item">
           <a class="nav-link" href="#">
             <span data-feather="layers"></span>

@@ -20,6 +20,7 @@ import Orders from "@/pages/Orders";
 import NewOrder from "@/components/orders/NewOrder";
 import EditOrder from "@/components/orders/EditOrder";
 import GetOrders from "@/components/orders/GetOrders";
+import OrderDetails from "@/components/orders/OrderDetails";
 
 import Products from "@/pages/Products";
 import GetProducts from "@/components/products/GetProducts";
@@ -29,8 +30,11 @@ import Dashboard from "@/pages/Dashboard";
 import RetailStore from "@/pages/RetailStore";
 
 // Library Imports
-import BootstrapVue from 'bootstrap-vue'
-import { ModalPlugin } from 'bootstrap-vue'
+import {
+    BootstrapVue,
+    ModalPlugin,
+    BootstrapVueIcons
+} from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'bootstrap/dist/css/bootstrap.css';
@@ -47,8 +51,10 @@ locale.use(lang);
 Vue.use(Router);
 Vue.use(BootstrapVue);
 Vue.use(ModalPlugin);
+Vue.use(BootstrapVueIcons);
 Vue.use(DataTables);
 Vue.use(DataTablesServer);
+
 Vue.filter("capitalize", str => str.charAt(0).toUpperCase() + str.slice(1));
 Vue.filter("moment", date => moment(date).format('DD MMMM YYYY'));
 Vue.filter("moment2", date => moment(date).format('DD-MM-YYYY'));
@@ -117,6 +123,10 @@ const router = new Router({
                 {
                     path: "edit/:id",
                     component: EditOrder
+                },
+                {
+                    path: "details/:id",
+                    component: OrderDetails
                 }
             ]
         },

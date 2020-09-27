@@ -74,8 +74,7 @@ export default {
         this.created_by = this.$store.state.user.id;
       },
       (err) => {
-        this.$store.state.notify.category = "error";
-        this.$store.state.notify.message = "Error! " + err;
+        this.$toast.error("Error! " + err);
       }
     );
   },
@@ -97,9 +96,7 @@ export default {
       // Validate the payload.
       for (var attribute in this.customer) {
         if (this.customer[attribute] === "" || this.customer[attribute] === null) {
-          this.$store.state.notify.category = "error";
-          this.$store.state.notify.message =
-            "Error! " + attribute + " cannot be " + this.customer[attribute];
+          this.$toast.error("Error! " + attribute + " cannot be " + this.customer[attribute]);
           return;
         }
       }
@@ -108,8 +105,7 @@ export default {
           this.$router.push("/customers/");
         },
         (err) => {
-          this.$store.state.notify.category = "error";
-          this.$store.state.notify.message = "Error! " + err;
+          this.$toast.error("Error! " + err);
         }
       );
     },

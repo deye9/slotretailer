@@ -26,7 +26,7 @@ func GetCustomer(id int) (customer Customers, err error) {
 // GetCustomers returns an array of Customers
 func GetCustomers() (customers []Customers, err error) {
 	var rows *sql.Rows
-	if rows, err = Get(`select * from customers where deleted_at is null;`); err != nil {
+	if rows, err = Get(`select * from customers where deleted_at is null order by created_at desc;`); err != nil {
 		CheckError("Error getting Customers.", err, false)
 		return nil, err
 	}

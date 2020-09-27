@@ -1,6 +1,13 @@
 <template>
   <section>
-    <h3>Editing User [{{firstname}} {{lastname}} : {{email}}]</h3>
+    <div class="row">
+      <div class="col-8">
+        <h3>Editing user: {{firstname}} {{lastname}}</h3>
+      </div>
+      <div class="col-4">
+        <router-link to="/users/" class="btn btn-info float-right">Back</router-link>
+      </div>
+    </div>
     <hr />
 
     <div class="form-row">
@@ -19,32 +26,43 @@
         <input type="text" class="form-control" placeholder="Last name" v-model="lastname" required />
       </div>
     </div>
+
     <div class="form-group">
       <label for="email">Email</label>
       <input type="email" class="form-control" placeholder="Email Address" v-model="email" required />
     </div>
-    <div class="form-row">
-      <div class="form-group col">
-        <label for="password">Password</label>
-        <input
-          type="password"
-          class="form-control"
-          placeholder="Password"
-          v-model="password"
-          required
-        />
+    
+    <div class="card">
+      <div class="card-header">
+        Contact Information
       </div>
-      <div class="form-group col">
-        <label for="confirmpassword">Confirm Password</label>
-        <input
-          type="password"
-          class="form-control"
-          placeholder="Confirm Password"
-          v-model="confirmpassword"
-          required
-        />
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group col">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              placeholder="Password"
+              v-model="password"
+              required
+            />
+          </div>
+          <div class="form-group col">
+            <label for="confirmpassword">Confirm Password</label>
+            <input
+              type="password"
+              class="form-control"
+              placeholder="Confirm Password"
+              v-model="confirmpassword"
+              required
+            />
+          </div>
+        </div>
       </div>
     </div>
+
+    <br />
     <div class="form-row">
       <div class="form-group col">
         <label for="isadmin">Make user a System Administrator</label>
@@ -89,16 +107,14 @@ export default {
         this.confirmpassword = user.password;
       },
       (err) => {
-        this.$store.state.notify.category = "error";
-        this.$store.state.notify.message = "Error! " + err;
+        this.$toast.error("Error! " + err);
       }
     );
   },
   methods: {
     UpdateUser() {
       if (this.password !== this.confirmpassword) {
-        this.$store.state.notify.category = "error";
-        this.$store.state.notify.message = "Error! Passwords do not match.";
+        this.$toast.error("Error! Passwords do not match.");
         return;
       }
 
@@ -116,9 +132,7 @@ export default {
       // Validate the payload.
       for (var attribute in this.user) {
         if (this.user[attribute] === "" || this.user[attribute] === null) {
-          this.$store.state.notify.category = "error";
-          this.$store.state.notify.message =
-            "Error! " + attribute + " cannot be " + this.user[attribute];
+          this.$toast.error("Error! " + attribute + " cannot be " + this.user[attribute]);
           return;
         }
       }
@@ -128,8 +142,7 @@ export default {
           this.$router.push("/users/");
         },
         (err) => {
-          this.$store.state.notify.category = "error";
-          this.$store.state.notify.message = "Error! " + err;
+          this.$toast.error("Error! " + err);
         }
       );
     },

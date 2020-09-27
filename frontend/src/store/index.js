@@ -7,11 +7,7 @@ const store = new Vuex.Store({
     state: {
         user: {},
         isAdmin: false,
-        isLoggedIn: false,
-        notify: {
-            message: "",
-            category: "",
-        }
+        isLoggedIn: false
     },
     getters: {},
     mutations: {},

@@ -11,7 +11,7 @@ func main() {
 
 	// Global Settings
 	service.Setup()
-	// go service.Sync()
+	go service.Sync()
 
 	js := mewn.String("./frontend/dist/app.js")
 	css := mewn.String("./frontend/dist/app.css")
@@ -27,6 +27,9 @@ func main() {
 	})
 
 	app.Bind(service.Login)
+
+	// Dashboard
+	app.Bind(service.Dashboard)
 
 	// Application Users
 	app.Bind(service.NewUser)

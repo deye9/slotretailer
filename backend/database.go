@@ -127,7 +127,6 @@ func MaptoReplace(mapData map[string]interface{}, tableName string) (string, err
 // structToInsertUpdate converts a struct to a sqllite3 replace statement
 func structToInsertUpdate(value interface{}, tableName string) string {
 	cmd := ""
-	update := ""
 	var ok bool
 	var listSlice []interface{}
 
@@ -145,16 +144,19 @@ func structToInsertUpdate(value interface{}, tableName string) string {
 	sort.Strings(keys)
 
 	for _, _value := range listSlice {
+		var update string
 		var cmdValues []string
 		_Value := _value.(map[string]interface{})
 		for _, val := range keys {
-			cleanedData := strings.Replace(fmt.Sprintf("%v", _Value[val]), "'", "\\'", -1)
-			cmdValues = append(cmdValues, fmt.Sprintf("'%v'", cleanedData))
-			update += fmt.Sprintf("%s = '%v', ", val, cleanedData)
+			if val == "valid_until" {
+				_Value[val] = "2038-01-19 03:14:07"
+			}
+			update += fmt.Sprintf(`%s = "%v", `, val, _Value[val])
+			cmdValues = append(cmdValues, fmt.Sprintf(`"%v", `, _Value[val]))
 		}
 
 		// joining the string array by ", " separator
-		cmd += "INSERT INTO " + tableName + "(" + strings.Join(keys, ", ") + ") VALUES (" + strings.Join(cmdValues, ", ") + ") ON DUPLICATE KEY UPDATE " + strings.TrimSuffix(update, ", ") + ";  \n"
+		cmd += "INSERT INTO " + tableName + "(" + strings.Join(keys, ", ") + ") VALUES (" + strings.TrimSuffix(strings.Join(cmdValues, ""), ", ") + ") ON DUPLICATE KEY UPDATE " + strings.TrimSuffix(update, ", ") + ";  \n"
 	}
 
 	return cmd + "\n"
@@ -168,10 +170,10 @@ func MaptoInsert(mapData map[string]interface{}, tableName string) (string, erro
 
 	for key, value := range mapData {
 		keys += fmt.Sprintf("%s,", key)
-		values += strings.Replace(fmt.Sprintf("'%v',", value), "<nil>", "", -1)
+		values += strings.Replace(fmt.Sprintf(`"%v",`, value), "<nil>", "", -1)
 	}
 
-	return cmd + "(" + strings.TrimSuffix(keys, ",") + ") VALUES (" + strings.TrimSuffix(values, ",") + ")", nil
+	return cmd + "(" + strings.TrimSuffix(keys, ",") + ") VALUES (" + strings.TrimSuffix(values, ",") + "); ", nil
 }
 
 // MaptoUpdate converts a map to a sql update statement
@@ -182,10 +184,10 @@ func MaptoUpdate(mapData map[string]interface{}, tableName, tableKey string) (st
 	for key, value := range mapData {
 		if key != tableKey {
 			cmd += fmt.Sprintf("%s = ", key)
-			cmd += strings.Replace(fmt.Sprintf("'%v',", value), "<nil>", "", -1)
+			cmd += strings.Replace(fmt.Sprintf(`"%v",`, value), "<nil>", "", -1)
 			continue
 		}
-		tblID = strings.Replace(fmt.Sprintf("'%v'", value), "<nil>", "", -1)
+		tblID = strings.Replace(fmt.Sprintf(`"%v",`, value), "<nil>", "", -1)
 	}
 
 	return strings.TrimSuffix(cmd, ",") + " WHERE " + tableKey + " = " + tblID + ";", nil
@@ -198,8 +200,8 @@ func Get(selectQuery string) (rows *sql.Rows, err error) {
 
 // Insert creates record(s) in the data store.
 func Insert(insertQuery string) (id int64, err error) {
-	insertQuery = strings.Replace(insertQuery, "'true'", "true", -1)
-	insertQuery = strings.Replace(insertQuery, "'false'", "false", -1)
+	insertQuery = strings.Replace(insertQuery, `"true"`, "true", -1)
+	insertQuery = strings.Replace(insertQuery, `"false"`, "false", -1)
 
 	var row driver.Result
 	tx, _ := DbConn.Begin()
@@ -216,8 +218,8 @@ func Insert(insertQuery string) (id int64, err error) {
 
 // Modify removes / updates record(s) from the data store.
 func Modify(modificationQuery string) (err error) {
-	modificationQuery = strings.Replace(modificationQuery, "'true'", "true", -1)
-	modificationQuery = strings.Replace(modificationQuery, "'false'", "false", -1)
+	modificationQuery = strings.Replace(modificationQuery, `"true"`, "true", -1)
+	modificationQuery = strings.Replace(modificationQuery, `"false"`, "false", -1)
 
 	tx, _ := DbConn.Begin()
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)

@@ -2,18 +2,68 @@
   <section>
     <div class="row">
       <div class="col-8">
-        <h1>{{this.product['itemname']}}</h1>
+        <h3>{{this.product['itemname']}}</h3>
       </div>
       <div class="col-4">
-        <button type="button" class="btn btn-primary float-right">
-          <router-link to="/products/" class="nav-link text-white">Inventory</router-link>
-        </button>
+        <router-link to="/products/" class="btn btn-info float-right">Back</router-link>
       </div>
     </div>
     <hr />
-    <ul class="list-group list-group-flush" v-for="title in this.titles" :label="title.label" :key="title.label">
-      <li class="list-group-item">{{title.label}} : {{title.value}}</li>
-    </ul>
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label>Item Code</label>
+        <input type="text" class="form-control" disabled v-model="this.product.itemcode"/>
+      </div>
+      <div class="form-group col">
+        <label>Item Name</label>
+        <input type="text" class="form-control" disabled v-model="this.product.itemname"/>
+      </div>
+    </div>
+
+    <div class="form-row">      
+      <div class="form-group col">
+        <label>SAP Code Bars</label>
+        <input type="text" class="form-control" disabled v-model="this.product.codebars" />
+      </div>
+      <div class="form-group col">
+        <label>Serial Number</label>
+        <input type="text" class="form-control" disabled v-model="this.product.serialnumber" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label>Warehouse</label>
+        <input type="text" class="form-control" disabled v-model="this.product.warehouse"/>
+      </div>
+      <div class="form-group col">
+        <label>Manufacturer</label>
+        <input type="text" class="form-control" disabled v-model="this.product.manufacturer"/>
+      </div>
+    </div>
+
+    <div class="form-row">      
+      <div class="form-group col">
+        <label>Current Inventory</label>
+        <input type="text" class="form-control" disabled v-model="this.product.onhand" />
+      </div>
+      <div class="form-group col">
+        <label>Price</label>
+        <input type="text" class="form-control" disabled v-model="this.product.price" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label>Vat</label>
+        <input type="text" class="form-control" disabled v-model="this.product.vat" />
+      </div>
+      <div class="form-group col">
+        <label>Min SAP Level</label>
+        <input type="text" class="form-control" disabled v-model="this.product.minlevel" />
+      </div>
+    </div>
   </section>
 </template>
 
@@ -22,7 +72,6 @@ export default {
   data() {
     return {
       product: {},
-      titles: [],
     };
   },
   mounted() {
@@ -31,19 +80,10 @@ export default {
 
     window.backend.ProductDetails(parseInt(this.id)).then((product) => {
         this.product = product;
-        let keys = Object.keys(product);
-
-        keys.forEach((key) => {
-          this.titles.push({
-            prop: key,
-            value: product[key],
-            label: key.toUpperCase(),
-          });
-        });
+        this.product.price = `₦${parseFloat(product.price).toFixed(2)}`;
       },
       (err) => {
-        this.$store.state.notify.category = "error";
-        this.$store.state.notify.message = "Error! " + err;
+        this.$toast.error("Error! " + err);
       }
     );
   },

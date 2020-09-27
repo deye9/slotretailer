@@ -2,38 +2,33 @@
   <div>
     <div class="row">
       <div class="col-8">
-        <h1>Registered Users</h1>
+        <h3>Registered Users</h3>
       </div>
       <div class="col-4">
-        <button type="button" class="btn btn-primary float-right">
-          <router-link to="/users/new" class="nav-link text-white">New User</router-link>
-        </button>
+        <router-link to="/users/new" class="btn btn-info float-right">New User</router-link>
       </div>
     </div>
     <hr />
 
-    <div class="dataList">
-      <data-tables
-        :data="data"
-        :action-col="actionCol"
-        :page-size="pageSize"
-        :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
-        :table-props="tableProps"
-        style="min-width:90%; width:100%;"
-      >
-        <div slot="empty" style="color: red">There is currently no data to show</div>
-        <el-table-column
-          fixed
-          :formatter="cellValueRenderer"
-          v-for="title in titles"
-          :prop="title.prop"
-          :label="title.label"
-          :key="title.label"
-          sortable="custom"
-        ></el-table-column>
-        <el-table-column width="55" property="isadmin"></el-table-column>
-      </data-tables>
-    </div>
+    <data-tables
+      :data="data"
+      :action-col="actionCol"
+      :page-size="pageSize"
+      :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
+      :table-props="tableProps"
+      style="min-width:90%; width:100%;">
+      <div slot="empty" style="color: red">There is currently no data to show</div>
+      <el-table-column
+        fixed
+        :formatter="cellValueRenderer"
+        v-for="title in titles"
+        :prop="title.prop"
+        :label="title.label"
+        :key="title.label"
+        sortable="custom"
+      ></el-table-column>
+      <el-table-column width="55" property="isadmin"></el-table-column>
+    </data-tables>
   </div>
 </template>
 
@@ -92,8 +87,7 @@ export default {
     };
   },
   mounted() {
-    window.backend.GetUsers().then(
-      (users) => {
+    window.backend.GetUsers().then((users) => {
         const exempt = [
             "id",
             "deleted_at",
@@ -117,8 +111,7 @@ export default {
         });
       },
       (err) => {
-        this.$store.state.notify.category = "error";
-        this.$store.state.notify.message = "Error! " + err;
+        this.$toast.error("Error! " + err);
       }
     );
   },

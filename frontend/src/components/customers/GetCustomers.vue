@@ -2,37 +2,33 @@
   <div>
     <div class="row">
       <div class="col-8">
-        <h1>Registered Customers</h1>
+        <h3>Registered Customers</h3>
       </div>
       <div class="col-4">
-        <button type="button" class="btn btn-primary float-right">
-          <router-link to="/customers/new" class="nav-link text-white">New Customer</router-link>
-        </button>
+        <router-link to="/customers/new" class="btn btn-info float-right">New Customer</router-link>
       </div>
     </div>
     <hr />
 
-    <div class="dataList">
-      <data-tables
-        :data="data"
-        :action-col="actionCol"
-        :page-size="pageSize"
-        :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
-        :table-props="tableProps"
-        style="min-width:90%; width:100%;"
-      >
-        <div slot="empty" style="color: red">There is currently no data to show</div>
-        <el-table-column
-          fixed
-          v-for="title in titles"
-          :prop="title.prop"
-          :label="title.label"
-          :key="title.label"
-          sortable="custom"
-        ></el-table-column>
-        <el-table-column width="55" property="synced"></el-table-column>
-      </data-tables>
-    </div>
+    <data-tables
+      :data="data"
+      :action-col="actionCol"
+      :page-size="pageSize"
+      :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
+      :table-props="tableProps"
+      style="min-width:90%; width:100%;"
+    >
+      <div slot="empty" style="color: red">There is currently no data to show</div>
+      <el-table-column
+        fixed
+        v-for="title in titles"
+        :prop="title.prop"
+        :label="title.label"
+        :key="title.label"
+        sortable="custom"
+      ></el-table-column>
+      <el-table-column width="55" property="synced"></el-table-column>
+    </data-tables>
   </div>
 </template>
 
@@ -92,8 +88,7 @@ export default {
     };
   },
   mounted() {
-    window.backend.GetCustomers().then(
-      (customers) => {
+    window.backend.GetCustomers().then((customers) => {
         const exempt = [
             "cardcode",
             "id",
@@ -103,6 +98,7 @@ export default {
             "created_by",
           ],
           keys = Object.keys(customers[0]);
+
         keys.forEach((key) => {
           if (!exempt.includes(key)) {
             this.titles.push({
@@ -117,8 +113,7 @@ export default {
         });
       },
       (err) => {
-        this.$store.state.notify.category = "error";
-        this.$store.state.notify.message = "Error! " + err;
+        this.$toast.error("Error! " + err);
       }
     );
   },
