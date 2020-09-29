@@ -22,7 +22,7 @@ func Sync() {
 	GetStore()
 
 	// APIlinks["orders"] = LocalStore.OrdersAPI
-	APIlinks["vouchers"] = LocalStore.VouchersAPI
+	APIlinks["banks"] = LocalStore.BanksAPI
 	APIlinks["products"] = LocalStore.ProductsAPI
 	APIlinks["customers"] = LocalStore.CustomersAPI
 
@@ -75,8 +75,8 @@ func getAllData() error {
 			response = []Products{}
 		} else if strings.ToLower(key) == "customers" {
 			response = []Customers{}
-		} else if strings.ToLower(key) == "vouchers" {
-			response = []Vouchers{}
+		} else if strings.ToLower(key) == "banks" {
+			response = []Banks{}
 		}
 
 		if err = json.Unmarshal(data, &response); err != nil {

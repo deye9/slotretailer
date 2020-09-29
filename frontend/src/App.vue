@@ -1,11 +1,11 @@
 <template>
-  <div id="app" class="container-fluid">
-    <Header v-show="this.$store.state.isLoggedIn"  />
+  <b-container id="app" fluid>
+    <Header v-show="this.$store.state.isLoggedIn" />
     <main role="main" style="margin-top:50px;">
       <router-view></router-view>
       <Footer />
     </main>
-  </div>
+  </b-container>
 </template>
 
 <script>

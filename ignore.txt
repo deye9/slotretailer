@@ -22,32 +22,6 @@ git branch --move <old_name> <new_name>
 clear && git add . && git commit -m 'setup' && git push origin master
 clear && git add . && git commit -m 'initial commit' && git push origin master --force
 
-// DbConn.Exec("drop table customers; drop table orders; drop table products; drop table ordereditems; drop table store; drop table users;")
-// Main entry point
-// function start() {
-
-// 	// Ensure the default app div is 100% wide/high
-// 	var app = document.getElementById('app');
-// 	app.style.width = '100%';
-// 	app.style.height = '100%';
-
-// 	// Inject html
-// 	app.innerHTML = `
-// 	<div class='logo'></div>
-// 	<div class='container'>
-// 			<button id='button'>Click Me!</button>
-// 			<div id='result'/>
-// 	</div>
-// 	`;
-
-// 	// Connect button to Go method
-// 	document.getElementById('button').onclick = function () {
-// 		window.backend.basic("Adegbenga Adeye").then(function (result) {
-// 			document.getElementById('result').innerText = result;
-// 		});
-// 	};
-// };
-
 https://www.sqlitetutorial.net/sqlite-replace-statement/
 https://gist.github.com/justincase/5469009
 https://blog.golang.org/laws-of-reflection
@@ -56,7 +30,33 @@ https://blog.golang.org/laws-of-reflection
 // Check if the user is an admin via
 this.$store.state.isAdmin
 
+TODO:
+1. Loader for data entry pages
+3. Reporting
+4. Sync [order => post, get]
+6. Dashboard
+7. Sync details
+8. Store transfers
+9. Search
+10. Edit Orders
+12. Invoice generation
+13. Email invoice to customer
+14. Pick up connection string details dynamically.
+15. Log files generation [delete after a week]
 
+ORDERS:
+1. Display customer details after entering phone number; ====== done
+2. Make it a searchable select [itemcode, itemname, imei]; ====== done
+4. Add Payment methods [Cash, POS, Bank Transfer, EasyBuy, Voucher]; ====== done
+3. Display item code beside itemname; ====== done
+7. Prompt on save; ====== done
+6. VAT; ====== done
+5. Allow for draft Sales Order
+
+POS / Bank Transfer = Display list of banks and get amount paid.
+Vouchers = Allow for entry of voucher value
+
+CLEAN UP database.go [func randate() and lines 151 to 153]
 
 iis
 Nodejs extensions for iis

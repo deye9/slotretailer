@@ -49,14 +49,14 @@ func WeekTopSellers() (items []OrderedItems, err error) {
 	return
 }
 
-// dashboard struct
-type dashboard struct {
-	Items  []OrderedItems `json:"items,omitempty"`
-	Orders []Orders       `json:"orders,omitempty"`
+// ReportObject struct
+type ReportObject struct {
+	Items  []OrderedItems `json:"items"`
+	Orders []Orders       `json:"orders"`
 }
 
 // Dashboard returns the data for the Dashboard.
-func Dashboard() (response dashboard, err error) {
+func Dashboard() (response ReportObject, err error) {
 	response.Orders, err = TodaysOrders()
 	response.Items, err = WeekTopSellers()
 

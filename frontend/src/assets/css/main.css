@@ -20,6 +20,10 @@ body {
   background-color: #f5f5f5;
 }
 
+caption {
+  caption-side: top;
+}
+
 .form-signin {
   width: 100%;
   max-width: 420px;

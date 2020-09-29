@@ -58,6 +58,9 @@ func main() {
 	app.Bind(service.GetProducts)
 	app.Bind(service.ProductDetails)
 
+	// Metadata Collection
+	app.Bind(service.GetBanks)
+
 	// Admin
 	app.Bind(service.RemoveOrder)
 	app.Bind(service.UpdateOrder)

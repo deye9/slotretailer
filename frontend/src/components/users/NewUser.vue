@@ -1,14 +1,16 @@
 <template>
-  <section>
+  <section style="margin-top: 3em ;">
     <div class="row">
       <div class="col-8">
         <h3>New User</h3>
       </div>
       <div class="col-4">
-        <router-link to="/users/" class="btn btn-info float-right">Back</router-link>
+        <router-link to="/users/" class="btn btn-info float-right"
+          >Back</router-link
+        >
       </div>
     </div>
-    <hr />    
+    <hr />
 
     <div class="form-row">
       <div class="form-group col">
@@ -23,19 +25,29 @@
       </div>
       <div class="form-group col">
         <label for="lastname">Last Name</label>
-        <input type="text" class="form-control" placeholder="Last name" v-model="lastname" required />
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Last name"
+          v-model="lastname"
+          required
+        />
       </div>
     </div>
 
     <div class="form-group">
       <label for="email">Email</label>
-      <input type="email" class="form-control" placeholder="Email Address" v-model="email" required />
+      <input
+        type="email"
+        class="form-control"
+        placeholder="Email Address"
+        v-model="email"
+        required
+      />
     </div>
 
     <div class="card">
-      <div class="card-header">
-        Contact Information
-      </div>
+      <div class="card-header">Contact Information</div>
       <div class="card-body">
         <div class="form-row">
           <div class="form-group col">
@@ -63,7 +75,7 @@
     </div>
 
     <br />
-    
+
     <div class="form-row">
       <div class="form-group col">
         <label for="isadmin">Make user a System Administrator</label>
@@ -75,7 +87,9 @@
           type="submit"
           class="btn btn-primary float-right"
           @click="RegisterUser"
-        >Register User</button>
+        >
+          Register User
+        </button>
       </div>
     </div>
   </section>
@@ -115,12 +129,15 @@ export default {
       for (var attribute in this.user) {
         if (this.user[attribute] === "" || this.user[attribute] === null) {
           this.isValid = false;
-          this.$toast.error("Error! " + attribute + " cannot be " + this.user[attribute]);
+          this.$toast.error(
+            "Error! " + attribute + " cannot be " + this.user[attribute]
+          );
           return;
         }
       }
 
-      window.backend.NewUser(this.user).then(() => {
+      window.backend.NewUser(this.user).then(
+        () => {
           this.$router.push("/users/");
         },
         (err) => {

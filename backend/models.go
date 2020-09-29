@@ -17,13 +17,11 @@ type Products struct {
 	Vat          float32 `json:"vat,omitempty"`
 }
 
-// Vouchers struct
-type Vouchers struct {
-	ID         string         `json:"id,omitempty"`
-	Code       string         `json:"code,omitempty"`
-	Amount     string         `json:"amount,omitempty"`
-	ValidUntil string         `json:"valid_until,omitempty"`
-	CreatedAt  sql.NullString `json:"created_at,omitempty"`
+// Banks struct
+type Banks struct {
+	ID   string `json:"id,omitempty"`
+	Code string `json:"code"`
+	Name string `json:"name"`
 }
 
 // Customers struct
@@ -45,22 +43,21 @@ type Customers struct {
 
 // Orders struct
 type Orders struct {
-	ID             int            `json:"id,omitempty"`
-	DocEntry       int            `json:"docentry"`
-	DocNum         int            `json:"docnum"`
-	Canceled       bool           `json:"canceled"`
-	CardCode       string         `json:"cardcode,omitempty"` // 15
-	CardName       string         `json:"cardname,omitempty"` // 100
-	VatSum         float32        `json:"vatsum,omitempty"`
-	DocTotal       float32        `json:"doctotal,omitempty"`
-	Synced         bool           `json:"synced"`
-	Items          []OrderedItems `json:"items"`
-	PaymentType    string         `json:"paymenttype"`
-	PaymentDetails string         `json:"paymentdetails"`
-	CreatedBy      int            `json:"created_by,omitempty"`
-	CreatedAt      sql.NullString `json:"created_at,omitempty"`
-	UpdatedAt      sql.NullString `json:"updated_at,omitempty"`
-	DeletedAt      sql.NullString `json:"deleted_at,omitempty"`
+	ID        int            `json:"id,omitempty"`
+	DocEntry  int            `json:"docentry"`
+	DocNum    int            `json:"docnum"`
+	Canceled  bool           `json:"canceled"`
+	CardCode  string         `json:"cardcode,omitempty"` // 15
+	CardName  string         `json:"cardname,omitempty"` // 100
+	VatSum    float32        `json:"vatsum,omitempty"`
+	DocTotal  float32        `json:"doctotal,omitempty"`
+	Synced    bool           `json:"synced"`
+	Items     []OrderedItems `json:"items"`
+	Payments  []Payments     `json:"payments"`
+	CreatedBy int            `json:"created_by,omitempty"`
+	CreatedAt sql.NullString `json:"created_at,omitempty"`
+	UpdatedAt sql.NullString `json:"updated_at,omitempty"`
+	DeletedAt sql.NullString `json:"deleted_at,omitempty"`
 }
 
 // OrderedItems struct
@@ -72,6 +69,17 @@ type OrderedItems struct {
 	Price    float32 `json:"price"`
 	Quantity int     `json:"quantity"`
 	Discount float32 `json:"discount"`
+}
+
+// Payments Struct
+type Payments struct {
+	ID             int    `json:"id,omitempty"`
+	OrderID        int    `json:"orderid"`
+	DocEntry       int    `json:"docentry"`
+	DocNum         int    `json:"docnum"`
+	Canceled       bool   `json:"canceled"`
+	PaymentType    string `json:"paymenttype"`
+	PaymentDetails string `json:"paymentdetails"`
 }
 
 // Users struct
@@ -99,7 +107,7 @@ type Store struct {
 	OrdersAPI    string         `json:"orders,omitempty"`
 	ProductsAPI  string         `json:"products,omitempty"`
 	CustomersAPI string         `json:"customers,omitempty"`
-	VouchersAPI  string         `json:"vouchers,omitempty"`
+	BanksAPI     string         `json:"banks,omitempty"`
 	SyncInterval int            `json:"sync_interval,omitempty"`
 	SapKey       string         `json:"sapkey,omitempty"`
 	CreatedBy    int            `json:"created_by,omitempty"`

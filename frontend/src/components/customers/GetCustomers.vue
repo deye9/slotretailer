@@ -1,11 +1,13 @@
 <template>
-  <div>
+  <div style="margin-top: 3em ;">
     <div class="row">
       <div class="col-8">
         <h3>Registered Customers</h3>
       </div>
       <div class="col-4">
-        <router-link to="/customers/new" class="btn btn-info float-right">New Customer</router-link>
+        <router-link to="/customers/new" class="btn btn-info float-right"
+          >New Customer</router-link
+        >
       </div>
     </div>
     <hr />
@@ -16,18 +18,17 @@
       :page-size="pageSize"
       :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
       :table-props="tableProps"
-      style="min-width:90%; width:100%;"
     >
-      <div slot="empty" style="color: red">There is currently no data to show</div>
+      <div slot="empty" style="color: red">
+        There is currently no data to show
+      </div>
       <el-table-column
-        fixed
         v-for="title in titles"
         :prop="title.prop"
         :label="title.label"
         :key="title.label"
         sortable="custom"
       ></el-table-column>
-      <el-table-column width="55" property="synced"></el-table-column>
     </data-tables>
   </div>
 </template>
@@ -38,7 +39,7 @@ export default {
     return {
       data: [],
       titles: [],
-      pageSize: 1,
+      pageSize: 5,
       tableProps: {
         defaultSort: {
           prop: "id",
@@ -66,7 +67,6 @@ export default {
             props: {
               size: "mini",
               type: "danger",
-              visibile: false,
               icon: "el-icon-delete",
             },
             handler: (row) => {
@@ -88,29 +88,32 @@ export default {
     };
   },
   mounted() {
-    window.backend.GetCustomers().then((customers) => {
-        const exempt = [
-            "cardcode",
-            "id",
-            "deleted_at",
-            "created_at",
-            "updated_at",
-            "created_by",
-          ],
-          keys = Object.keys(customers[0]);
+    window.backend.GetCustomers().then(
+      (customers) => {
+        if (JSON.stringify(customers) !== "{}") {
+          const exempt = [
+              "cardcode",
+              "id",
+              "deleted_at",
+              "created_at",
+              "updated_at",
+              "created_by",
+            ],
+            keys = Object.keys(customers[0]);
 
-        keys.forEach((key) => {
-          if (!exempt.includes(key)) {
-            this.titles.push({
-              prop: key,
-              label: key.toUpperCase(),
-            });
-          }
-        });
+          keys.forEach((key) => {
+            if (!exempt.includes(key)) {
+              this.titles.push({
+                prop: key,
+                label: key.toUpperCase(),
+              });
+            }
+          });
 
-        customers.forEach((customer) => {
-          this.data.push(customer);
-        });
+          customers.forEach((customer) => {
+            this.data.push(customer);
+          });
+        }
       },
       (err) => {
         this.$toast.error("Error! " + err);

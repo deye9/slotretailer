@@ -1,47 +1,57 @@
 <template>
   <header>
-    <b-navbar type="dark" variant="dark" class="fixed-top w-100" fill>
+    <b-navbar toggleable="lg" type="dark" variant="dark" fixed="top">
       <b-navbar-brand href="#">
         <router-link :to="{ name: 'dashboard' }" class="nav-link active">
           <img src="../assets/img/slot.png" class="slotLogo" alt="Logo" />
         </router-link>
       </b-navbar-brand>
-      <b-navbar-nav class="w-100" fill>
-        <b-nav-item href="#" class="ml-5">
-          <router-link :to="{ name: 'dashboard' }" class="nav-link active">Dashboard</router-link>
-        </b-nav-item>
-        <b-nav-item href="#" class="ml-5">
-          <router-link to="/customers/" class="nav-link active">Customers</router-link>
-        </b-nav-item>
-        <b-nav-item href="#" class="ml-5">
-          <router-link to="/orders/" class="nav-link active">Sales Order</router-link>
-        </b-nav-item>
-        <!-- Navbar dropdowns -->
-        <b-dropdown id="dropdown-1" text="Administration" class="m-md-2">
-          <b-dropdown-item active>
-            <router-link to="/users/" class="nav-link text-black">User Flow</router-link>
-          </b-dropdown-item>
-          <b-dropdown-item active>
-            <router-link to="/products/" class="nav-link">Inventory</router-link>
-          </b-dropdown-item>
-          <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item active>
-            <router-link :to="{ name: 'retailstore' }" class="nav-link">Store Details</router-link>
-          </b-dropdown-item>
-          <b-dropdown-item active>
-            <router-link :to="{ name: 'sync' }" class="nav-link">Sync Details</router-link>
-          </b-dropdown-item>
-        </b-dropdown>
-        <b-nav-form class="float-right ml-5">
-          <b-form-input class="mr-sm-2" placeholder="Search"></b-form-input>
-          <b-button variant="outline-success" class="my-2 my-sm-0" type="submit">Search</b-button>
+
+      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+      <b-collapse id="nav-collapse" is-nav>
+        <b-navbar-nav>
+          <b-nav-item href="#">
+            <router-link :to="{ name: 'dashboard' }" class="nav-link active">Dashboard</router-link>
+          </b-nav-item>
+          <b-nav-item href="#">
+            <router-link to="/customers/" class="nav-link active">Customers</router-link>
+          </b-nav-item>
+          <b-nav-item href="#">
+            <router-link to="/orders/" class="nav-link active">Sales Order</router-link>
+          </b-nav-item>
+          
+          <b-nav-item-dropdown text="Administration" class="m-md-2" v-show="this.$store.state.isLoggedIn">
+            <b-dropdown-item href="#">
+              <router-link to="/users/" class="text-dark">User Flow</router-link>
+            </b-dropdown-item>
+            <b-dropdown-item href="#">
+              <router-link to="/products/" class="text-dark">Inventory</router-link>
+            </b-dropdown-item>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-item href="#">
+              <router-link :to="{ name: 'retailstore' }" class="text-dark">Store Details</router-link>
+            </b-dropdown-item>
+            <b-dropdown-item href="#">
+              <router-link :to="{ name: 'sync' }" class="text-dark">Sync Details</router-link>
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
+        </b-navbar-nav>
+
+      <!-- Right aligned nav items -->
+      <b-navbar-nav class="ml-auto">
+        <b-nav-form>
+          <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
+          <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
         </b-nav-form>
-        <b-nav-item href="#" class="float-right ml-5" v-show="this.$store.state.isLoggedIn">
-          <router-link :to="{ name: 'login' }" @click.native="logout" class="nav-link">
+
+        <b-nav-item href="#" right>
+          <router-link :to="{ name: 'login' }" @click.native="logout" v-show="this.$store.state.isLoggedIn" class="nav-link">
             Sign out
           </router-link>
         </b-nav-item>
       </b-navbar-nav>
+      </b-collapse>
     </b-navbar>
     <!-- 
       <ul class="navbar-nav px-3">
@@ -54,7 +64,9 @@
           >Sign out</router-link>
         </li>
       </ul> 
-    </nav> -->
+    </nav> 
+    class="fixed-top w-100" fill
+    -->
   </header>
 </template>
 

@@ -1,11 +1,13 @@
 <template>
-  <div>
+  <section style="margin-top: 3em ;">
     <div class="row">
       <div class="col-8">
         <h3>Registered Users</h3>
       </div>
       <div class="col-4">
-        <router-link to="/users/new" class="btn btn-info float-right">New User</router-link>
+        <router-link to="/users/new" class="btn btn-info float-right"
+          >New User</router-link
+        >
       </div>
     </div>
     <hr />
@@ -16,8 +18,11 @@
       :page-size="pageSize"
       :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
       :table-props="tableProps"
-      style="min-width:90%; width:100%;">
-      <div slot="empty" style="color: red">There is currently no data to show</div>
+      style="min-width: 90%; width: 100%"
+    >
+      <div slot="empty" style="color: red">
+        There is currently no data to show
+      </div>
       <el-table-column
         fixed
         :formatter="cellValueRenderer"
@@ -29,7 +34,7 @@
       ></el-table-column>
       <el-table-column width="55" property="isadmin"></el-table-column>
     </data-tables>
-  </div>
+  </section>
 </template>
 
 <script>
@@ -38,7 +43,7 @@ export default {
     return {
       data: [],
       titles: [],
-      pageSize: 1,
+      pageSize: 5,
       tableProps: {
         defaultSort: {
           prop: "id",
@@ -87,28 +92,31 @@ export default {
     };
   },
   mounted() {
-    window.backend.GetUsers().then((users) => {
-        const exempt = [
-            "id",
-            "deleted_at",
-            "password",
-            "created_at",
-            "updated_at",
-            "created_by",
-          ],
-          keys = Object.keys(users[0]);
-        keys.forEach((key) => {
-          if (!exempt.includes(key)) {
-            this.titles.push({
-              prop: key,
-              label: key.toUpperCase(),
-            });
-          }
-        });
+    window.backend.GetUsers().then(
+      (users) => {
+        if (JSON.stringify(users) !== "{}") {
+          const exempt = [
+              "id",
+              "deleted_at",
+              "password",
+              "created_at",
+              "updated_at",
+              "created_by",
+            ],
+            keys = Object.keys(users[0]);
+          keys.forEach((key) => {
+            if (!exempt.includes(key)) {
+              this.titles.push({
+                prop: key,
+                label: key.toUpperCase(),
+              });
+            }
+          });
 
-        users.forEach((user) => {
-          this.data.push(user);
-        });
+          users.forEach((user) => {
+            this.data.push(user);
+          });
+        }
       },
       (err) => {
         this.$toast.error("Error! " + err);

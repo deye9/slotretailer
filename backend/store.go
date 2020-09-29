@@ -17,7 +17,7 @@ func GetStore() (store Store, err error) {
 
 	defer rows.Close()
 	for rows.Next() {
-		if err = rows.Scan(&store.ID, &store.Name, &store.Address, &store.Phone, &store.City, &store.Email, &store.OrdersAPI, &store.ProductsAPI, &store.CustomersAPI, &store.VouchersAPI, &store.SyncInterval, &store.SapKey, &store.CreatedBy, &store.CreatedAt, &store.UpdatedAt, &store.DeletedAt); err != nil {
+		if err = rows.Scan(&store.ID, &store.Name, &store.Address, &store.Phone, &store.City, &store.Email, &store.OrdersAPI, &store.ProductsAPI, &store.CustomersAPI, &store.BanksAPI, &store.SyncInterval, &store.SapKey, &store.CreatedBy, &store.CreatedAt, &store.UpdatedAt, &store.DeletedAt); err != nil {
 			CheckError("Error Scanning store.", err, false)
 		} else {
 			LocalStore = store

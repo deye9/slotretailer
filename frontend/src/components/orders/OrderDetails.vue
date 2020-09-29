@@ -1,49 +1,79 @@
 <template>
-  <section>
+  <section style="margin-top: 3em ;">
     <h1>Order Details</h1>
     <hr />
 
     <div class="form-row">
       <div class="form-group col">
         <label>Order Number</label>
-        <input type="text" class="form-control" disabled v-model="this.order.id"/>
+        <input
+          type="text"
+          class="form-control"
+          disabled
+          v-model="this.order.id"
+        />
       </div>
       <div class="form-group col">
         <label>Customer</label>
-        <input type="text" class="form-control" disabled v-model="this.order.cardname"/>
+        <input
+          type="text"
+          class="form-control"
+          disabled
+          v-model="this.order.cardname"
+        />
       </div>
       <div class="form-group col">
         <label for="docnum">SAP Document Number</label>
-        <input type="text" class="form-control" disabled v-model="this.order.docnum" />
+        <input
+          type="text"
+          class="form-control"
+          disabled
+          v-model="this.order.docnum"
+        />
       </div>
       <div class="form-group col">
         <label for="docnum">Created By</label>
         <br />
         <span class="btn btn-info" disabled>
-          {{this.user.firstname + " " + this.user.lastname}}
-          </span>
+          {{ this.user.firstname + " " + this.user.lastname }}
+        </span>
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group col">
         <label>Synced</label>
-        <input type="text" class="form-control" disabled v-model="this.order.synced"/>
+        <input
+          type="text"
+          class="form-control"
+          disabled
+          v-model="this.order.synced"
+        />
       </div>
       <div class="form-group col">
         <label>Canceled</label>
-        <input type="text" class="form-control" disabled v-model="this.order.canceled"/>
+        <input
+          type="text"
+          class="form-control"
+          disabled
+          v-model="this.order.canceled"
+        />
       </div>
       <div class="form-group col">
         <label for="docnum">VAT Amount</label>
-        <input type="text" class="form-control" disabled v-model="this.order.vatsum" />
+        <input
+          type="text"
+          class="form-control"
+          disabled
+          v-model="this.order.vatsum"
+        />
       </div>
       <div class="form-group col">
         <label for="docnum">Created On</label>
         <br />
         <span class="btn btn-info" disabled>
-          {{this.user.created_at.String}}
-          </span>
+          {{ this.user.created_at.String }}
+        </span>
       </div>
     </div>
     <h3>Ordered Items</h3>
@@ -67,31 +97,40 @@
               {{ index + 1 }}
             </th>
             <td>
-              {{item.itemname}}
+              {{ item.itemname }}
             </td>
             <td>
-              {{item.quantity}}
+              {{ item.quantity }}
             </td>
+            <td>₦{{ item.price }}</td>
             <td>
-              ₦{{item.price}}
-            </td>
-            <td>
-              {{item.discount}}
+              {{ item.discount }}
             </td>
             <td v-if="item.discount === 0">
-              ₦{{parseFloat(item.quantity * item.price).toFixed(2)}}
+              ₦{{ parseFloat(item.quantity * item.price).toFixed(2) }}
             </td>
             <td v-else>
               ₦{{
-                parseFloat((item.quantity * item.price) - (item.price - (item.price * (item.discount / 100)))).toFixed(2)
+                parseFloat(
+                  item.quantity * item.price -
+                    (item.price - item.price * (item.discount / 100))
+                ).toFixed(2)
               }}
             </td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="5" class="text-right font-weight-bold">Grand Total:</td>
-            <td colspan="2" id="grandTotal" class="font-weight-bold bg-primary text-white">₦{{parseFloat(this.order.doctotal).toFixed(2)}}</td>
+            <td colspan="5" class="text-right font-weight-bold">
+              Grand Total:
+            </td>
+            <td
+              colspan="2"
+              id="grandTotal"
+              class="font-weight-bold bg-primary text-white"
+            >
+              ₦{{ parseFloat(this.order.doctotal).toFixed(2) }}
+            </td>
           </tr>
         </tfoot>
       </table>
@@ -111,9 +150,11 @@ export default {
     var pageURL = location.pathname;
     this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
 
-    window.backend.GetOrder(parseInt(this.id)).then((order) => {
+    window.backend.GetOrder(parseInt(this.id)).then(
+      (order) => {
         this.order = order;
-        window.backend.GetUser(parseInt(order.created_by)).then((user) => {
+        window.backend.GetUser(parseInt(order.created_by)).then(
+          (user) => {
             this.user = user;
           },
           (err) => {

@@ -1,11 +1,13 @@
 <template>
-  <section>
+  <section style="margin-top: 3em ;">
     <div class="row">
       <div class="col-8">
-        <h3>Editing user: {{firstname}} {{lastname}}</h3>
+        <h3>Editing user: {{ firstname }} {{ lastname }}</h3>
       </div>
       <div class="col-4">
-        <router-link to="/users/" class="btn btn-info float-right">Back</router-link>
+        <router-link to="/users/" class="btn btn-info float-right"
+          >Back</router-link
+        >
       </div>
     </div>
     <hr />
@@ -23,19 +25,29 @@
       </div>
       <div class="form-group col">
         <label for="lastname">Last Name</label>
-        <input type="text" class="form-control" placeholder="Last name" v-model="lastname" required />
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Last name"
+          v-model="lastname"
+          required
+        />
       </div>
     </div>
 
     <div class="form-group">
       <label for="email">Email</label>
-      <input type="email" class="form-control" placeholder="Email Address" v-model="email" required />
+      <input
+        type="email"
+        class="form-control"
+        placeholder="Email Address"
+        v-model="email"
+        required
+      />
     </div>
-    
+
     <div class="card">
-      <div class="card-header">
-        Contact Information
-      </div>
+      <div class="card-header">Contact Information</div>
       <div class="card-body">
         <div class="form-row">
           <div class="form-group col">
@@ -70,14 +82,20 @@
         <input type="checkbox" v-model="isadmin" required />
       </div>
       <div class="form-group col">
-        <button type="submit" class="btn btn-primary float-right" @click="UpdateUser">Update User</button>
+        <button
+          type="submit"
+          class="btn btn-primary float-right"
+          @click="UpdateUser"
+        >
+          Update User
+        </button>
       </div>
     </div>
   </section>
 </template>
 
 <script>
-import moment from 'moment';
+import moment from "moment";
 
 export default {
   data() {
@@ -97,7 +115,8 @@ export default {
     var pageURL = location.pathname;
     this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
 
-    window.backend.GetUser(parseInt(this.id)).then((user) => {
+    window.backend.GetUser(parseInt(this.id)).then(
+      (user) => {
         this.email = user.email;
         this.isadmin = user.isadmin;
         this.password = user.password;
@@ -132,11 +151,13 @@ export default {
       // Validate the payload.
       for (var attribute in this.user) {
         if (this.user[attribute] === "" || this.user[attribute] === null) {
-          this.$toast.error("Error! " + attribute + " cannot be " + this.user[attribute]);
+          this.$toast.error(
+            "Error! " + attribute + " cannot be " + this.user[attribute]
+          );
           return;
         }
       }
-      
+
       window.backend.UpdateUser(this.user).then(
         () => {
           this.$router.push("/users/");

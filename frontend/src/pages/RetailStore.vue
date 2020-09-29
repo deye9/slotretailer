@@ -1,69 +1,128 @@
 <template>
-  <section>
+  <section style="margin-top: 3em ;">
     <!-- <h3>Editing Store: {{name}}</h3>
     <hr /> -->
 
     <div class="form-row">
       <div class="form-group col">
         <label for="name">Name</label>
-        <input type="text" class="form-control" placeholder="Store name" v-model="name" />
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Store name"
+          v-model="name"
+        />
       </div>
       <div class="form-group col">
         <label for="email">Email</label>
-        <input type="email" class="form-control" placeholder="Email Address" v-model="email" />
+        <input
+          type="email"
+          class="form-control"
+          placeholder="Email Address"
+          v-model="email"
+        />
       </div>
     </div>
     <div class="form-row">
       <div class="form-group col">
         <label for="phone">Phone</label>
-        <input type="text" class="form-control" placeholder="Phone Number" v-model="phone" />
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Phone Number"
+          v-model="phone"
+        />
       </div>
       <div class="form-group col">
         <label for="city">City</label>
-        <input type="text" class="form-control" placeholder="City" v-model="city" />
+        <input
+          type="text"
+          class="form-control"
+          placeholder="City"
+          v-model="city"
+        />
       </div>
     </div>
     <div class="form-row">
       <div class="form-group col">
         <label for="address">Address</label>
-        <input type="text" class="form-control" placeholder="Address" v-model="address" />
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Address"
+          v-model="address"
+        />
       </div>
       <div class="form-group col">
         <label for="address">SAP Store Identifier</label>
-        <input type="text" class="form-control" placeholder="SAP Store Identifier" v-model="sapkey" />
+        <input
+          type="text"
+          class="form-control"
+          placeholder="SAP Store Identifier"
+          v-model="sapkey"
+        />
       </div>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        API Endpoints:
-      </div>
+      <div class="card-header">API Endpoints:</div>
       <div class="card-body">
         <div class="form-row">
           <div class="form-group col">
             <label for="orders">Orders API</label>
-            <input type="text" class="form-control" placeholder="Orders API" v-model="orders" />
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Orders API"
+              v-model="orders"
+            />
           </div>
           <div class="form-group col">
             <label for="products">Products API</label>
-            <input type="text" class="form-control" placeholder="Products API" v-model="products" />
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Products API"
+              v-model="products"
+            />
           </div>
         </div>
         <div class="form-row">
           <div class="form-group col">
             <label for="customers">Customers API</label>
-            <input type="text" class="form-control" placeholder="Customers API" v-model="customers" />
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Customers API"
+              v-model="customers"
+            />
           </div>
           <div class="form-group col">
-            <label for="vouchers">Vouchers API</label>
-            <input type="text" class="form-control" placeholder="Vouchers API" v-model="vouchers" />
+            <label for="banks">Banks API</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Banks API"
+              v-model="banks"
+            />
           </div>
           <div class="form-group col">
             <label for="sync_interval">Sync Interval in Minutes</label>
-            <input type="text" class="form-control" placeholder="Sync Interval" v-model="sync_interval" />
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Sync Interval"
+              v-model="sync_interval"
+            />
           </div>
         </div>
-        <button type="submit" class="btn btn-primary float-right" @click="StoreDetails">{{buttontext}}</button>
+        <button
+          type="submit"
+          class="btn btn-primary float-right"
+          @click="StoreDetails"
+        >
+          {{ buttontext }}
+        </button>
       </div>
     </div>
   </section>
@@ -79,12 +138,12 @@ export default {
       store: {},
       city: null,
       name: null,
+      banks: null,
       phone: null,
       email: null,
       orders: null,
       sapkey: null,
       address: null,
-      vouchers: null,
       products: null,
       customers: null,
       created_by: null,
@@ -94,16 +153,17 @@ export default {
     };
   },
   mounted() {
-    window.backend.GetStore().then((store) => {
+    window.backend.GetStore().then(
+      (store) => {
         this.id = store.id;
         this.city = store.city;
         this.name = store.name;
+        this.banks = store.banks;
         this.phone = store.phone;
         this.email = store.email;
         this.sapkey = store.sapkey;
         this.orders = store.orders;
         this.address = store.address;
-        this.vouchers = store.vouchers;
         this.products = store.products;
         this.customers = store.customers;
         this.sync_interval = store.sync_interval;
@@ -131,7 +191,7 @@ export default {
         sapkey: this.sapkey,
         orders: this.orders,
         address: this.address,
-        vouchers: this.vouchers,
+        banks: this.banks,
         products: this.products,
         customers: this.customers,
         updated_at: moment().format(),
@@ -142,13 +202,16 @@ export default {
       // Validate the payload.
       for (var attribute in this.store) {
         if (this.store[attribute] === "" || this.store[attribute] === null) {
-          this.$toast.error("Error! " + attribute + " cannot be " + this.store[attribute]);
+          this.$toast.error(
+            "Error! " + attribute + " cannot be " + this.store[attribute]
+          );
           return;
         }
       }
 
-      window.backend.SaveStore(this.store).then(() => {
-        this.$toast.success("Success! Store details successfully modified.")
+      window.backend.SaveStore(this.store).then(
+        () => {
+          this.$toast.success("Success! Store details successfully modified.");
         },
         (err) => {
           this.$toast.error("Error! " + err);

@@ -1,11 +1,13 @@
 <template>
-  <section>
+  <section style="margin-top: 3em ;">
     <div class="row">
       <div class="col-8">
         <h3>Editing customer: {{ this.cardname }}</h3>
       </div>
       <div class="col-4">
-        <router-link to="/customers/" class="btn btn-info float-right">Back</router-link>
+        <router-link to="/customers/" class="btn btn-info float-right"
+          >Back</router-link
+        >
       </div>
     </div>
     <hr />
@@ -32,11 +34,9 @@
         />
       </div>
     </div>
-    
+
     <div class="card">
-      <div class="card-header">
-        Contact Information
-      </div>
+      <div class="card-header">Contact Information</div>
       <div class="card-body">
         <div class="form-row">
           <div class="form-group col">
@@ -61,35 +61,35 @@
           </div>
         </div>
         <div class="form-row">
-        <div class="form-group col">
-          <label for="phone1"
-            >Phone Number 1 <span style="color: red">*</span></label
-          >
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Phone Number"
-            v-model="phone"
-            @blur="handleBlur"
-            required
-          />
+          <div class="form-group col">
+            <label for="phone1"
+              >Phone Number 1 <span style="color: red">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Phone Number"
+              v-model="phone"
+              @blur="handleBlur"
+              required
+            />
+          </div>
+          <div class="form-group col">
+            <label for="phone2">Phone Number 2</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Phone Number"
+              v-model="phone1"
+              @blur="handleBlur"
+              required
+            />
+          </div>
         </div>
-        <div class="form-group col">
-          <label for="phone2">Phone Number 2</label>
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Phone Number"
-            v-model="phone1"
-            @blur="handleBlur"
-            required
-          />
-        </div>
-      </div>
       </div>
     </div>
 
-    <br >
+    <br />
 
     <div class="form-group">
       <label for="email">Email Address</label>
@@ -134,7 +134,8 @@ export default {
     var pageURL = location.pathname;
     this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
 
-    window.backend.GetCustomer(parseInt(this.id)).then((customer) => {
+    window.backend.GetCustomer(parseInt(this.id)).then(
+      (customer) => {
         this.city = customer.city;
         this.phone = customer.phone;
         this.email = customer.email;
@@ -202,8 +203,11 @@ export default {
         }
       }
 
-      window.backend.UpdateCustomer(this.customer).then(() => {
-          this.$toast.success(`Success! Customer ${this.cardname} has been successful updated.`);
+      window.backend.UpdateCustomer(this.customer).then(
+        () => {
+          this.$toast.success(
+            `Success! Customer ${this.cardname} has been successful updated.`
+          );
           this.$router.push("/customers/");
         },
         (err) => {

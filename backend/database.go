@@ -187,7 +187,7 @@ func MaptoUpdate(mapData map[string]interface{}, tableName, tableKey string) (st
 			cmd += strings.Replace(fmt.Sprintf(`"%v",`, value), "<nil>", "", -1)
 			continue
 		}
-		tblID = strings.Replace(fmt.Sprintf(`"%v",`, value), "<nil>", "", -1)
+		tblID = strings.Replace(fmt.Sprintf(`"%v"`, value), "<nil>", "", -1)
 	}
 
 	return strings.TrimSuffix(cmd, ",") + " WHERE " + tableKey + " = " + tblID + ";", nil

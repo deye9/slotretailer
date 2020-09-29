@@ -14,12 +14,10 @@ CREATE TABLE IF NOT EXISTS products (
 	vat          REAL
 );
 
-CREATE TABLE IF NOT EXISTS vouchers (
+CREATE TABLE IF NOT EXISTS banks (
     id           INT AUTO_INCREMENT PRIMARY KEY,
-    code         VARCHAR(255) NOT NULL UNIQUE,
-    amount        REAL,
-    valid_until  TIMESTAMP,
-	created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    name         VARCHAR(255) NOT NULL UNIQUE,
+    code         VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS customers (
@@ -48,8 +46,6 @@ CREATE TABLE IF NOT EXISTS orders (
 	vatsum    REAL,
 	doctotal  REAL,
 	synced    boolean,
-    paymenttype VARCHAR(255) NOT NULL,
-    paymentdetails VARCHAR(255) NOT NULL,
     created_by   INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL,
@@ -64,6 +60,16 @@ CREATE TABLE IF NOT EXISTS ordereditems (
    price    REAL,
    quantity INT NOT NULL,
    discount REAL NOT NULL DEFAULT 0.0
+);
+
+CREATE TABLE IF NOT EXISTS payments (
+   id       INT AUTO_INCREMENT PRIMARY KEY,
+   orderid  INT,
+   docentry INT,
+   docnum   INT,
+   canceled  boolean,
+   paymenttype VARCHAR(255) NOT NULL,
+   paymentdetails VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -89,7 +95,7 @@ CREATE TABLE IF NOT EXISTS store (
     orders      VARCHAR(255) NOT NULL,
     products    VARCHAR(255) NOT NULL,
     customers   VARCHAR(255) NOT NULL,
-    vouchers    VARCHAR(255) NOT NULL,
+    banks       VARCHAR(255) NOT NULL,
     sync_interval INT NOT NULL DEFAULT 5,
     sapkey      VARCHAR(255) NOT NULL,
     created_by   INT NOT NULL,
@@ -101,3 +107,5 @@ CREATE TABLE IF NOT EXISTS store (
 REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) 
 SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true
 WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');
+
+-- ALTER table store rename column vouchers to banks;
