@@ -12,30 +12,6 @@
     </div>
     <hr />
 
-    <div class="dataList">
-      <data-tables
-        ref="ordersTable"
-        :data="data"
-        :action-col="actionCol"
-        :page-size="pageSize"
-        :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
-        :table-props="tableProps"
-        style="min-width: 90%; width: 100%"
-      >
-        <div slot="empty" style="color: red">
-          There is currently no data to show
-        </div>
-        <el-table-column
-          fixed
-          :formatter="cellValueRenderer"
-          v-for="title in titles"
-          :prop="title.prop"
-          :label="title.label"
-          :key="title.label"
-          sortable="custom"
-        ></el-table-column>
-      </data-tables>
-    </div>
   </section>
 </template>
 

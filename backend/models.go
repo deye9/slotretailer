@@ -73,13 +73,14 @@ type OrderedItems struct {
 
 // Payments Struct
 type Payments struct {
-	ID             int    `json:"id,omitempty"`
-	OrderID        int    `json:"orderid"`
-	DocEntry       int    `json:"docentry"`
-	DocNum         int    `json:"docnum"`
-	Canceled       bool   `json:"canceled"`
-	PaymentType    string `json:"paymenttype"`
-	PaymentDetails string `json:"paymentdetails"`
+	ID             int     `json:"id,omitempty"`
+	OrderID        int     `json:"orderid"`
+	DocEntry       int     `json:"docentry"`
+	DocNum         int     `json:"docnum"`
+	Canceled       bool    `json:"canceled"`
+	PaymentType    string  `json:"paymenttype"`
+	PaymentDetails string  `json:"paymentdetails,omitempty"`
+	Amount         float32 `json:"amount"`
 }
 
 // Users struct
@@ -89,7 +90,7 @@ type Users struct {
 	LastName  string         `json:"lastname,omitempty"`  // 100
 	Email     string         `json:"email,omitempty"`     // 100
 	Password  string         `json:"password,omitempty"`  // 100
-	IsAdmin   bool           `json:"isadmin,omitempty"`
+	IsAdmin   bool           `json:"isadmin"`
 	CreatedBy int            `json:"created_by,omitempty"`
 	CreatedAt sql.NullString `json:"created_at,omitempty"`
 	UpdatedAt sql.NullString `json:"updated_at,omitempty"`

@@ -28,7 +28,7 @@ https://blog.golang.org/laws-of-reflection
 
 
 // Check if the user is an admin via
-this.$store.state.isAdmin
+ v-show="this.$store.state.isAdmin"
 
 TODO:
 1. Loader for data entry pages
@@ -57,6 +57,7 @@ POS / Bank Transfer = Display list of banks and get amount paid.
 Vouchers = Allow for entry of voucher value
 
 CLEAN UP database.go [func randate() and lines 151 to 153]
+@change="PaymentMethod($event)"
 
 iis
 Nodejs extensions for iis

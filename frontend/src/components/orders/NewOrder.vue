@@ -15,27 +15,10 @@
         <label for="cardcode">Customer</label>
         <v-select label="cardname" @search="fetchCustomer" :options="customers" v-model="customer"></v-select>
       </div>
-      <!-- <div class="form-group col">
-        <label>Payment Type</label>
-        <select class="form-control" @change="PaymentMethod($event)">
-          <option selected>Cash</option>
-          <option>POS</option>
-          <option>Matrix</option>
-          <option>EasyBuy</option>
-          <option>Credpal</option>
-          <option>Bank Transfer</option>
-        </select>
-      </div>
-      <div class="form-group col">
-        <label>Payment Details</label>
-        <input type="text" class="form-control" :disabled="isDisabled" placeholder="Payment Details" />
-      </div> -->
     </div>
 
     <h3 style="margin-bottom: 50px">
-      <span class="float-left">
-        Items <small class="text-primary">Double click on row to edit.</small>
-      </span>
+      <span class="float-left">Items</span>
       <b-button v-b-modal.modal-item variant="info" class="float-right">Add Product</b-button>
     </h3>
 
@@ -81,15 +64,15 @@
       </table>
     </div>
 
-    <!-- <button type="button" class="btn btn-info float-right" style="margin-left: 2px" @click="SaveOrder" :disabled="isDisabled">
-      Save Order
-    </button> -->
-
-    <b-button v-b-modal.modal-payment :variant="paymentVariant" class="float-right" :disabled="isDisabled">Payment</b-button>
-
-    <button type="button" class="btn btn-dark float-right" style="margin-right: 2px" @click="DraftOrder">
-      Save as Draft
+    <button type="button" class="btn btn-primary float-right" @click="SaveOrder">
+      Save
     </button>
+
+    <b-button v-b-modal.modal-payment :variant="paymentVariant" class="float-right" style="margin-right: 2px" :disabled="isDisabled">Payment</b-button>
+
+    <!-- <button type="button" class="btn btn-dark float-right" style="margin-right: 2px" @click="DraftOrder">
+      Save as Draft
+    </button> -->
 
     <!-- Modals -->
     <b-modal id="modal-item" centered title="Add New Item Row" :header-bg-variant="headerBgVariant"
@@ -142,52 +125,53 @@
       </b-container>
     </b-modal>
 
-    <b-modal id="modal-payment" centered title="Add New Item Row" :header-bg-variant="headerBgVariant"
-      :header-text-variant="headerTextVariant" @ok="AddPayment"  :body-bg-variant="bodyBgVariant"
-      :body-text-variant="bodyTextVariant" :footer-bg-variant="footerBgVariant"  :footer-text-variant="footerTextVariant">
+    <b-modal id="modal-payment" size="lg" title="Add Payment" :header-bg-variant="headerBgVariant"
+      :header-text-variant="headerTextVariant" @ok="finalizePayment" :body-bg-variant="bodyBgVariant" 
+      :body-text-variant="bodyTextVariant" :footer-bg-variant="footerBgVariant" @close="closeModal" 
+      :footer-text-variant="footerTextVariant" @shown="updateModal" 
+      sticky-header caption-top centered scrollable>
       <b-container fluid>
-        <b-row class="mb-1">
-          <b-col cols="3">
-            <label for="product">Product:</label>
-          </b-col>
-          <b-col>
-            <v-select id="product" name="product" label="itemname" @search="fetchItem" @input="getItem" :options="inventory" v-model="item"></v-select>
-          </b-col>
-        </b-row>
-
-        <hr />
-        <b-row class="mb-1">
-          <b-col cols="3">
-            <label for="quantity">Quantity:</label>
-          </b-col>
-          <b-col>
-            <input id="quantity" name="quantity" type="number" class="form-control" placeholder="Quantity" min="1" value="1" step="1" />
-          </b-col>
-        </b-row>
-
-        <hr />
-        <b-row class="mb-1">
-          <b-col cols="3">
-            <label for="price">Price:</label>
-          </b-col>
-          <b-col>
-            <input id="price" name="price" type="text" class="form-control" placeholder="₦0.00" disabled value="₦0.00" />
-          </b-col>
-        </b-row>
-
-        <hr />
-        <b-row class="mb-1">
-          <b-col cols="3">
-            <label for="discount">Discount:</label>
-          </b-col>
-          <b-col>
-            <input id="discount" name="discount" type="number" class="form-control" placeholder="Discount" min="1" step="0.1" value="0" />
-          </b-col>
-        </b-row>
-
-        <hr />
-
-        <h4><strong>Total</strong> will be shown on the main page.</h4>
+        <b-table id="paymentList" name="paymentList" small striped hover :items="payments" :fields="fields" primary-key="_id">
+          <template v-slot:cell(payment_method)="row">
+            <select id="paymentMethod" name="paymentMethod" class="form-control" @change="paymentMethod($event, row)">
+              <option selected>Cash</option>
+              <option>POS</option>
+              <option>Matrix</option>
+              <option>EasyBuy</option>
+              <option>Credpal</option>
+              <option>Bank Transfer</option>
+            </select>
+          </template>
+          <template v-slot:cell(banks)>
+            <b-form-select id="bankslist" name="bankslist" :options="banks" :disabled="true" class="mb-3" value-field="name" text-field="code"></b-form-select>
+          </template>
+          <template v-slot:cell(amount_paid)="row">
+            <input id="amt" name="amt" type="number" class="form-control" @change="updatePayment(row)" placeholder="Amount Paid" value="0" min="1" />
+          </template>
+          <template v-slot:cell(actions)="row">
+            <b-button size="sm" variant="primary" @click="addRow(row)" class="mr-1">
+              <b-icon icon="plus-square-fill" aria-hidden="true">
+                Add New Payment
+              </b-icon>
+            </b-button>
+            <b-button size="sm" variant="danger" @click="removePayment(row.index)" class="mr-1">
+              <b-icon icon="trash" aria-hidden="true"></b-icon>
+            </b-button>
+          </template>
+          <template v-slot:custom-foot>
+            <b-tr>
+              <b-td colspan="2">
+                Amount Paid: <span id="amtPaid" style="font-weight: bold;">₦0.00</span>
+              </b-td>
+              <b-td colspan="2" style="text-align:center;">
+                Balance Due: <span id="balanceDue" style="font-weight: bold;">₦0.00</span>
+              </b-td>
+              <b-td>
+                Grand Total: <span id="expectedPayment" style="font-weight: bold;">₦0.00</span>
+              </b-td>
+            </b-tr>
+          </template>
+        </b-table>
       </b-container>
     </b-modal>
     
@@ -200,14 +184,20 @@ export default {
     return {
       rows: [],
       docnum: 0,
+      fired: [],
       order: {},
       banks: [],
       item: null,
+      payments: [],
       customers: [],
       inventory: [],
+      amountPaid: 0,
+      grandTotal: 0,
+      canPay: false,
       customer: null,
       isDisabled: true,
-
+      currentPayment: [],
+      
       // Modal
       bodyBgVariant: "light",
       bodyTextVariant: "dark",
@@ -216,6 +206,9 @@ export default {
       headerTextVariant: "light",
       paymentVariant: "secondary",
       footerBgVariant: "secondary",
+
+      // Payments
+      fields: ['_id', 'payment_method', 'banks', 'amount_paid', 'actions'],
     };
   },
   async created() {
@@ -243,6 +236,7 @@ export default {
     window.backend.GetBanks().then(
       (banks) => {
         this.banks = banks;
+        this.payments.push({_id: this.payments.length + 1 });
       },
       (err) => {
         this.$toast.error("Error! " + err);
@@ -292,12 +286,8 @@ export default {
       this.item = value;
       document.getElementById("price").value = `₦${this.item.price}`;
     },
-    resetModal() {
-      this.item = null;
-      document.getElementById("price").value = 1;
-      document.getElementById("discount").value = 0;
-      document.getElementById("price").value = "₦0.00";
-    },
+
+    // Items Modal
     async AddItem(bvModalEvt) {
       if (this.item === null) {
         this.$toast.error("Error! No Product selected.");
@@ -348,7 +338,7 @@ export default {
         total = `₦${(quantity * price - discountVal).toFixed(2)}`;
       }
       row.cells[6].innerHTML = total;
-
+      
       // Calculate the Grand Total
       await this.TableTotal(tableRef);
 
@@ -367,54 +357,152 @@ export default {
         val += parseFloat(data);
       }
 
+      this.grandTotal = (7.5 / 100) * val + val;
       document.getElementById("subTotal").innerHTML = `₦${val}`;
-      document.getElementById("grandTotal").innerHTML = `₦${
-        (7.5 / 100) * val + val
-      }`;
-      document.getElementById("vatAmount").innerHTML = `₦${parseFloat(
-        (7.5 / 100) * val
-      ).toFixed(2)}`;
+      document.getElementById("grandTotal").innerHTML = `₦${parseFloat(this.grandTotal).toFixed(2)}`;
+      document.getElementById("vatAmount").innerHTML = `₦${parseFloat((7.5 / 100) * val).toFixed(2)}`;
     },
-    async AddPayment(bvModalEvt) {
-
-    },
-    PaymentMethod(event) {
-      // It can be a mixture of payment methods.
-      switch (event.target.value.toLowerCase()) {
-        case "matrix": // Allow for entry of value
-        case "easybuy":
-        case "creditpal":
-          this.isDisabled = false;
-          break;
-
-        case "pos":
-        case "bank transfer": // Display list of banks for selection and allow for value entry.
-          this.isDisabled = true;
-          break;
-
-        default:
-          this.isDisabled = true;
-          break;
+    async resetModal() {
+      this.item = null;
+      if (document.getElementById("quantity") !== null) {
+        document.getElementById("quantity").value = 1;
+        document.getElementById("discount").value = 0;
+        document.getElementById("price").value = "₦0.00";
       }
     },
-    DraftOrder() {},
-    SaveOrder() {
+
+    // Payment Modal
+    async closeModal(bvModalEvt) {
+      let balance = document.getElementById("balanceDue").innerHTML;
+
+      if (balance !== '₦0.00') {
+        this.$toast.error(`Error! There is an outstanding balance of ${balance}`);
+
+        // Prevent modal from closing
+        bvModalEvt.preventDefault();
+
+        return;
+      }
+    },
+    async updateModal() {
+      document.getElementById("balanceDue").innerHTML = document.getElementById("grandTotal").innerHTML;
+      document.getElementById("expectedPayment").innerHTML = document.getElementById("grandTotal").innerHTML;
+    },
+    async updatePayment() { 
+      let amountPaid = 0.0, 
+        totalAmt = document.getElementById("expectedPayment").innerHTML,
+        tableRef = document.getElementById("paymentList").getElementsByTagName('tbody')[0],
+        rowCnt = tableRef.rows.length;
+
+      this.currentPayment = [];
+
+      // Get the amount paid so far.
+      for (var i = 0; i < rowCnt; i++) {
+        if (tableRef.rows[i].cells[2].childNodes[0].value === "") {
+          this.currentPayment.push({
+            id: this.id,
+            orderid: null,
+            canceled: false,  
+            docnum: this.id,
+            docentry: this.id,
+            amount: tableRef.rows[i].cells[3].childNodes[0].value,
+            paymenttype: tableRef.rows[i].cells[1].childNodes[0].value,
+          });
+        } else {
+          this.currentPayment.push({
+            id: this.id,
+            orderid: null,
+            canceled: false,  
+            docnum: this.id,
+            docentry: this.id,
+            amount: tableRef.rows[i].cells[3].childNodes[0].value,
+            paymenttype: tableRef.rows[i].cells[1].childNodes[0].value,
+            paymentdetails: tableRef.rows[i].cells[2].childNodes[0].value,
+          });
+        }
+        amountPaid += parseFloat(tableRef.rows[i].cells[3].childNodes[0].value);
+      }
+      document.getElementById('amtPaid').innerHTML = `₦${amountPaid}`;
+
+      // Calculate the difference and display the balance due
+      document.getElementById("balanceDue").innerHTML = `₦${parseFloat(totalAmt.replace("₦", "") - amountPaid).toFixed(2)}`;
+    },
+    async finalizePayment(bvModalEvt) {
+      this.canPay = false;
+      let balance = document.getElementById("balanceDue").innerHTML;
+
+      if (this.selectedPayment === null) {
+        this.$toast.error("Error! No Payment Method selected.");
+
+        // Prevent modal from closing
+        bvModalEvt.preventDefault();
+
+        return;
+      }
+
+      if (balance !== '₦0.00') {
+        this.$toast.error(`Error! There is an outstanding balance of ${balance}`);
+
+        // Prevent modal from closing
+        bvModalEvt.preventDefault();
+
+        return;
+      }
+
+      await this.updatePayment();
+      this.canPay = true;
+    },
+    async addRow(row) {
+      // Avoid add multiple rows when payment methods change.
+      if (!this.fired.includes(row.index)) {
+        // Add a new row automatically.
+        this.payments.push({_id: this.payments.length + 1 });
+
+        // Log it to the array to avoid it firing twice
+        this.fired.push(row.index);
+
+        let rowID = `paymentList__row_${row.item._id}`,
+        selectedRow = document.getElementById(rowID);
+
+        selectedRow.cells[4].childNodes[0].disabled = true;
+      }
+    },
+    async removePayment(index) {
+      if (this.payments.length > 1) {
+        this.$toast.success("Success! Payment has been successfully deleted.");
+        // Remove the row from the table
+        document.getElementById("paymentList").deleteRow(index);
+      }
+    },    
+    async paymentMethod(event, row) {
+      let rowID = `paymentList__row_${row.item._id}`,
+        selectedRow = document.getElementById(rowID);
+
+      selectedRow.cells[2].childNodes[0].disabled = true;
+
+      if (event.target.value.toLowerCase() === "pos" || event.target.value.toLowerCase() === "bank transfer") {
+        // Display list of banks for selection and allow for value entry.
+        selectedRow.cells[2].childNodes[0].disabled = false;
+      }
+    },
+    async SaveOrder() {
       let val = 0,
         items = [],
         tableRef = document.getElementById("orderedItems"),
         rowCnt = tableRef.rows.length;
 
       if (this.customer === null) {
-        this.$toast.error(
-          "Error! You are yet to associate a customer to this order."
-        );
+        this.$toast.error("Error! You are yet to associate a customer to this order.");
         return;
       }
 
       if (rowCnt === 0) {
-        this.$toast.error(
-          "Error! You are not permitted to create an empty Sales Order."
-        );
+        this.$toast.error("Error! You are not permitted to create an empty Sales Order.");
+        return;
+      }
+
+      if (this.canPay === false || this.currentPayment.length === 0) {
+        this.$toast.error("Error! You are yet to finalize payment on this order.");
         return;
       }
 
@@ -440,28 +528,25 @@ export default {
       for (var i = 0; i < rowCnt; i++) {
         let orderItem = {
           orderid: null,
-          price: tableRef.rows[i].cells[4].innerHTML,
           quantity: tableRef.rows[i].cells[3].innerHTML,
           discount: tableRef.rows[i].cells[5].innerHTML,
           itemname: tableRef.rows[i].cells[2].innerHTML,
           itemcode: tableRef.rows[i].cells[1].innerHTML,
+          price: tableRef.rows[i].cells[4].innerHTML.replace("₦", ""),
         };
 
         // Get the total value of the order
-        val += parseFloat(tableRef.rows[i].cells[6].innerHTML);
+        val += parseFloat(tableRef.rows[i].cells[6].innerHTML.replace("₦", ""));
 
         // Add the ordered items to the items array
         items.push(orderItem);
       }
 
-      this.order.payments = null;
-
       this.order.items = items;
-      this.order.doctotal = `₦${(7.5 / 100) * val + val}`;
+      this.order.payments = this.currentPayment;
+      this.order.doctotal = (7.5 / 100) * val + val;
       document.getElementById("subTotal").innerHTML = `₦${val}`;
-      document.getElementById("vatAmount").innerHTML = `₦${parseFloat(
-        (7.5 / 100) * val
-      ).toFixed(2)}`;
+      document.getElementById("vatAmount").innerHTML = `₦${parseFloat((7.5 / 100) * val).toFixed(2)}`;
 
       window.backend.NewOrder(this.order).then(
         () => {
@@ -473,7 +558,7 @@ export default {
         }
       );
     },
+    DraftOrder() {},
   },
 };
 </script>
-

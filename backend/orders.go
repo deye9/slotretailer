@@ -66,11 +66,14 @@ func RemoveOrder(id int) (err error) {
 func NewOrder(order map[string]interface{}) (err error) {
 	master := ""
 	detail := ""
+	payment := ""
 	inventory := ""
 
 	// Get a new reference to the ordered items and remove it from the map.
+	payments := order["payments"]
 	itemsOrdered := order["items"]
 	delete(order, "items")
+	delete(order, "payments")
 
 	// Get the master insert query
 	if master, err = MaptoInsert(order, "orders"); err != nil {
@@ -92,8 +95,19 @@ func NewOrder(order map[string]interface{}) (err error) {
 		master += strings.Replace(fmt.Sprintf("%v", detail), `""`, "@last_id", -1)
 	}
 
+	// Get the payments insert query
+	for _, _value := range payments.([]interface{}) {
+		if detail, err = MaptoInsert(_value.(map[string]interface{}), "payments"); err != nil {
+			CheckError("Error Mapping the Payments to SQL.", err, false)
+			return err
+		}
+
+		// Build out the needed queries
+		payment += strings.Replace(fmt.Sprintf("%v", detail), `""`, "@last_id", -1)
+	}
+
 	// Save the Order and Reduce inventory
-	if err = Modify(master + inventory); err != nil {
+	if err = Modify(master + payment + inventory); err != nil {
 		CheckError("Error creating the Order.", err, false)
 		return err
 	}

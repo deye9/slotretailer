@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS banks (
     id           INT AUTO_INCREMENT PRIMARY KEY,
     name         VARCHAR(255) NOT NULL UNIQUE,
-    code         VARCHAR(255) NOT NULL UNIQUE
+    code         VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS customers (
@@ -69,7 +69,8 @@ CREATE TABLE IF NOT EXISTS payments (
    docnum   INT,
    canceled  boolean,
    paymenttype VARCHAR(255) NOT NULL,
-   paymentdetails VARCHAR(255) NOT NULL
+   paymentdetails VARCHAR(255) NOT NULL DEFAULT "",
+   amount   REAL  NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -108,4 +109,4 @@ REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin)
 SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true
 WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');
 
--- ALTER table store rename column vouchers to banks;
+-- ALTER table payments add column amount real not null;
