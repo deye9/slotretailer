@@ -18,7 +18,9 @@
     </div>
 
     <h3 style="margin-bottom: 50px">
-      <span class="float-left">Items</span>
+      <span class="float-left">
+        Items <small>Double click to remove item.</small>
+      </span>
       <b-button v-b-modal.modal-item variant="info" class="float-right">Add Product</b-button>
     </h3>
 
@@ -288,6 +290,24 @@ export default {
     },
 
     // Items Modal
+    async removeItemRow(id) {
+      alert(id);
+      // let tableRef = document.getElementById("orderedItems"),
+      //   row = tableRef.getElementById(id);
+      // tableRef.remove(row);
+
+      // let td = event.target.parentNode,
+      //   tr = td.parentNode, // the row to be removed
+      //   tableRef = document.getElementById("orderedItems");
+      
+      // // Remove the table row from the table
+      // tr.parentNode.removeChild(tr);
+
+      // // alert("Table Length is: " + tableRef.rows.length);
+
+      // // Calculate the Grand Total
+      // await this.TableTotal(tableRef);
+    },
     async AddItem(bvModalEvt) {
       if (this.item === null) {
         this.$toast.error("Error! No Product selected.");
@@ -316,6 +336,9 @@ export default {
         // Insert a row in the table at the last row
         row = tableRef.insertRow(),
         price = document.getElementById("price").value.replace("₦", "");
+
+      row.id = `row${rowCnt}`;
+      row.addEventListener("dblclick", this.removeItemRow(row.id));
 
       // Insert the needed cells
       for (let index = 0; index <= 6; index++) {
@@ -351,7 +374,7 @@ export default {
     },
     async TableTotal(tableRef) {
       let val = 0.0;
-
+      
       for (var i = 0; i < tableRef.rows.length; i++) {
         let data = tableRef.rows[i].cells[6].innerHTML.replace("₦", "");
         val += parseFloat(data);
@@ -370,6 +393,7 @@ export default {
         document.getElementById("price").value = "₦0.00";
       }
     },
+
 
     // Payment Modal
     async closeModal(bvModalEvt) {
