@@ -1,5 +1,5 @@
 <template>
-  <section style="margin-top: 3em ;">
+  <section>
     <!-- <h3>Editing Store: {{name}}</h3>
     <hr /> -->
 

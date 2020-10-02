@@ -1,5 +1,5 @@
 <template>
-  <section style="margin-top: 3em ;">
+  <section>
     <div class="row">
       <div class="col-12">
         <h3>Inventory</h3>
@@ -60,13 +60,20 @@
   </section>
 </template>
 
+<style lang="css" scoped>
+  .b-table-sticky-header {
+      overflow-y: auto;
+      max-height: 500px;
+  }
+</style>
+
 <script>
 export default {
   data() {
     return {
       data: [],
       fields: [],
-      perPage: 5,
+      perPage: 10,
       filter: null,
       sortBy: 'id',
       filterOn: [],

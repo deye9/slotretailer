@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@wailsapp/runtime": "^1.0.10",
-    "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.17.0",
     "core-js": "^3.6.4",
     "regenerator-runtime": "^0.13.3",

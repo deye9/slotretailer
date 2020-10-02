@@ -1,5 +1,5 @@
 <template>
-  <section style="margin-top: 3em ;">
+  <section>
     <h3>Editing Customer [{{ firstname }} {{ lastname }} : {{ email }}]</h3>
     <hr />
 

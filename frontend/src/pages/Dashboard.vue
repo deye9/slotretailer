@@ -1,6 +1,6 @@
 <template>
-  <section style="margin-top: 23em ;">
-    <div class="row">
+  <section>
+    <div class="row" style="margin-top: 23em;">
       <div class="col-12">
         <h1>Dashboard</h1>
       </div>
@@ -43,20 +43,13 @@
     </div>
 
     <hr />
-
     <div class="card">
       <div class="card-header">
         <strong>Today's Orders</strong>
       </div>
       <div class="card-body">
-        <data-tables
-          ref="ordersTable"
-          :data="orders"
-          :page-size="pageSize"
-          :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
-          :table-props="tableProps"
-          style="min-width: 90%; width: 100%"
-        >
+        <data-tables ref="ordersTable" :data="orders" :page-size="pageSize" :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
+          :table-props="tableProps" style="min-width: 90%; width: 100%">
           <div slot="empty" style="color: red">
             There is currently no data to show
           </div>
@@ -72,9 +65,7 @@
         </data-tables>
       </div>
       <div class="card-footer">
-        <small class="text-muted"
-          >Last updated <strong>{{ this.lastSyncTime }}</strong></small
-        >
+        <small class="text-muted">Last updated <strong>{{ this.lastSyncTime }}</strong></small>
       </div>
     </div>
 
@@ -144,7 +135,8 @@ export default {
   methods: {
     getData() {
       window.backend.Dashboard().then((response) => {
-          if (JSON.stringify(response) !== "{}") {
+          let total = 0.0;
+          if (response.orders !== null) {
             // Today's Orders
             this.titles = [];
             const exempt = [
@@ -162,9 +154,6 @@ export default {
               keys = Object.keys(response.orders[0]).sort();
             keys.forEach((key) => {
               if (!exempt.includes(key)) {
-                // key = key.replace("vatsum", "Vat");
-                // key = key.replace("doctotal", "Total");
-                // key = key.replace("cardname", "Customer");
                 this.titles.push({
                   prop: key,
                   label: key.toUpperCase(),
@@ -172,12 +161,13 @@ export default {
               }
             });
 
-            let total = 0.0;
             response.orders.forEach((order) => {
               total += parseFloat(order.doctotal);
               this.orders.push(order);
             });
-
+          }
+          
+          if (response.items !== null) {
             // Top Sellers
             this.itemsexempt = [];
             const itemsexempt = [
@@ -205,10 +195,9 @@ export default {
             response.items.forEach((order) => {
               this.items.push(order);
             });
-
-            this.salesTotal = total;
-            this.lastSyncTime = new Date().toLocaleString();
           }
+          this.salesTotal = total;
+          this.lastSyncTime = new Date().toLocaleString();
         },
         (err) => {
           this.$toast.error("Error! " + err);

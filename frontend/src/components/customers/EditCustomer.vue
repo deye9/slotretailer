@@ -1,5 +1,5 @@
 <template>
-  <section style="margin-top: 3em ;">
+  <section>
     <div class="row">
       <div class="col-8">
         <h3>Editing customer: {{ this.cardname }}</h3>

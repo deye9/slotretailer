@@ -1,6 +1,6 @@
 <template>
-  <div style="margin-top: 3em ;">
-    <div class="row">
+  <section>
+    <div class="row flex-xl-nowrap2">
       <div class="col-8">
         <h3>Registered Customers</h3>
       </div>
@@ -10,7 +10,7 @@
     </div>
     <hr />
     
-  <b-table id="customerList" :items="data" :busy="isBusy" :fields="fields" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" 
+    <b-table id="customerList" :items="data" :busy="isBusy" :fields="fields" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" 
       :per-page="perPage" :current-page="currentPage" :filter="filter" :filter-included-fields="filterOn"
       @filtered="onFiltered" :sort-direction="sortDirection" show-empty striped hover bordered small 
       responsive sticky-header caption-top>
@@ -59,10 +59,17 @@
           </b-td>
         </b-tr>
       </template>
-  </b-table>
+    </b-table>
 
-  </div>
+  </section>
 </template>
+
+<style lang="css" scoped>
+  .b-table-sticky-header {
+      overflow-y: auto;
+      max-height: 500px;
+  }
+</style>
 
 <script>
 export default {
@@ -70,7 +77,7 @@ export default {
     return {
       data: [],
       fields: [],
-      perPage: 5,
+      perPage: 10,
       filter: null,
       sortBy: 'id',
       filterOn: [],

@@ -1,5 +1,5 @@
 <template>
-  <section style="margin-top: 3em ;">
+  <section>
     <h1>Order Details</h1>
     <hr />
 

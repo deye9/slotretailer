@@ -1,8 +1,8 @@
 <template>
-  <section style="margin-top: 3em">
+  <section>
     <div class="row">
       <div class="col-8">
-        <h3>New Order</h3>
+        <h3>New Sales Order</h3>
       </div>
       <div class="col-4">
         <router-link to="/orders/" class="btn btn-info float-right">Back</router-link>
@@ -10,10 +10,23 @@
     </div>
     <hr />
 
-    <div class="form-row">
+    <div class="form-row" small>
       <div class="form-group col">
-        <label for="cardcode">Customer</label>
+        <label for="cardname">Customer</label>
         <v-select label="cardname" @search="fetchCustomer" :options="customers" v-model="customer"></v-select>
+      </div>
+      <div class="form-group col">
+        <label>Customer Code</label>
+        <input v-if="this.customer !== null" type="text" class="form-control" placeholder="City" disabled v-model="this.customer.cardcode" />
+      </div>
+      <div class="form-group col">
+        <label>Create Date</label>
+        <input type="text" class="form-control" placeholder="City" disabled :value="this.currentDate" />
+      </div>
+      <div class="form-group col">
+        <label>Created By</label>
+        <input type="text" class="form-control" placeholder="City" disabled 
+        :value="this.$store.state.user.email" />
       </div>
     </div>
 
@@ -25,8 +38,8 @@
     </h3>
 
     <hr />
-    <div class="table-responsive" style="max-height: 325px; overflow: scroll">
-      <table class="table table-bordered table-hover table-striped">
+    <div class="table-responsive-sm" style="max-height: 300px; overflow: scroll">
+      <table class="table table-bordered table-hover table-striped table-sm">
         <thead class="thead-dark">
           <tr>
             <th scope="col">#</th>
@@ -72,9 +85,9 @@
 
     <b-button v-b-modal.modal-payment :variant="paymentVariant" class="float-right" style="margin-right: 2px" :disabled="isDisabled">Payment</b-button>
 
-    <!-- <button type="button" class="btn btn-dark float-right" style="margin-right: 2px" @click="DraftOrder">
+    <button type="button" class="btn btn-dark float-right" style="margin-right: 2px" @click="DraftOrder">
       Save as Draft
-    </button> -->
+    </button>
 
     <!-- Modals -->
     <b-modal id="modal-item" centered title="Add New Item Row" :header-bg-variant="headerBgVariant"
@@ -181,6 +194,8 @@
 </template>
 
 <script>
+import moment from "moment";
+
 export default {
   data() {
     return {
@@ -199,6 +214,7 @@ export default {
       customer: null,
       isDisabled: true,
       currentPayment: [],
+      currentDate: moment().format("dddd, MMMM Do YYYY, h:mm:ss a"),
       
       // Modal
       bodyBgVariant: "light",
@@ -290,23 +306,15 @@ export default {
     },
 
     // Items Modal
-    async removeItemRow(id) {
-      alert(id);
-      // let tableRef = document.getElementById("orderedItems"),
-      //   row = tableRef.getElementById(id);
-      // tableRef.remove(row);
+    async removeItemRow(event) {
+      let id = event.target.parentNode.id, 
+        row = document.getElementById(`${id}`);
 
-      // let td = event.target.parentNode,
-      //   tr = td.parentNode, // the row to be removed
-      //   tableRef = document.getElementById("orderedItems");
-      
-      // // Remove the table row from the table
-      // tr.parentNode.removeChild(tr);
+      // Remove the table row from the table
+      row.parentNode.removeChild(row);
 
-      // // alert("Table Length is: " + tableRef.rows.length);
-
-      // // Calculate the Grand Total
-      // await this.TableTotal(tableRef);
+      // Calculate the Grand Total
+      await this.TableTotal(document.getElementById("orderedItems"));
     },
     async AddItem(bvModalEvt) {
       if (this.item === null) {
@@ -338,7 +346,7 @@ export default {
         price = document.getElementById("price").value.replace("₦", "");
 
       row.id = `row${rowCnt}`;
-      row.addEventListener("dblclick", this.removeItemRow(row.id));
+      row.addEventListener("dblclick", this.removeItemRow);
 
       // Insert the needed cells
       for (let index = 0; index <= 6; index++) {
@@ -393,7 +401,6 @@ export default {
         document.getElementById("price").value = "₦0.00";
       }
     },
-
 
     // Payment Modal
     async closeModal(bvModalEvt) {
