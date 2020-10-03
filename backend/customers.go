@@ -8,7 +8,7 @@ import (
 // GetCustomer returns a instance belonging to the Customers id passed in
 func GetCustomer(id int) (customer Customers, err error) {
 	var rows *sql.Rows
-	if rows, err = Get(fmt.Sprintf(`select * from customers where id = %d;`, id)); err != nil {
+	if rows, err = Get(fmt.Sprintf(`select * from customers where id = %d and deleted_at is null;`, id)); err != nil {
 		CheckError("Error getting Customer data.", err, false)
 		return Customers{}, err
 	}
@@ -47,7 +47,7 @@ func GetCustomers() (customers []Customers, err error) {
 // GetCustomerbyPhone returns a instance belonging to the Customers id passed in
 func GetCustomerbyPhone(details string) (customer Customers, err error) {
 	var rows *sql.Rows
-	if rows, err = Get(fmt.Sprintf(`select * from customers where %s;`, details)); err != nil {
+	if rows, err = Get(fmt.Sprintf(`select * from customers where %s and deleted_at is null;`, details)); err != nil {
 		CheckError("Error getting Customer details.", err, false)
 		return Customers{}, err
 	}
@@ -64,7 +64,7 @@ func GetCustomerbyPhone(details string) (customer Customers, err error) {
 
 // RemoveCustomer deletes a Customers from the database
 func RemoveCustomer(id int) (err error) {
-	if err = Modify(fmt.Sprintf(`delete from customers where id = %d;`, id)); err != nil {
+	if err = Modify(fmt.Sprintf(`update customers set deleted_at = CURRENT_TIMESTAMP where id = %d;`, id)); err != nil {
 		CheckError("Error removing Customer(s).", err, false)
 		return err
 	}

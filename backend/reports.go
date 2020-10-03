@@ -30,8 +30,8 @@ func WeekTopSellers() (items []OrderedItems, err error) {
 		sum(i.quantity) quantity, sum(i.discount) discount from ordereditems i 
 		inner join orders o on o.id = i.orderid WHERE cast(created_at as date) BETWEEN
 		cast(DATE_ADD(CURDATE(), INTERVAL(1 - DAYOFWEEK(CURDATE())) DAY) as date) AND
-		cast(DATE_ADD(CURDATE(), INTERVAL(7 - DAYOFWEEK(CURDATE())) DAY) as date)
-		GROUP BY i.id, i.orderid, i.itemcode, i.itemname;`); err != nil {
+		cast(DATE_ADD(CURDATE(), INTERVAL(7 - DAYOFWEEK(CURDATE())) DAY) as date) AND
+		deleted_At is null GROUP BY i.id, i.orderid, i.itemcode, i.itemname;`); err != nil {
 		CheckError("Error getting Top Sellers.", err, false)
 		return nil, err
 	}

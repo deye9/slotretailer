@@ -179,7 +179,7 @@ func MaptoInsert(mapData map[string]interface{}, tableName string) (string, erro
 // MaptoUpdate converts a map to a sql update statement
 func MaptoUpdate(mapData map[string]interface{}, tableName, tableKey string) (string, error) {
 	var tblID string = ""
-	cmd := "UPDATE " + tableName + " SET "
+	cmd := "UPDATE " + tableName + " SET updated_at = CURRENT_TIMESTAMP, "
 
 	for key, value := range mapData {
 		if key != tableKey {

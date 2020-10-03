@@ -58,7 +58,7 @@ func GetOrders() (orders []Orders, err error) {
 
 // RemoveOrder deletes a Order from the database
 func RemoveOrder(id int) (err error) {
-	if err = Modify(fmt.Sprintf(`delete from orders where id = %d; delete from ordereditems where orderid = %d`, id, id)); err != nil {
+	if err = Modify(fmt.Sprintf(`update orders set deleted_at = CURRENT_TIMESTAMP where id = %d;`, id)); err != nil {
 		CheckError("Error removing Order.", err, false)
 		return err
 	}
