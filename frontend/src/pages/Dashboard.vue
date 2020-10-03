@@ -1,6 +1,6 @@
 <template>
   <section>
-    <div class="row" style="margin-top: 23em;">
+    <div class="row" style="margin-top: 43em;">
       <div class="col-12">
         <h1>Dashboard</h1>
       </div>
@@ -36,9 +36,7 @@
         </div>
       </div>
       <div class="card-footer">
-        <small class="text-muted"
-          >Last updated <strong>{{ this.lastSyncTime }}</strong></small
-        >
+        <small class="text-muted">Last updated <strong>{{ this.lastSyncTime }}</strong></small>
       </div>
     </div>
 
@@ -48,21 +46,23 @@
         <strong>Today's Orders</strong>
       </div>
       <div class="card-body">
-        <data-tables ref="ordersTable" :data="orders" :page-size="pageSize" :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
-          :table-props="tableProps" style="min-width: 90%; width: 100%">
-          <div slot="empty" style="color: red">
-            There is currently no data to show
-          </div>
-          <el-table-column
-            fixed
-            :formatter="cellValueRenderer"
-            v-for="title in titles"
-            :prop="title.prop"
-            :label="title.label"
-            :key="title.label"
-            sortable="custom"
-          ></el-table-column>
-        </data-tables>
+        <div style="max-height: 300px; overflow: scroll">
+          <data-tables ref="ordersTable" :data="orders" :page-size="pageSize" :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
+            :table-props="tableProps" style="min-width: 90%; width: 100%" :action-col="actionCol">
+            <div slot="empty" style="color: red">
+              There is currently no data to show
+            </div>
+            <el-table-column
+              fixed
+              :formatter="cellValueRenderer"
+              v-for="title in titles"
+              :prop="title.prop"
+              :label="title.label"
+              :key="title.label"
+              sortable="custom"
+            ></el-table-column>
+          </data-tables>
+        </div>
       </div>
       <div class="card-footer">
         <small class="text-muted">Last updated <strong>{{ this.lastSyncTime }}</strong></small>
@@ -76,27 +76,29 @@
         <strong>Week's Top Sellers</strong>
       </div>
       <div class="card-body">
-        <data-tables
-          ref="itemsTable"
-          :data="items"
-          :page-size="pageSize"
-          :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
-          :table-props="tableProps"
-          style="min-width: 90%; width: 100%"
-        >
-          <div slot="empty" style="color: red">
-            There is currently no data to show
-          </div>
-          <el-table-column
-            fixed
-            :formatter="cellValueRenderer"
-            v-for="title in itemstitle"
-            :prop="title.prop"
-            :label="title.label"
-            :key="title.label"
-            sortable="custom"
-          ></el-table-column>
-        </data-tables>
+        <div style="max-height: 300px; overflow: scroll">
+          <data-tables
+            ref="itemsTable"
+            :data="items"
+            :page-size="pageSize"
+            :pagination-props="{ pageSizes: [5, 10, 15, 20] }"
+            :table-props="tableProps"
+            style="min-width: 90%; width: 100%"
+          >
+            <div slot="empty" style="color: red">
+              There is currently no data to show
+            </div>
+            <el-table-column
+              fixed
+              :formatter="cellValueRenderer"
+              v-for="title in itemstitle"
+              :prop="title.prop"
+              :label="title.label"
+              :key="title.label"
+              sortable="custom"
+            ></el-table-column>
+          </data-tables>
+        </div>
       </div>
       <div class="card-footer">
         <small class="text-muted"
@@ -122,6 +124,22 @@ export default {
         stripe: true,
       },
       lastSyncTime: new Date().toLocaleString(),
+      actionCol: {
+        label: 'Action',
+        props: {
+          align: 'center',
+        },
+        buttons: [{
+          props: {
+            type: 'primary',
+            icon: 'el-icon-view'
+          },
+          handler: row => {
+              this.$router.push("/orders/details/" + row.id);
+          },
+          label: 'View Order'
+        }]
+      },
     };
   },
   mounted() {
@@ -139,12 +157,14 @@ export default {
           if (response.orders !== null) {
             // Today's Orders
             this.titles = [];
+            this.orders = [];
             const exempt = [
                 "id",
                 "items",
                 "docnum",
                 "docentry",
                 "canceled",
+                "payments",
                 "cardcode",
                 "deleted_at",
                 "updated_at",
@@ -169,7 +189,8 @@ export default {
           
           if (response.items !== null) {
             // Top Sellers
-            this.itemsexempt = [];
+            this.items = [];
+            this.itemstitle = [];
             const itemsexempt = [
                 "id",
                 "orderid",

@@ -60,9 +60,5 @@ func Dashboard() (response ReportObject, err error) {
 	response.Orders, err = TodaysOrders()
 	response.Items, err = WeekTopSellers()
 
-	// response{
-	// 	Items:  items,
-	// 	Orders: orders,
-	// }
 	return
 }

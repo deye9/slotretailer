@@ -32,62 +32,109 @@
 
     <h3 style="margin-bottom: 50px">
       <span class="float-left">
-        Items <small>Double click to remove item.</small>
+        Order Details <small>Double click to remove item.</small>
       </span>
       <b-button v-b-modal.modal-item variant="info" class="float-right">Add Product</b-button>
     </h3>
-
     <hr />
-    <div class="table-responsive-sm" style="max-height: 300px; overflow: scroll">
-      <table class="table table-bordered table-hover table-striped table-sm">
-        <thead class="thead-dark">
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Item Code</th>
-            <th scope="col">Item Name</th>
-            <th scope="col">Qty</th>
-            <th scope="col">Price</th>
-            <th scope="col">Discount (%)</th>
-            <th scope="col">Total</th>
-          </tr>
-        </thead>
-        <tbody id="orderedItems"></tbody>
-        <tfoot>
-          <tr>
-            <td colspan="6" class="text-right font-weight-bold">
-              Invoice Subtotal:
-            </td>
-            <td id="subTotal" class="font-weight-bold bg-primary text-white">
-              ₦0.00
-            </td>
-          </tr>
-          <tr>
-            <td colspan="6" class="text-right font-weight-bold">7.5% VAT:</td>
-            <td id="vatAmount" class="font-weight-bold bg-primary text-white">
-              ₦0.00
-            </td>
-          </tr>
-          <tr>
-            <td colspan="6" class="text-right font-weight-bold">
-              Grand Total:
-            </td>
-            <td id="grandTotal" class="font-weight-bold bg-primary text-white">
-              ₦0.00
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+
+    <div style="max-height: 300px; overflow: scroll">
+      <div class="table-responsive-sm">
+        <table class="table table-bordered table-hover table-striped table-sm">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Item Code</th>
+              <th scope="col">Item Name</th>
+              <th scope="col">Qty</th>
+              <th scope="col">Price</th>
+              <th scope="col">Discount (%)</th>
+              <th scope="col">Total</th>
+            </tr>
+          </thead>
+          <tbody id="orderedItems"></tbody>
+          <tfoot>
+            <tr>
+              <td colspan="6" class="text-right font-weight-bold">
+                Invoice Subtotal:
+              </td>
+              <td id="subTotal" class="font-weight-bold bg-primary text-white">
+                ₦0.00
+              </td>
+            </tr>
+            <tr>
+              <td colspan="6" class="text-right font-weight-bold">7.5% VAT:</td>
+              <td id="vatAmount" class="font-weight-bold bg-primary text-white">
+                ₦0.00
+              </td>
+            </tr>
+            <tr>
+              <td colspan="6" class="text-right font-weight-bold">
+                Grand Total:
+              </td>
+              <td id="grandTotal" class="font-weight-bold bg-primary text-white">
+                ₦0.00
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <br />
+      <h3>Payment Details</h3>
+      <hr />
+      <div class="table-responsive-sm">
+        <b-table id="paymentList" name="paymentList" :disabled="true" small striped hover :items="payments" :fields="fields" primary-key="_id">
+          <template v-slot:cell(payment_method)="row">
+            <select id="paymentMethod" name="paymentMethod" class="form-control" @change="paymentMethod($event, row)">
+              <option selected>Cash</option>
+              <option>POS</option>
+              <option>Matrix</option>
+              <option>EasyBuy</option>
+              <option>Credpal</option>
+              <option>Bank Transfer</option>
+            </select>
+          </template>
+          <template v-slot:cell(banks)>
+            <b-form-select id="bankslist" name="bankslist" :options="banks" :disabled="true" class="mb-3" value-field="name" text-field="code"></b-form-select>
+          </template>
+          <template v-slot:cell(amount_paid)="row">
+            <input id="amt" name="amt" type="number" class="form-control" @change="updatePayment(row)" placeholder="Amount Paid" value="0" min="1" />
+          </template>
+          <template v-slot:cell(actions)="row">
+            <b-button size="sm" variant="primary" @click="addRow(row)" class="mr-1">
+              <b-icon icon="plus-square-fill" aria-hidden="true">
+                Add New Payment
+              </b-icon>
+            </b-button>
+            <b-button size="sm" variant="danger" @click="removePayment(row.index)" class="mr-1">
+              <b-icon icon="trash" aria-hidden="true"></b-icon>
+            </b-button>
+          </template>
+          <template v-slot:custom-foot>
+            <b-tr>
+              <b-td colspan="2">
+                Amount Paid: <span id="amtPaid" style="font-weight: bold;">₦0.00</span>
+              </b-td>
+              <b-td colspan="2" style="text-align:center;">
+                Balance Due: <span id="balanceDue" style="font-weight: bold;">₦0.00</span>
+              </b-td>
+              <b-td>
+                Grand Total: <span id="expectedPayment" style="font-weight: bold;">₦0.00</span>
+              </b-td>
+            </b-tr>
+          </template>
+        </b-table>
+      </div>
+
+      <button type="button" class="btn btn-primary float-right" @click="SaveOrder">
+        Save
+      </button>
+
+      <button type="button" class="btn btn-dark float-right" style="margin-right: 2px" @click="DraftOrder">
+        Save as Draft
+      </button>
     </div>
-
-    <button type="button" class="btn btn-primary float-right" @click="SaveOrder">
-      Save
-    </button>
-
-    <b-button v-b-modal.modal-payment :variant="paymentVariant" class="float-right" style="margin-right: 2px" :disabled="isDisabled">Payment</b-button>
-
-    <button type="button" class="btn btn-dark float-right" style="margin-right: 2px" @click="DraftOrder">
-      Save as Draft
-    </button>
 
     <!-- Modals -->
     <b-modal id="modal-item" centered title="Add New Item Row" :header-bg-variant="headerBgVariant"
@@ -140,56 +187,6 @@
       </b-container>
     </b-modal>
 
-    <b-modal id="modal-payment" size="lg" title="Add Payment" :header-bg-variant="headerBgVariant"
-      :header-text-variant="headerTextVariant" @ok="finalizePayment" :body-bg-variant="bodyBgVariant" 
-      :body-text-variant="bodyTextVariant" :footer-bg-variant="footerBgVariant" @close="closeModal" 
-      :footer-text-variant="footerTextVariant" @shown="updateModal" 
-      sticky-header caption-top centered scrollable>
-      <b-container fluid>
-        <b-table id="paymentList" name="paymentList" small striped hover :items="payments" :fields="fields" primary-key="_id">
-          <template v-slot:cell(payment_method)="row">
-            <select id="paymentMethod" name="paymentMethod" class="form-control" @change="paymentMethod($event, row)">
-              <option selected>Cash</option>
-              <option>POS</option>
-              <option>Matrix</option>
-              <option>EasyBuy</option>
-              <option>Credpal</option>
-              <option>Bank Transfer</option>
-            </select>
-          </template>
-          <template v-slot:cell(banks)>
-            <b-form-select id="bankslist" name="bankslist" :options="banks" :disabled="true" class="mb-3" value-field="name" text-field="code"></b-form-select>
-          </template>
-          <template v-slot:cell(amount_paid)="row">
-            <input id="amt" name="amt" type="number" class="form-control" @change="updatePayment(row)" placeholder="Amount Paid" value="0" min="1" />
-          </template>
-          <template v-slot:cell(actions)="row">
-            <b-button size="sm" variant="primary" @click="addRow(row)" class="mr-1">
-              <b-icon icon="plus-square-fill" aria-hidden="true">
-                Add New Payment
-              </b-icon>
-            </b-button>
-            <b-button size="sm" variant="danger" @click="removePayment(row.index)" class="mr-1">
-              <b-icon icon="trash" aria-hidden="true"></b-icon>
-            </b-button>
-          </template>
-          <template v-slot:custom-foot>
-            <b-tr>
-              <b-td colspan="2">
-                Amount Paid: <span id="amtPaid" style="font-weight: bold;">₦0.00</span>
-              </b-td>
-              <b-td colspan="2" style="text-align:center;">
-                Balance Due: <span id="balanceDue" style="font-weight: bold;">₦0.00</span>
-              </b-td>
-              <b-td>
-                Grand Total: <span id="expectedPayment" style="font-weight: bold;">₦0.00</span>
-              </b-td>
-            </b-tr>
-          </template>
-        </b-table>
-      </b-container>
-    </b-modal>
-    
   </section>
 </template>
 
@@ -392,6 +389,10 @@ export default {
       document.getElementById("subTotal").innerHTML = `₦${val}`;
       document.getElementById("grandTotal").innerHTML = `₦${parseFloat(this.grandTotal).toFixed(2)}`;
       document.getElementById("vatAmount").innerHTML = `₦${parseFloat((7.5 / 100) * val).toFixed(2)}`;
+
+      // Payment Details
+      document.getElementById("balanceDue").innerHTML = document.getElementById("grandTotal").innerHTML;
+      document.getElementById("expectedPayment").innerHTML = document.getElementById("grandTotal").innerHTML;
     },
     async resetModal() {
       this.item = null;
@@ -402,23 +403,7 @@ export default {
       }
     },
 
-    // Payment Modal
-    async closeModal(bvModalEvt) {
-      let balance = document.getElementById("balanceDue").innerHTML;
-
-      if (balance !== '₦0.00') {
-        this.$toast.error(`Error! There is an outstanding balance of ${balance}`);
-
-        // Prevent modal from closing
-        bvModalEvt.preventDefault();
-
-        return;
-      }
-    },
-    async updateModal() {
-      document.getElementById("balanceDue").innerHTML = document.getElementById("grandTotal").innerHTML;
-      document.getElementById("expectedPayment").innerHTML = document.getElementById("grandTotal").innerHTML;
-    },
+    // Payment Section
     async updatePayment() { 
       let amountPaid = 0.0, 
         totalAmt = document.getElementById("expectedPayment").innerHTML,
@@ -432,20 +417,20 @@ export default {
         if (tableRef.rows[i].cells[2].childNodes[0].value === "") {
           this.currentPayment.push({
             id: this.id,
+            docnum: 0,
+            docentry: 0,
             orderid: null,
-            canceled: false,  
-            docnum: this.id,
-            docentry: this.id,
+            canceled: false,
             amount: tableRef.rows[i].cells[3].childNodes[0].value,
             paymenttype: tableRef.rows[i].cells[1].childNodes[0].value,
           });
         } else {
           this.currentPayment.push({
             id: this.id,
+            docnum: 0,
+            docentry: 0,
             orderid: null,
-            canceled: false,  
-            docnum: this.id,
-            docentry: this.id,
+            canceled: false,
             amount: tableRef.rows[i].cells[3].childNodes[0].value,
             paymenttype: tableRef.rows[i].cells[1].childNodes[0].value,
             paymentdetails: tableRef.rows[i].cells[2].childNodes[0].value,
@@ -453,35 +438,10 @@ export default {
         }
         amountPaid += parseFloat(tableRef.rows[i].cells[3].childNodes[0].value);
       }
-      document.getElementById('amtPaid').innerHTML = `₦${amountPaid}`;
+      document.getElementById('amtPaid').innerHTML = `₦${parseFloat(amountPaid).toFixed(2)}`;
 
       // Calculate the difference and display the balance due
       document.getElementById("balanceDue").innerHTML = `₦${parseFloat(totalAmt.replace("₦", "") - amountPaid).toFixed(2)}`;
-    },
-    async finalizePayment(bvModalEvt) {
-      this.canPay = false;
-      let balance = document.getElementById("balanceDue").innerHTML;
-
-      if (this.selectedPayment === null) {
-        this.$toast.error("Error! No Payment Method selected.");
-
-        // Prevent modal from closing
-        bvModalEvt.preventDefault();
-
-        return;
-      }
-
-      if (balance !== '₦0.00') {
-        this.$toast.error(`Error! There is an outstanding balance of ${balance}`);
-
-        // Prevent modal from closing
-        bvModalEvt.preventDefault();
-
-        return;
-      }
-
-      await this.updatePayment();
-      this.canPay = true;
     },
     async addRow(row) {
       // Avoid add multiple rows when payment methods change.
@@ -503,6 +463,8 @@ export default {
         this.$toast.success("Success! Payment has been successfully deleted.");
         // Remove the row from the table
         document.getElementById("paymentList").deleteRow(index);
+
+        await this.updatePayment();
       }
     },    
     async paymentMethod(event, row) {
@@ -520,7 +482,8 @@ export default {
       let val = 0,
         items = [],
         tableRef = document.getElementById("orderedItems"),
-        rowCnt = tableRef.rows.length;
+        rowCnt = tableRef.rows.length,
+        balance = document.getElementById("balanceDue").innerHTML;
 
       if (this.customer === null) {
         this.$toast.error("Error! You are yet to associate a customer to this order.");
@@ -532,7 +495,8 @@ export default {
         return;
       }
 
-      if (this.canPay === false || this.currentPayment.length === 0) {
+      if (balance !== '₦0.00' || this.currentPayment.length === 0) {
+        console.log('Current PAyment is: ', this.currentPayment);
         this.$toast.error("Error! You are yet to finalize payment on this order.");
         return;
       }

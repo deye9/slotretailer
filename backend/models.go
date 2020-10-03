@@ -74,9 +74,9 @@ type OrderedItems struct {
 // Payments Struct
 type Payments struct {
 	ID             int     `json:"id,omitempty"`
-	OrderID        int     `json:"orderid"`
-	DocEntry       int     `json:"docentry"`
-	DocNum         int     `json:"docnum"`
+	OrderID        int     `json:"orderid,omitempty"`
+	DocEntry       int     `json:"docentry,omitempty"`
+	DocNum         int     `json:"docnum,omitempty"`
 	Canceled       bool    `json:"canceled"`
 	PaymentType    string  `json:"paymenttype"`
 	PaymentDetails string  `json:"paymentdetails,omitempty"`
@@ -115,6 +115,12 @@ type Store struct {
 	CreatedAt    sql.NullString `json:"created_at,omitempty"`
 	UpdatedAt    sql.NullString `json:"updated_at,omitempty"`
 	DeletedAt    sql.NullString `json:"deleted_at,omitempty"`
+}
+
+// Search struct
+type Search struct {
+	Column      string `json:"column,omitempty"`
+	Occurrences string `json:"occurrences,omitempty"`
 }
 
 // REMEMBER TO MODIFY THE migrations.sql ONCE MODIFIED via an alter statement.

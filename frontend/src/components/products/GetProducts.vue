@@ -13,8 +13,8 @@
         responsive sticky-header caption-top>
         <template v-slot:table-caption>
           <b-row>
-            <b-col lg="6" class="my-1">
-              <b-form-group label="Filter" label-cols-sm="3" label-align-sm="right" label-size="sm" label-for="filterInput" class="mb-0">
+            <b-col>
+              <b-form-group label="Filter" label-cols-sm="6" label-align-sm="right" label-size="sm" label-for="filterInput" class="mb-0">
               <b-input-group size="sm">
                 <b-form-input v-model="filter" type="search" id="filterInput" placeholder="Type to Search"></b-form-input>
                 <b-input-group-append>
@@ -39,7 +39,7 @@
         </template>
         <template v-slot:cell(actions)="row" v-if="this.$store.state.isAdmin">
           <b-button size="sm" variant="primary" @click="displayInfo(row.item)" style="margin-right: 2px">
-            <b-icon icon="pencil" aria-hidden="true"></b-icon>
+            <b-icon icon="eye" aria-hidden="true"></b-icon>
           </b-button>
         </template>      
         <template v-slot:custom-foot>

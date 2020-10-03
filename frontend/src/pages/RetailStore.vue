@@ -1,8 +1,6 @@
 <template>
   <section>
-    <!-- <h3>Editing Store: {{name}}</h3>
-    <hr /> -->
-
+    <br />
     <div class="form-row">
       <div class="form-group col">
         <label for="name">Name</label>
@@ -106,6 +104,8 @@
               v-model="banks"
             />
           </div>
+        </div>
+        <div class="form-row">
           <div class="form-group col">
             <label for="sync_interval">Sync Interval in Minutes</label>
             <input
@@ -115,14 +115,13 @@
               v-model="sync_interval"
             />
           </div>
+          <div class="form-group col">
+            <br />
+            <button type="submit" class="btn btn-primary float-right" @click="StoreDetails">
+              {{ buttontext }}
+            </button>
+          </div>
         </div>
-        <button
-          type="submit"
-          class="btn btn-primary float-right"
-          @click="StoreDetails"
-        >
-          {{ buttontext }}
-        </button>
       </div>
     </div>
   </section>

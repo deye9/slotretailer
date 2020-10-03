@@ -9,7 +9,9 @@ import (
 // GetOrder returns a instance belonging to the Order id passed in
 func GetOrder(id int) (order Orders, err error) {
 	var rows *sql.Rows
-	if rows, err = Get(fmt.Sprintf(`select * from orders o inner join ordereditems i on o.id = i.orderid where o.id = %d;`, id)); err != nil {
+	if rows, err = Get(fmt.Sprintf(`select * from orders o 
+		inner join ordereditems i on o.id = i.orderid 
+		where o.id = %d and o.deleted_at is null;`, id)); err != nil {
 		CheckError("Error getting Order data.", err, false)
 		return Orders{}, err
 	}
@@ -19,8 +21,10 @@ func GetOrder(id int) (order Orders, err error) {
 	var items []OrderedItems
 	for rows.Next() {
 		item := OrderedItems{}
-		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum, &order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt,
-			&order.DeletedAt, &item.ID, &item.OrderID, &item.ItemCode, &item.ItemName, &item.Price, &item.Quantity, &item.Discount); err != nil {
+		
+		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum,
+			&order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt,
+			&item.ID, &item.OrderID, &item.ItemCode, &item.ItemName, &item.Price, &item.Quantity, &item.Discount); err != nil {
 			CheckError("Error Scanning Order.", err, false)
 		} else {
 			items = append(items, item)

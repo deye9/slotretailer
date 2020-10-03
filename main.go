@@ -60,6 +60,7 @@ func main() {
 
 	// Metadata Collection
 	app.Bind(service.GetBanks)
+	app.Bind(service.PaymentOnOrder)
 
 	// Admin
 	app.Bind(service.RemoveOrder)
