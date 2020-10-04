@@ -40,8 +40,8 @@
 
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
-        <b-nav-form>
-          <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
+        <b-nav-form @submit="search">
+          <b-form-input size="sm" class="mr-sm-2" placeholder="Search" v-model="searchTerm"></b-form-input>
           <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
         </b-nav-form>
 
@@ -53,26 +53,21 @@
       </b-navbar-nav>
       </b-collapse>
     </b-navbar>
-    <!-- 
-      <ul class="navbar-nav px-3">
-        <li class="nav-item text-nowrap">
-          <router-link
-            :to="{ name: 'login' }"
-            @click.native="logout"
-            class="nav-link"
-            v-show="this.$store.state.isLoggedIn"
-          >Sign out</router-link>
-        </li>
-      </ul> 
-    </nav> 
-    class="fixed-top w-100" fill
-    -->
   </header>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      searchTerm: 'Hi',
+    };
+  },
   methods: {
+    search(evt) {
+      evt.preventDefault();
+      alert("Search Term is: ", this.searchTerm);
+    },
     logout() {
       // Set the user state to an empty object
       this.$store.state.user = {};
