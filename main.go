@@ -26,8 +26,6 @@ func main() {
 		Resizable: true,
 	})
 
-	app.Bind(service.Login)
-
 	// Dashboard
 	app.Bind(service.Dashboard)
 
@@ -58,7 +56,9 @@ func main() {
 	app.Bind(service.GetProducts)
 	app.Bind(service.ProductDetails)
 
-	// Metadata Collection
+	// Metadata Collection / Application Utilities
+	app.Bind(service.Login)
+	app.Bind(service.Search)
 	app.Bind(service.GetBanks)
 	app.Bind(service.PaymentOnOrder)
 

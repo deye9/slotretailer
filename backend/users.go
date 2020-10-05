@@ -5,28 +5,6 @@ import (
 	"fmt"
 )
 
-// Login grants access to valid users
-func Login(email, password string) Users {
-	rows, err := Get(fmt.Sprintf(`select id, firstname, lastname, email, isadmin from users where email = "%s" and password = "%s" limit 1;`, email, password))
-	if err != nil {
-		CheckError("Error logging user in.", err, false)
-		return Users{}
-	}
-
-	defer rows.Close()
-	for rows.Next() {
-		var err error
-		var user Users
-
-		if err = rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.IsAdmin); err == nil {
-			return user
-		}
-		CheckError("Error Scanning user.", err, false)
-	}
-
-	return Users{}
-}
-
 // GetUser returns a instance belonging to the user id passed in
 func GetUser(id int) (user Users, err error) {
 	var rows *sql.Rows

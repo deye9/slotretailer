@@ -41,7 +41,7 @@
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
         <b-nav-form @submit="search">
-          <b-form-input size="sm" class="mr-sm-2" placeholder="Search" v-model="searchTerm"></b-form-input>
+          <b-form-input size="sm" class="mr-sm-2" placeholder="search" v-model="searchTerm"></b-form-input>
           <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
         </b-nav-form>
 
@@ -59,14 +59,32 @@
 <script>
 export default {
   data() {
-    return {
-      searchTerm: 'Hi',
-    };
-  },
+      return {
+        searchTerm: '',
+      }
+    },
   methods: {
     search(evt) {
       evt.preventDefault();
-      alert("Search Term is: ", this.searchTerm);
+
+      if (this.searchTerm === '') {
+        this.$toast.error("Error! You cannot search for an empty string.");
+        return;
+      }
+
+      if (this.searchTerm.length <= 2) {
+        this.$toast.info("Info! You need 3 characters or more for a search.");
+        return;
+      }
+
+      window.backend.Search(this.searchTerm).then((result) => {
+          console.log(result);
+          this.$toast.success("Success! Search was successfully.");
+        },
+        (err) => {
+          this.$toast.error("Error! " + err);
+        }
+      );
     },
     logout() {
       // Set the user state to an empty object

@@ -496,7 +496,6 @@ export default {
       }
 
       if (balance !== '₦0.00' || this.currentPayment.length === 0) {
-        console.log('Current PAyment is: ', this.currentPayment);
         this.$toast.error("Error! You are yet to finalize payment on this order.");
         return;
       }
@@ -543,8 +542,7 @@ export default {
       document.getElementById("subTotal").innerHTML = `₦${val}`;
       document.getElementById("vatAmount").innerHTML = `₦${parseFloat((7.5 / 100) * val).toFixed(2)}`;
 
-      window.backend.NewOrder(this.order).then(
-        () => {
+      window.backend.NewOrder(this.order).then(() => {
           this.$toast.success("Success! Order has been successfully saved.");
           this.$router.push("/orders/");
         },
