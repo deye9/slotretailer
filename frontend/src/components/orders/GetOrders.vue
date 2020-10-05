@@ -45,8 +45,11 @@
       </template>
 
       <template v-slot:cell(actions)="row" v-if="this.$store.state.isAdmin">
+        <b-button size="sm" variant="info" @click="printOrder(row.item)" title="Print Sales Order" class="mr-1">
+          <b-icon icon="printer-fill" aria-hidden="true"></b-icon>
+        </b-button>
         <b-button size="sm" variant="primary" @click="displayInfo(row.item)" title="Order Details" style="margin-right: 2px">
-          <b-icon icon="eye" aria-hidden="true"></b-icon>
+            <b-icon icon="eye" aria-hidden="true"></b-icon>
         </b-button>
         <b-button size="sm" variant="primary" @click="edit(row.item)" title="Order Details" style="margin-right: 2px">
           <b-icon icon="minecart-loaded" aria-hidden="true"></b-icon>
@@ -54,7 +57,7 @@
         <b-button size="sm" variant="danger" @click="removeRow(row.item, row.index)" title="Sales Order Return" class="mr-1">
           <b-icon icon="trash" aria-hidden="true"></b-icon>
         </b-button>
-      </template>      
+      </template>
       <template v-slot:custom-foot>
         <b-tr>
           <b-td colspan="3">
@@ -62,7 +65,7 @@
               <b-form-select v-model="perPage" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
             </b-form-group>
           </b-td>
-          <b-td colspan="4">
+          <b-td colspan="5">
             <b-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage"
               align="fill" size="sm" class="my-0"></b-pagination>
           </b-td>
@@ -141,6 +144,9 @@ export default {
     edit(row) {
       this.$router.push("/orders/edit/" + row.id);
     },
+    printOrder(row) {
+      this.$router.push("/orders/edit/" + row.id);
+    },
     displayInfo(row) {
       this.$router.push("/orders/details/" + row.id);
     },
@@ -159,27 +165,6 @@ export default {
       // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length
       this.currentPage = 1
-    },
-    cellValueRenderer(row, column, cellValue) {
-      let value = cellValue;
-
-      switch (column.property.toLowerCase()) {
-        case "doctotal":
-          value = `₦${parseFloat(cellValue).toFixed(2)}`;
-          break;
-
-        case "vatsum":
-          value = `${cellValue}%`;
-          break;
-
-        default:
-          break;
-      }
-
-      if (typeof row[column.property] === "boolean") {
-        value = String(cellValue);
-      }
-      return value;
     },
   },
 };

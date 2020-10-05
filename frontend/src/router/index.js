@@ -5,6 +5,7 @@ import Router from 'vue-router';
 // Module Routes
 import Sync from "@/pages/Sync";
 import Login from "@/pages/Login";
+import Search from "@/pages/Search";
 
 import Users from "@/pages/Users";
 import NewUser from "@/components/users/NewUser";
@@ -66,6 +67,11 @@ const router = new Router({
             path: "/",
             name: "login",
             component: Login
+        },
+        {
+            path: "/search/:q",
+            name: "search",
+            component: Search
         },
         {
             path: "/sync",

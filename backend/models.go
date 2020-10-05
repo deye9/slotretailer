@@ -121,6 +121,7 @@ type Store struct {
 
 // SearchResult struct
 type SearchResult struct {
+	Query		string `json:"query,omitempty"`
 	Column      string `json:"column,omitempty"`
 	Occurrences string `json:"occurrences,omitempty"`
 }

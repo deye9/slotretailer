@@ -77,14 +77,7 @@ export default {
         return;
       }
 
-      window.backend.Search(this.searchTerm).then((result) => {
-          console.log(result);
-          this.$toast.success("Success! Search was successfully.");
-        },
-        (err) => {
-          this.$toast.error("Error! " + err);
-        }
-      );
+      this.$router.push("/search/" + this.searchTerm);
     },
     logout() {
       // Set the user state to an empty object

@@ -75,44 +75,25 @@ func Login(email, password string) Users {
 
 // Search returns the search result
 func Search(searchText string) (result []SearchResult, err error) {
-	// sqlQuery := fmt.Sprintf("SET @table_schema = 'retail';
-	// 			SET @condition = 'LIKE \'%%s%\'';
-	// 			SET @column_types_regexp = '^((var)?char|(var)?binary|blob|text|enum|set)\\(';
+	var rows *sql.Rows
+	if rows, err = Get(fmt.Sprintf("call searchDB('%s', '%s')", "retail", searchText)); err != nil {
+		CheckError("Error getting Search Result", err, false)
+		return nil, err
+	}
+	defer rows.Close()
 
-	// 			-- Reset @sql_query in case it was used previously
-	// 			SET @sql_query = '';
+	for rows.NextResultSet() {
+		for rows.Next() {
+			data := SearchResult{}
 
-	// 			-- Build query for each table and merge with previous queries with UNION
-	// 			SELECT
-	// 				-- Use `DISTINCT IF(QUERYBUILDING, NULL, NULL)`
-	// 				-- to only select a single null value
-	// 				-- instead of selecting the query over and over again as it's built
-	// 				DISTINCT IF(@sql_query := CONCAT(
-	// 					IF(LENGTH(@sql_query), CONCAT(@sql_query, ' UNION '), ''),
-	// 					'SELECT ',
-	// 						QUOTE(CONCAT('`', `table_name`, '`.`', `column_name`, '`')), ' AS `column`, ',
-	// 						'COUNT(*) AS `occurrences` ',
-	// 					'FROM `', `table_schema`, '`.`', `table_name`, '` ',
-	// 					'WHERE `', `column_name`, '` ', @condition
-	// 				), NULL, NULL) `query`
-	// 			FROM (
-	// 				SELECT
-	// 					table_schema,
-	// 					table_name,
-	// 					column_name
-	// 				FROM information_schema.columns
-	// 				WHERE table_schema = @table_schema
-	// 				AND column_type REGEXP @column_types_regexp
-	// 			) results;
+			if err = rows.Scan(&data.Column, &data.Occurrences); err != nil {
+				err = rows.Scan(&data.Query)
+				CheckError("Error Scanning Order.", err, false)
+			} else {
+				result = append(result, data)
+			}
+		}
+	}
 
-	// 			-- Only return results with at least one occurrence
-	// 			SET @sql_query = CONCAT('SELECT * FROM (', @sql_query, ') results WHERE occurrences > 0');
-
-	// 			-- Run built query
-	// 			PREPARE statement FROM @sql_query;
-	// 			EXECUTE statement;
-	// 			DEALLOCATE PREPARE statement;", searchText)
-
-	// fmt.Printls(sqlQuery)
 	return
 }

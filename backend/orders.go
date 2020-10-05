@@ -15,7 +15,6 @@ func GetOrder(id int) (order Orders, err error) {
 		CheckError("Error getting Order data.", err, false)
 		return Orders{}, err
 	}
-
 	defer rows.Close()
 
 	var items []OrderedItems
