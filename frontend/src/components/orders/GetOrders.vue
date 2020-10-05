@@ -108,7 +108,6 @@ export default {
               "payments",
               "docentry",
               "cardcode",
-              "returned",
               "deleted_at",
               "updated_at",
               "created_by",

@@ -72,7 +72,7 @@
     <div class="form-row">
       <div class="form-group col">
         <label>Reason for Return:</label>
-        <input type="text" class="form-control" v-model="this.comment" />
+        <input type="text" class="form-control" v-model="comment" />
       </div>
     </div>
 
@@ -207,7 +207,8 @@ export default {
 
     window.backend.GetOrder(parseInt(this.id)).then((order) => {
         this.order = order;
-
+        this.comment = this.order.comment.String;
+        
         this.order.items.forEach(item => {
           if (item.discount === 0) {
             this.subtotal = parseFloat(this.subtotal) + parseFloat(item.quantity) * parseFloat(item.price).toFixed(2);
