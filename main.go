@@ -54,6 +54,7 @@ func main() {
 
 	// Product Details
 	app.Bind(service.GetProducts)
+	app.Bind(service.CreateReturn)
 	app.Bind(service.ProductDetails)
 
 	// Metadata Collection / Application Utilities

@@ -1,128 +1,242 @@
 <template>
   <section>
-    <h3>Editing Customer [{{ firstname }} {{ lastname }} : {{ email }}]</h3>
+    <div class="row" style="margin-top:8em;">
+      <div class="col-8">
+        <h3>Create Return for Order {{this.order.id}}</h3>
+      </div>
+      <div class="col-4">
+        <router-link to="/orders/" class="btn btn-info float-right">Back</router-link>
+      </div>
+    </div>
     <hr />
 
     <div class="form-row">
       <div class="form-group col">
-        <label for="cardcode">Customer Code</label>
+        <label>Order Number</label>
+        <input type="text" class="form-control" disabled v-model="this.order.id" />
+      </div>
+      <div class="form-group col">
+        <label>Customer</label>
+        <input type="text" class="form-control" disabled v-model="this.order.cardname" />
+      </div>
+      <div class="form-group col">
+        <label for="docnum">SAP Document Number</label>
+        <input type="text" class="form-control" disabled v-model="this.order.docnum" />
+      </div>
+      <div class="form-group col">
+        <label for="docnum">Created By</label>
+        <br />
+        <span class="btn btn-info" disabled>
+          {{ this.user.firstname + " " + this.user.lastname }}
+        </span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label>Synced</label>
         <input
           type="text"
           class="form-control"
-          placeholder="Customer Code"
-          v-model="cardcode"
           disabled
+          v-model="this.order.synced"
         />
       </div>
       <div class="form-group col">
-        <label for="cardname">Customer Name</label>
+        <label>Canceled</label>
         <input
           type="text"
           class="form-control"
-          placeholder="Customer name"
-          v-model="cardname"
-          required
+          disabled
+          v-model="this.order.canceled"
         />
       </div>
+      <div class="form-group col">
+        <label for="docnum">VAT Amount</label>
+        <input
+          type="text"
+          class="form-control"
+          disabled
+          v-model="this.order.vatsum"
+        />
+      </div>
+      <div class="form-group col">
+        <label for="docnum">Created On</label>
+        <br />
+        <span class="btn btn-info" disabled>
+          {{ this.user.created_at.String }}
+        </span>
+      </div>
     </div>
+
     <div class="form-row">
       <div class="form-group col">
-        <label for="city">City</label>
-        <input
-          type="text"
-          class="form-control"
-          placeholder="City"
-          v-model="city"
-          required
-        />
-      </div>
-      <div class="form-group col">
-        <label for="address">Contact Address</label>
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Contact Address"
-          v-model="address"
-          required
-        />
+        <label>Reason for Return:</label>
+        <input type="text" class="form-control" v-model="this.comment" />
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group col">
-        <label for="phone1"
-          >Phone Number 1 <span style="color: red">*</span></label
-        >
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Phone Number"
-          v-model="phone"
-          required
-        />
+
+    <h3>Order Details</h3>
+    <hr />
+    <div style="max-height: 250px; overflow: scroll">
+      <div class="table-responsive-sm">
+        <table class="table table-bordered table-hover table-striped table-sm">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Item Code</th>
+              <th scope="col">Item Name</th>
+              <th scope="col">Qty</th>
+              <th scope="col">Price</th>
+              <th scope="col">Discount (%)</th>
+              <th scope="col">Total</th>
+            </tr>
+          </thead>
+          <tbody id="orderedItems">
+            <tr v-for="(item, index) in this.order.items" :key="index">
+              <th scope="row">
+                {{ index + 1 }}
+              </th>
+              <td>
+                {{ item.itemcode }}
+              </td>
+              <td>
+                {{ item.itemname }}
+              </td>
+              <td>
+                {{ item.quantity }}
+              </td>
+              <td>₦{{ item.price }}</td>
+              <td>
+                {{ item.discount }}
+              </td>
+              <td v-if="item.discount === 0">
+                ₦{{ parseFloat(item.quantity * item.price).toFixed(2)}}
+              </td>
+              <td v-else>
+                ₦{{
+                  parseFloat(
+                    item.quantity * item.price -
+                      (item.price - item.price * (item.discount / 100))
+                  ).toFixed(2)
+                }}
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="6" class="text-right font-weight-bold">
+                Invoice Subtotal:
+              </td>
+              <td class="font-weight-bold bg-primary text-white">
+                ₦{{this.subtotal}}
+              </td>
+            </tr>
+            <tr>
+              <td colspan="6" class="text-right font-weight-bold">7.5% VAT:</td>
+              <td class="font-weight-bold bg-primary text-white">
+                ₦{{this.vatAmount}}
+              </td>
+            </tr>          
+            <tr>
+              <td colspan="6" class="text-right font-weight-bold">
+                Grand Total:
+              </td>
+              <td id="grandTotal" class="font-weight-bold bg-primary text-white">
+                ₦{{ parseFloat(this.order.doctotal).toFixed(2) }}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
-      <div class="form-group col">
-        <label for="phone2">Phone Number 2</label>
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Phone Number"
-          v-model="phone1"
-          required
-        />
+
+      <h3>Payment Details</h3>
+      <hr />
+      <div class="table-responsive-sm">
+        <table class="table table-bordered table-hover table-striped table-sm">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Payment Type</th>
+              <th scope="col">Amount Paid</th>
+              <th scope="col">Canceled</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(payment, index) in this.payment" :key="index">
+              <th scope="row">
+                {{ index + 1 }}
+              </th>
+              <td>
+                {{ payment.paymenttype }}
+              </td>
+              <td>
+                ₦{{ payment.amount }}
+              </td>
+              <td>
+                {{ payment.canceled }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+
+      <button type="button" class="btn btn-dark float-right" style="margin-right: 2px" @click="CreateReturn">
+        Create Return
+      </button>
     </div>
-    <div class="form-group">
-      <label for="email">Email Address</label>
-      <input
-        type="email"
-        class="form-control"
-        placeholder="Email Address"
-        v-model="email"
-        required
-      />
-    </div>
-    <button
-      type="submit"
-      class="btn btn-primary float-right"
-      @click="Modification"
-    >
-      Update Customer
-    </button>
+
   </section>
 </template>
 
 <script>
-import moment from "moment";
-
 export default {
   data() {
     return {
-      id: null,
-      city: null,
-      phone: null,
-      phone1: null,
-      email: null,
-      cardcode: 0,
-      customer: {},
-      address: null,
-      cardname: null,
-      created_by: null,
+      order: [],
+      user: null,
+      comment: '',
+      payment: null,
+      subtotal: 0.0,
+      vatAmount: 0.0,
     };
   },
-  mounted() {
+  created() {
     var pageURL = location.pathname;
     this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
 
-    window.backend.GetCustomer(parseInt(this.id)).then(
-      (customer) => {
-        this.city = customer.city;
-        this.phone = customer.phone;
-        this.email = customer.email;
-        this.phone1 = customer.phone1;
-        this.address = customer.address;
-        this.cardcode = customer.cardcode;
-        this.cardname = customer.cardname;
-        this.created_by = this.$store.state.user.id;
+    window.backend.GetOrder(parseInt(this.id)).then((order) => {
+        this.order = order;
+
+        this.order.items.forEach(item => {
+          if (item.discount === 0) {
+            this.subtotal = parseFloat(this.subtotal) + parseFloat(item.quantity) * parseFloat(item.price).toFixed(2);
+          } else {
+            this.subtotal = parseFloat(parseFloat(item.quantity) * parseFloat(item.price) - (parseFloat(item.price) - parseFloat(item.price) * (parseFloat(item.discount) / 100))).toFixed(2);
+          }
+
+          this.vatAmount = parseFloat((7.5 / 100) * this.subtotal).toFixed(2);
+        });
+
+        window.backend.PaymentOnOrder(parseInt(this.id)).then((payment) => {
+            if (JSON.stringify(payment) !== "{}") {
+              this.payment = payment;
+            }
+          },
+          (err) => {
+            this.$toast.error("Error! " + err);
+          }
+        );
+
+        window.backend.GetUser(parseInt(order.created_by)).then((user) => {
+            if (JSON.stringify(user) !== "{}") {
+              this.user = user;
+            }
+          },
+          (err) => {
+            this.$toast.error("Error! " + err);
+          }
+        );
       },
       (err) => {
         this.$toast.error("Error! " + err);
@@ -130,42 +244,15 @@ export default {
     );
   },
   methods: {
-    Modification() {
-      this.customer = {
-        id: this.id,
-        city: this.city,
-        phone: this.phone,
-        email: this.email,
-        phone1: this.phone1,
-        address: this.address,
-        cardcode: this.cardcode,
-        cardname: this.cardname,
-        updated_at: moment().format(),
-        created_by: this.$store.state.user.id,
-      };
-
-      // Validate the payload.
-      for (var attribute in this.customer) {
-        if (
-          this.customer[attribute] === "" ||
-          this.customer[attribute] === null
-        ) {
-          this.$toast.error(
-            "Error! " + attribute + " cannot be " + this.customer[attribute]
-          );
-          return;
-        }
+    CreateReturn() {
+      window.backend.CreateReturn(parseInt(this.id), this.comment).then(() => {
+        this.$toast.success("Success! Sales Order Return Document has been successfully saved.");
+        this.$router.push("/orders/");
+      },
+      (err) => {
+        this.$toast.error("Error! " + err);
       }
-
-      window.backend.UpdateCustomer(this.customer).then(
-        () => {
-          this.$router.push("/customers/");
-        },
-        (err) => {
-          this.$toast.error("Error! " + err);
-        }
-      );
-    },
-  },
+    )}
+  }
 };
 </script>

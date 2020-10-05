@@ -25,8 +25,7 @@
       </div>
       <div class="form-group col">
         <label>Created By</label>
-        <input type="text" class="form-control" placeholder="City" disabled 
-        :value="this.$store.state.user.email" />
+        <input type="text" class="form-control" placeholder="City" disabled :value="this.$store.state.user.email" />
       </div>
     </div>
 

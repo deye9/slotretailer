@@ -1,0 +1,3 @@
+2020-10-05 15:38:29.469163 +0100 WAT m=+0.122935064 Error Migrating File: : Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'IF NOT EXISTS( SELECT NULL
+            FROM INFORMATION_SCHEMA.COLUMNS
+         ' at line 1

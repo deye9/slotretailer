@@ -21,9 +21,9 @@ func GetOrder(id int) (order Orders, err error) {
 	var items []OrderedItems
 	for rows.Next() {
 		item := OrderedItems{}
-		
+
 		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum,
-			&order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt,
+			&order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt, &order.Comment, &order.Returned,
 			&item.ID, &item.OrderID, &item.ItemCode, &item.ItemName, &item.Price, &item.Quantity, &item.Discount); err != nil {
 			CheckError("Error Scanning Order.", err, false)
 		} else {
@@ -46,7 +46,7 @@ func GetOrders() (orders []Orders, err error) {
 	defer rows.Close()
 	for rows.Next() {
 		order := Orders{}
-		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum, &order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt); err != nil {
+		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum, &order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt, &order.Comment, &order.Returned); err != nil {
 			CheckError("Error Scanning Orders.", err, false)
 		} else {
 			orders = append(orders, order)
@@ -118,6 +118,15 @@ func NewOrder(order map[string]interface{}) (err error) {
 
 	// Print out invoice & email to the customer.
 
+	return
+}
+
+// CreateReturn creates a new returns Document.
+func CreateReturn(id int, comment string) (err error) {
+	sqlCommand := fmt.Sprintf("UPDATE orders set Comment = '%s', returned = true where ID = %d", comment, id)
+	if err = Modify(sqlCommand); err != nil {
+		CheckError("Error updating the Order.", err, false)
+	}
 	return
 }
 

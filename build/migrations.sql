@@ -105,8 +105,19 @@ CREATE TABLE IF NOT EXISTS store (
     deleted_at  TIMESTAMP NULL
 );
 
+IF NOT EXISTS( SELECT NULL
+            FROM INFORMATION_SCHEMA.COLUMNS
+           WHERE table_name = 'orders'
+             AND table_schema = 'retail'
+             AND column_name = 'comment')  THEN
+
+ALTER table orders add column comment text;
+ALTER table orders add column returned boolean DEFAULT false;
+
+END IF;
+
 REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) 
 SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true
 WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');
 
--- ALTER table payments add column amount real not null;
+-- ALTER table orders add column comment text;

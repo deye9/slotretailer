@@ -45,10 +45,13 @@
       </template>
 
       <template v-slot:cell(actions)="row" v-if="this.$store.state.isAdmin">
-        <b-button size="sm" variant="primary" @click="displayInfo(row.item)" style="margin-right: 2px">
+        <b-button size="sm" variant="primary" @click="displayInfo(row.item)" title="Order Details" style="margin-right: 2px">
           <b-icon icon="eye" aria-hidden="true"></b-icon>
         </b-button>
-        <b-button size="sm" variant="danger" @click="removeRow(row.item, row.index)" class="mr-1">
+        <b-button size="sm" variant="primary" @click="edit(row.item)" title="Order Details" style="margin-right: 2px">
+          <b-icon icon="minecart-loaded" aria-hidden="true"></b-icon>
+        </b-button>
+        <b-button size="sm" variant="danger" @click="removeRow(row.item, row.index)" title="Sales Order Return" class="mr-1">
           <b-icon icon="trash" aria-hidden="true"></b-icon>
         </b-button>
       </template>      
@@ -99,11 +102,13 @@ export default {
     window.backend.GetOrders().then((orders) => {
         if (JSON.stringify(orders) !== "{}") {
           const exempt = [
-              "docnum",
               "items",
+              "docnum",
+              "comment",
               "payments",
               "docentry",
               "cardcode",
+              "returned",
               "deleted_at",
               "updated_at",
               "created_by",
@@ -134,6 +139,9 @@ export default {
     );
   },
   methods: {
+    edit(row) {
+      this.$router.push("/orders/edit/" + row.id);
+    },
     displayInfo(row) {
       this.$router.push("/orders/details/" + row.id);
     },
@@ -177,5 +185,3 @@ export default {
   },
 };
 </script>
-            // this.$router.push("/orders/details/" + row.id);
-          //     this.$router.push("/orders/edit/" + row.id);

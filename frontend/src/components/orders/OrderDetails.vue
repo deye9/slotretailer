@@ -1,6 +1,6 @@
 <template>
   <section>
-    <div class="row">
+    <div class="row" style="margin-top:8em;">
       <div class="col-8">
         <h3>Viewing Order {{this.order.id}}</h3>
       </div>
@@ -13,30 +13,15 @@
     <div class="form-row">
       <div class="form-group col">
         <label>Order Number</label>
-        <input
-          type="text"
-          class="form-control"
-          disabled
-          v-model="this.order.id"
-        />
+        <input type="text" class="form-control" disabled v-model="this.order.id" />
       </div>
       <div class="form-group col">
         <label>Customer</label>
-        <input
-          type="text"
-          class="form-control"
-          disabled
-          v-model="this.order.cardname"
-        />
+        <input type="text" class="form-control" disabled v-model="this.order.cardname" />
       </div>
       <div class="form-group col">
         <label for="docnum">SAP Document Number</label>
-        <input
-          type="text"
-          class="form-control"
-          disabled
-          v-model="this.order.docnum"
-        />
+        <input type="text" class="form-control" disabled v-model="this.order.docnum" />
       </div>
       <div class="form-group col">
         <label for="docnum">Created By</label>
@@ -81,6 +66,13 @@
         <span class="btn btn-info" disabled>
           {{ this.user.created_at.String }}
         </span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label>Comments</label>
+        <input type="text" class="form-control" disabled v-model="this.order.comment.String" />
       </div>
     </div>
 

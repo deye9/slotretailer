@@ -54,6 +54,8 @@ type Orders struct {
 	Synced    bool           `json:"synced"`
 	Items     []OrderedItems `json:"items"`
 	Payments  []Payments     `json:"payments"`
+	Comment   sql.NullString `json:"comment,omitempty"`
+	Returned  bool           `json:"returned"`
 	CreatedBy int            `json:"created_by,omitempty"`
 	CreatedAt sql.NullString `json:"created_at,omitempty"`
 	UpdatedAt sql.NullString `json:"updated_at,omitempty"`
@@ -117,8 +119,8 @@ type Store struct {
 	DeletedAt    sql.NullString `json:"deleted_at,omitempty"`
 }
 
-// Search struct
-type Search struct {
+// SearchResult struct
+type SearchResult struct {
 	Column      string `json:"column,omitempty"`
 	Occurrences string `json:"occurrences,omitempty"`
 }
