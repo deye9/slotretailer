@@ -1,6 +1,9 @@
 package service
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+)
 
 // TodaysOrders returns an array of Orders placed today
 func TodaysOrders() (orders []Orders, err error) {
@@ -61,4 +64,57 @@ func Dashboard() (response ReportObject, err error) {
 	response.Items, err = WeekTopSellers()
 
 	return
+}
+
+// GetReport returns a report object.
+func GetReport(id int) (report Reports, err error) {
+	var rows *sql.Rows
+	if rows, err = Get(fmt.Sprintf(`SET @sql_query = '';
+		select query into @sql_query from reports where id = %d and deleted_at is null;
+		PREPARE statement FROM @sql_query;
+		EXECUTE statement;
+		DEALLOCATE PREPARE statement;`, id)); err != nil {
+		CheckError("Error getting Report Data.", err, false)
+		return Reports{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		if err = rows.Scan(&report.ID, &report.Title, &report.Query, &report.CreatedBy, &report.CreatedAt, &report.UpdatedAt, &report.DeletedAt); err != nil {
+			CheckError("Error Scanning Report list.", err, false)
+		}
+	}
+
+	return
+}
+
+// GetReports returns an array of all created reports.
+func GetReports() (reports []Reports, err error) {
+	var rows *sql.Rows
+	if rows, err = Get(`select * from reports where deleted_at is null order by created_at desc;`); err != nil {
+		CheckError("Error getting Report List.", err, false)
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		report := Reports{}
+		if err = rows.Scan(&report.ID, &report.Title, &report.Query, &report.CreatedBy, &report.CreatedAt, &report.UpdatedAt, &report.DeletedAt); err != nil {
+			CheckError("Error Scanning Report list.", err, false)
+		} else {
+			reports = append(reports, report)
+		}
+	}
+
+	return
+}
+
+// RemoveReport soft deletes a report from the database
+func RemoveReport(id int) (err error) {
+	if err = Modify(fmt.Sprintf(`update reports set deleted_at = CURRENT_TIMESTAMP where id = %d;`, id)); err != nil {
+		CheckError("Error removing Report.", err, false)
+		return err
+	}
+
+	return nil
 }

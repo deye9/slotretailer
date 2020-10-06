@@ -126,4 +126,15 @@ type SearchResult struct {
 	Occurrences string `json:"occurrences,omitempty"`
 }
 
+// Reports struct
+type Reports struct {
+	ID        int            `json:"id,omitempty"`
+	Title     string         `json:"title,omitempty"`
+	Query     string         `json:"query,omitempty"`
+	CreatedBy int            `json:"created_by,omitempty"`
+	CreatedAt sql.NullString `json:"created_at,omitempty"`
+	UpdatedAt sql.NullString `json:"updated_at,omitempty"`
+	DeletedAt sql.NullString `json:"deleted_at,omitempty"`
+}
+
 // REMEMBER TO MODIFY THE migrations.sql ONCE MODIFIED via an alter statement.

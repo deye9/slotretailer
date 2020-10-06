@@ -124,11 +124,10 @@ export default {
           });
           this.fields.push({ key: 'actions', label: 'Actions' });
 
-          orders.forEach((order) => {
-            this.data.push(order);
-          });
+          // Set the dataSource
+          this.data = orders;
 
-           // Set the initial number of items
+          // Set the initial number of items
           this.totalRows = orders.length;
         }
         this.isBusy = false;
@@ -151,9 +150,10 @@ export default {
     },
     removeRow(item, index) {
       window.backend.RemoveOrder(parseInt(item.id)).then(() => {
-          this.$toast.success("Success! Order has been successfully deleted.");
           // Remove the row from the table
-          document.getElementById("orderList").deleteRow(index);
+          document.getElementById("orderList").getElementsByTagName('tbody')[0].deleteRow(index);
+          
+          this.$toast.success("Success! Order has been successfully deleted.");
         },
         (err) => {
           this.$toast.error("Error! " + err);

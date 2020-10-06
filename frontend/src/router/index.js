@@ -12,6 +12,12 @@ import NewUser from "@/components/users/NewUser";
 import EditUser from "@/components/users/EditUser";
 import GetUsers from "@/components/users/GetUsers";
 
+import Reports from "@/pages/Reports";
+import Report from "@/components/reports/Report";
+import NewReport from "@/components/reports/NewReport";
+import EditReport from "@/components/reports/EditReport";
+import GetReports from "@/components/reports/GetReports";
+
 import Customers from "@/pages/Customers";
 import NewCustomer from "@/components/customers/NewCustomer";
 import EditCustomer from "@/components/customers/EditCustomer";
@@ -39,7 +45,10 @@ import {
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'bootstrap/dist/css/bootstrap.css';
-import { DataTables, DataTablesServer } from "vue-data-tables";
+import {
+    DataTables,
+    DataTablesServer
+} from "vue-data-tables";
 import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css';
 import moment from 'moment';
 
@@ -63,7 +72,8 @@ Vue.filter("moment2", date => moment(date).format('DD-MM-YYYY'));
 const router = new Router({
     mode: 'history',
     linkExactActiveClass: 'active',
-    routes: [{
+    routes: [
+        {
             path: "/",
             name: "login",
             component: Login
@@ -159,6 +169,29 @@ const router = new Router({
             path: "/dashboard",
             name: "dashboard",
             component: Dashboard
+        },
+        {
+            path: "/reports",
+            name: "reports",
+            component: Reports,
+            children: [
+                {
+                    path: "/",
+                    component: GetReports
+                },
+                {
+                    path: "/:id",
+                    component: Report
+                },
+                {
+                    path: "new",
+                    component: NewReport
+                },
+                {
+                    path: "edit/:id",
+                    component: EditReport
+                }
+            ]
         },
     ]
 });

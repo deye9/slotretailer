@@ -105,6 +105,16 @@ CREATE TABLE IF NOT EXISTS store (
     deleted_at  TIMESTAMP NULL
 );
 
+CREATE TABLE IF NOT EXISTS reports (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    title       VARCHAR(255) NOT NULL UNIQUE,
+    query       TEXT NOT NULL,
+    created_by  INT NOT NULL,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP NULL,
+    deleted_at  TIMESTAMP NULL
+);
+
 IF NOT EXISTS( SELECT NULL
             FROM INFORMATION_SCHEMA.COLUMNS
            WHERE table_name = 'orders'
@@ -155,5 +165,13 @@ EXECUTE statement;
 DEALLOCATE PREPARE statement;
 
 END
+
+-- Default Reports
+REPLACE INTO reports (id, title, query, created_by) VALUES (1, "Todays Orders", "select * from orders where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
+REPLACE INTO reports (id, title, query, created_by) VALUES (2, "Week's Top Seller", "select i.id, i.orderid, i.itemcode, i.itemname, sum(i.price) price, sum(i.quantity) quantity, sum(i.discount) discount from ordereditems i inner join orders o on o.id = i.orderid WHERE cast(created_at as date) BETWEEN cast(DATE_ADD(CURDATE(), INTERVAL(1 - DAYOFWEEK(CURDATE())) DAY) as date) AND cast(DATE_ADD(CURDATE(), INTERVAL(7 - DAYOFWEEK(CURDATE())) DAY) as date) AND deleted_At is null GROUP BY i.id, i.orderid, i.itemcode, i.itemname;", 1);
+REPLACE INTO reports (id, title, query, created_by) VALUES (3, "Todays Top Sellers", "select i.* from orders o inner join ordereditems i on o.id = i.orderid where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
+REPLACE INTO reports (id, title, query, created_by) VALUES (4, "Store Inventory Level", "select p.* from store s inner join products p on s.sapkey = p.warehouse;", 1);
+REPLACE INTO reports (id, title, query, created_by) VALUES (5, "Global Inventory Level", "select * from products p;", 1);
+
 
 -- ALTER table orders add column comment text;

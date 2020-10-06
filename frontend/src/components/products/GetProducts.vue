@@ -105,9 +105,8 @@ export default {
           });
           this.fields.push({ key: 'actions', label: 'Actions' });
 
-          products.forEach((product) => {
-            this.data.push(product);
-          });
+          // Set the dataSource
+          this.data = products;
 
           // Set the initial number of products
           this.totalRows = products.length;

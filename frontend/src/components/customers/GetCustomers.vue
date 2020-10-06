@@ -41,9 +41,11 @@
       <template v-slot:cell(actions)="row" v-if="this.$store.state.isAdmin">
         <b-button size="sm" variant="primary" @click="displayInfo(row.item)" style="margin-right: 2px">
           <b-icon icon="pencil" aria-hidden="true"></b-icon>
+          Edit
         </b-button>
         <b-button size="sm" variant="danger" @click="removeRow(row.item, row.index)" class="mr-1">
           <b-icon icon="trash" aria-hidden="true"></b-icon>
+          Delete
         </b-button>
       </template>      
       <template v-slot:custom-foot>
@@ -111,9 +113,8 @@ export default {
           });
           this.fields.push({ key: 'actions', label: 'Actions' });
 
-          customers.forEach((customer) => {
-            this.data.push(customer);
-          });
+          // Set the dataSource
+          this.data = customers;
           
           // Set the initial number of items
           this.totalRows = customers.length;
@@ -132,9 +133,10 @@ export default {
     },
     removeRow(item, index) {
       window.backend.RemoveCustomer(parseInt(item.id)).then(() => {
-          this.$toast.success("Success! Customer has been successfully deleted.");
           // Remove the row from the table
-          document.getElementById("customerList").deleteRow(index);
+          document.getElementById("customerList").getElementsByTagName('tbody')[0].deleteRow(index);
+          
+          this.$toast.success("Success! Customer has been successfully deleted.");
         },
         (err) => {
           this.$toast.error("Error! " + err);

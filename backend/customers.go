@@ -62,7 +62,7 @@ func GetCustomerbyPhone(details string) (customer Customers, err error) {
 	return
 }
 
-// RemoveCustomer deletes a Customers from the database
+// RemoveCustomer soft deletes a Customers from the database
 func RemoveCustomer(id int) (err error) {
 	if err = Modify(fmt.Sprintf(`update customers set deleted_at = CURRENT_TIMESTAMP where id = %d;`, id)); err != nil {
 		CheckError("Error removing Customer(s).", err, false)

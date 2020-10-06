@@ -459,11 +459,11 @@ export default {
     },
     async removePayment(index) {
       if (this.payments.length > 1) {
-        this.$toast.success("Success! Payment has been successfully deleted.");
         // Remove the row from the table
-        document.getElementById("paymentList").deleteRow(index);
+        document.getElementById("paymentList").getElementsByTagName('tbody')[0].deleteRow(index);
 
         await this.updatePayment();
+        this.$toast.success("Success! Payment has been successfully deleted.");
       }
     },    
     async paymentMethod(event, row) {

@@ -20,7 +20,13 @@
           <b-nav-item href="#">
             <router-link to="/orders/" class="nav-link active">Sales Order</router-link>
           </b-nav-item>
-          
+          <b-nav-item href="#">
+            <router-link to="/reports/" class="nav-link active">Reports</router-link>
+          </b-nav-item>
+          <b-nav-item href="#">
+            <router-link to="/orders/" class="nav-link active">Stock Transfer</router-link>
+          </b-nav-item>
+
           <b-nav-item-dropdown text="Administration" class="m-md-2"  v-if="this.$store.state.isAdmin">
             <b-dropdown-item href="#">
               <router-link to="/users/" class="text-dark">User Flow</router-link>

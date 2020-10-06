@@ -203,8 +203,7 @@ export default {
         }
       }
 
-      window.backend.UpdateCustomer(this.customer).then(
-        () => {
+      window.backend.UpdateCustomer(this.customer).then(() => {
           this.$toast.success(
             `Success! Customer ${this.cardname} has been successful updated.`
           );

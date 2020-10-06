@@ -107,9 +107,8 @@ export default {
           });
           this.fields.push({ key: 'actions', label: 'Actions' });
 
-          users.forEach((user) => {
-            this.data.push(user);
-          });
+           // Set the dataSource
+          this.data = users;
 
           // Set the initial number of items
           this.totalRows = users.length;
@@ -128,9 +127,10 @@ export default {
     },
     removeRow(item, index) {
       window.backend.RemoveUser(parseInt(item.id)).then(() => {
-          this.$toast.success("Success! User has been successfully deleted.");
           // Remove the row from the table
-          document.getElementById("userList").deleteRow(index);
+          document.getElementById("userList").getElementsByTagName('tbody')[0].deleteRow(index);
+          
+          this.$toast.success("Success! User has been successfully deleted.");
         },
         (err) => {
           this.$toast.error("Error! " + err);
