@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 )
 
 // GetBanks returns an array of Banks
@@ -76,6 +77,8 @@ func Login(email, password string) Users {
 // Search returns the search result
 func Search(searchText string) (result []SearchResult, err error) {
 	var rows *sql.Rows
+	var selectQuery string
+
 	if rows, err = Get(fmt.Sprintf("call searchDB('%s', '%s')", "retail", searchText)); err != nil {
 		CheckError("Error getting Search Result", err, false)
 		return nil, err
@@ -89,6 +92,38 @@ func Search(searchText string) (result []SearchResult, err error) {
 			if err = rows.Scan(&data.Column, &data.Occurrences); err != nil {
 				err = rows.Scan(&data.Query)
 				CheckError("Error Scanning Order.", err, false)
+			} else {
+				result = append(result, data)
+			}
+		}
+	}
+
+	for _, val := range result {
+		column := strings.Replace(val.Column, "`", "", -1)
+
+		// Split on dot.
+		result := strings.Split(column, ".")
+
+		// Build out the queries
+		selectQuery += fmt.Sprintf(`SELECT id AS "column", concat('%s = ', %s) AS "occurrences", '%s' as owner FROM %s WHERE %s LIKE "%s";`, result[1], result[1], result[0], result[0], result[1], "%"+searchText+"%")
+		// selectQuery += fmt.Sprintf(`SELECT json_arrayagg(json_object('id', id, '%s', %s)) AS result FROM %s WHERE %s LIKE "%s";`, result[1], result[1], result[0], result[1], "%"+searchText+"%")
+	}
+
+	// Execute the queries in a batch mode
+	if rows, err = Get(selectQuery); err != nil {
+		CheckError("Error getting batched Search Result", err, false)
+		return nil, err
+	}
+	defer rows.Close()
+
+	// reset the result array
+	result = nil
+	for rows.NextResultSet() {
+		for rows.Next() {
+			data := SearchResult{}
+
+			if err = rows.Scan(&data.Column, &data.Occurrences, &data.Query); err != nil {
+				CheckError("Error Scanning Child Search Results.", err, false)
 			} else {
 				result = append(result, data)
 			}

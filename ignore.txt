@@ -38,7 +38,7 @@ TODO:
 8. Store transfers
 9. Search [https://dba.stackexchange.com/questions/34856/how-to-search-whole-mysql-database-for-a-particular-string]
 12. Invoice generation
-13. Email invoice to customer
+13. Email invoice to customer, invoice printing and able to reprint later.
 14. Pick up connection string details dynamically.
 15. Log files generation [delete after a week]
 16. All delete's should use soft delete's and all retrivals should put that into consideration
@@ -53,8 +53,9 @@ ORDERS:
 6. VAT; ====== done
 5. Allow for draft Sales Order
 
-POS / Bank Transfer = Display list of banks and get amount paid.
-Vouchers = Allow for entry of voucher value
+Discount and VAT should require approval.
+Enter the amount and remove from the item total.
+
 
 CLEAN UP database.go [func randate() and lines 151 to 153]
 @change="PaymentMethod($event)"

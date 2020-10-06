@@ -43,7 +43,6 @@
       <template v-slot:cell(doctotal)="row">
         {{ `₦${parseFloat(row.value).toFixed(2)}` }}
       </template>
-
       <template v-slot:cell(actions)="row" v-if="this.$store.state.isAdmin">
         <b-button size="sm" variant="info" @click="printOrder(row.item)" title="Print Sales Order" class="mr-1">
           <b-icon icon="printer-fill" aria-hidden="true"></b-icon>
