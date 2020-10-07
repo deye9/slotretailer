@@ -180,7 +180,7 @@ const router = new Router({
                     component: GetReports
                 },
                 {
-                    path: "/:id",
+                    path: "display/:id",
                     component: Report
                 },
                 {

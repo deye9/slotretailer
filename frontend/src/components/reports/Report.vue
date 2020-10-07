@@ -1,103 +1,134 @@
 <template>
-    <section>
-        <div class="row flex-xl-nowrap2">
-            <div class="col-8">
-                <h3>Registered Reports</h3>
+  <section>
+    <div class="container flex-xl-nowrap2" style="margin-top: 10em;">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body p-0">
+              <div class="row p-2">
+                <div class="col-12 text-center">
+                    <img src="../../assets/img/slot.png" />
+                    <br />
+                    <h3>{{ this.$store.state.reportTitle }} Report.</h3>
+              <hr />
+                </div>
+              </div>
+
+              <div class="row p-2">
+                <div class="col-md-12">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th class="border-0 text-uppercase small font-weight-bold">
+                          ID
+                        </th>
+                        <th class="border-0 text-uppercase small font-weight-bold">
+                          Item
+                        </th>
+                        <th class="border-0 text-uppercase small font-weight-bold">
+                          Description
+                        </th>
+                        <th class="border-0 text-uppercase small font-weight-bold">
+                          Quantity
+                        </th>
+                        <th class="border-0 text-uppercase small font-weight-bold">
+                          Unit Cost
+                        </th>
+                        <th class="border-0 text-uppercase small font-weight-bold">
+                          Total
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>1</td>
+                        <td>Software</td>
+                        <td>LTS Versions</td>
+                        <td>21</td>
+                        <td>$321</td>
+                        <td>$3452</td>
+                      </tr>
+                      <tr>
+                        <td>1</td>
+                        <td>Software</td>
+                        <td>Support</td>
+                        <td>234</td>
+                        <td>$6356</td>
+                        <td>$23423</td>
+                      </tr>
+                      <tr>
+                        <td>1</td>
+                        <td>Software</td>
+                        <td>Sofware Collection</td>
+                        <td>4534</td>
+                        <td>$354</td>
+                        <td>$23434</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="d-flex flex-row-reverse bg-dark text-white p-4">
+                <div class="py-3 px-5 text-right">
+                  <div class="mb-2">Grand Total</div>
+                  <div class="h2 font-weight-light">$234,234</div>
+                </div>
+
+                <div class="py-3 px-5 text-right">
+                  <div class="mb-2">Discount</div>
+                  <div class="h2 font-weight-light">10%</div>
+                </div>
+
+                <div class="py-3 px-5 text-right">
+                  <div class="mb-2">Sub - Total amount</div>
+                  <div class="h2 font-weight-light">$32,432</div>
+                </div>
+              </div>
             </div>
-            <div class="col-4">
-                <router-link to="/reports/new" class="btn btn-info float-right">Create Report</router-link>
-            </div>
+          </div>
         </div>
-        <hr />
+      </div>
 
-
-    </section>
+      <div class="text-light mt-5 mb-5 text-center small">
+        by :
+        <a class="text-light" target="_blank" href="http://totoprayogo.com"
+          >totoprayogo.com</a
+        >
+      </div>
+    </div>
+  </section>
 </template>
 
+<style lang="css" scoped>
+body {
+  background: grey;
+  margin-top: 120px;
+  margin-bottom: 120px;
+}
+</style>
+
 <script>
-import moment from "moment";
-
 export default {
-    data() {
-        return {
-            report: null,
-            created_by: null,
-        };
-    },
-    mounted() {
-        var pageURL = location.pathname;
-        this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
-
-        window.backend.GetReport(parseInt(this.id)).then((report) => {
-            this.report = report;
-        },(err) => {
-            this.$toast.error("Error! " + err);
-        });
-    },
-  methods: {
-    handleBlur() {
-      if (this.phone.charAt(0) === "0") {
-        this.phone = this.phone.replace("0", "+234");
-      }
-
-      if (this.phone1.charAt(0) === "0") {
-        this.phone1 = this.phone1.replace("0", "+234");
-      }
-
-      document.getElementById("update").disabled = false;
-      let details = `phone = '${this.phone}' or phone = '${this.phone1}' or phone1 = '${this.phone}' or phone1 = '${this.phone1}'`;
-
-      window.backend.GetCustomerbyPhone(details).then((customer) => {
-        this.id = customer.id;
-        this.city = customer.city;
-        this.phone = customer.phone;
-        this.email = customer.email;
-        this.phone1 = customer.phone1;
-        this.address = customer.address;
-        this.cardcode = customer.cardcode;
-        this.cardname = customer.cardname;
-        this.created_by = this.$store.state.user.id;
-        document.getElementById("update").disabled = true;
-      });
-    },
-    Modification() {
-      this.customer = {
-        id: this.id,
-        city: this.city,
-        phone: this.phone,
-        email: this.email,
-        phone1: this.phone1,
-        address: this.address,
-        cardcode: this.cardcode,
-        cardname: this.cardname,
-        updated_at: moment().format(),
-        created_by: this.$store.state.user.id,
-      };
-
-      // Validate the payload.
-      for (var attribute in this.customer) {
-        if (
-          this.customer[attribute] === "" ||
-          this.customer[attribute] === null
-        ) {
-          this.$toast.error(
-            "Error! " + attribute + " cannot be " + this.customer[attribute]
-          );
-          return;
-        }
-      }
-
-      window.backend.UpdateCustomer(this.customer).then(() => {
-          this.$toast.success(
-            `Success! Customer ${this.cardname} has been successful updated.`
-          );
-          this.$router.push("/customers/");
-        },
-        (err) => {
-          this.$toast.error("Error! " + err);
-        }
-      );
-    },
+  data() {
+    return {
+      report: null,
+      created_by: null,
+    };
   },
+  created() {
+    var pageURL = location.pathname;
+    this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
+
+    window.backend.GetReport(parseInt(this.id)).then(
+      (report) => {
+        this.report = report;
+      },
+      (err) => {
+        this.$toast.error("Error! " + err);
+      }
+    );
+  },
+  methods: {},
 };
 </script>

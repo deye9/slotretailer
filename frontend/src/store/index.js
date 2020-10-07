@@ -7,6 +7,7 @@ const store = new Vuex.Store({
     state: {
         user: {},
         isAdmin: false,
+        reportTitle: '',
         isLoggedIn: false
     },
     getters: {},

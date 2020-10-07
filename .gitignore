@@ -22,3 +22,4 @@ build/*
 .vscode
 src_old/*
 frontend_old/*
+ignore.txt

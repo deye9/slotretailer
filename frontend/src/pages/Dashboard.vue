@@ -1,6 +1,6 @@
 <template>
   <section>
-    <div class="row" style="margin-top: 43em;">
+    <div class="row" style="margin-top: 25em;">
       <div class="col-12">
         <h1>Dashboard</h1>
       </div>

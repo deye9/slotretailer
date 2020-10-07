@@ -67,24 +67,46 @@ func Dashboard() (response ReportObject, err error) {
 }
 
 // GetReport returns a report object.
-func GetReport(id int) (report Reports, err error) {
+func GetReport(id int) (allMaps []map[string]interface{}, err error) {
 	var rows *sql.Rows
+	var columns []string
+
 	if rows, err = Get(fmt.Sprintf(`SET @sql_query = '';
 		select query into @sql_query from reports where id = %d and deleted_at is null;
 		PREPARE statement FROM @sql_query;
 		EXECUTE statement;
 		DEALLOCATE PREPARE statement;`, id)); err != nil {
 		CheckError("Error getting Report Data.", err, false)
-		return Reports{}, err
+		return nil, err
+	}
+
+	if columns, err = rows.Columns(); err != nil {
+		CheckError("Error getting Row columns from Report.", err, false)
+		return nil, err
 	}
 
 	defer rows.Close()
-	for rows.Next() {
-		if err = rows.Scan(&report.ID, &report.Title, &report.Query, &report.CreatedBy, &report.CreatedAt, &report.UpdatedAt, &report.DeletedAt); err != nil {
-			CheckError("Error Scanning Report list.", err, false)
-		}
-	}
 
+	for rows.Next() {
+		// Dynamic Result rows scanning.
+		values := make([]interface{}, len(columns))
+		pointers := make([]interface{}, len(columns))
+
+		for i := range values {
+			pointers[i] = &values[i]
+		}
+
+		err = rows.Scan(pointers...)
+
+		resultMap := make(map[string]interface{})
+		for i, val := range values {
+			resultMap[columns[i]] = val
+		}
+
+		// for each database row / record, a map with the column names and row values is added to the allMaps slice
+		allMaps = append(allMaps, resultMap)
+	}
+	
 	return
 }
 

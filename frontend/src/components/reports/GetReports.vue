@@ -129,10 +129,12 @@ export default {
   },
   methods: {
     displayInfo(row) {
+        this.$store.state.reportTitle = row.title;
         this.$router.push("/reports/edit/" + row.id);
     },
     loadReport(row) {
-        this.$router.push("/reports/" + row.id);
+        this.$store.state.reportTitle = row.title;
+        this.$router.push("/reports/display/" + row.id);
     },
     removeRow(item, index) {
         if (item.created_by === 1) {
