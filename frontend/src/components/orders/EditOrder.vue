@@ -236,8 +236,7 @@ export default {
           },
           (err) => {
             this.$toast.error("Error! " + err);
-          }
-        );
+          });
       },
       (err) => {
         this.$toast.error("Error! " + err);

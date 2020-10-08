@@ -1,134 +1,141 @@
 <template>
-  <section>
-    <div class="container flex-xl-nowrap2" style="margin-top: 10em;">
-      <div class="row">
-        <div class="col-12">
-          <div class="card">
-            <div class="card-body p-0">
-              <div class="row p-2">
-                <div class="col-12 text-center">
-                    <img src="../../assets/img/slot.png" />
-                    <br />
-                    <h3>{{ this.$store.state.reportTitle }} Report.</h3>
-              <hr />
+    <section>
+        <div class="container flex-xl-nowrap2" style="margin-top: 10em;">
+            <div class="row">
+                <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="row p-2">
+                            <div class="col-12 text-center">
+                                <img src="../../assets/img/slot.png" />
+                                <br />
+                                <h3>{{ this.$store.state.reportTitle }} Report.</h3>
+                                <hr />
+                            </div>
+                        </div>   
+                    </div>
                 </div>
-              </div>
-
-              <div class="row p-2">
-                <div class="col-md-12">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th class="border-0 text-uppercase small font-weight-bold">
-                          ID
-                        </th>
-                        <th class="border-0 text-uppercase small font-weight-bold">
-                          Item
-                        </th>
-                        <th class="border-0 text-uppercase small font-weight-bold">
-                          Description
-                        </th>
-                        <th class="border-0 text-uppercase small font-weight-bold">
-                          Quantity
-                        </th>
-                        <th class="border-0 text-uppercase small font-weight-bold">
-                          Unit Cost
-                        </th>
-                        <th class="border-0 text-uppercase small font-weight-bold">
-                          Total
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>1</td>
-                        <td>Software</td>
-                        <td>LTS Versions</td>
-                        <td>21</td>
-                        <td>$321</td>
-                        <td>$3452</td>
-                      </tr>
-                      <tr>
-                        <td>1</td>
-                        <td>Software</td>
-                        <td>Support</td>
-                        <td>234</td>
-                        <td>$6356</td>
-                        <td>$23423</td>
-                      </tr>
-                      <tr>
-                        <td>1</td>
-                        <td>Software</td>
-                        <td>Sofware Collection</td>
-                        <td>4534</td>
-                        <td>$354</td>
-                        <td>$23434</td>
-                      </tr>
-                    </tbody>
-                  </table>
                 </div>
-              </div>
-
-              <div class="d-flex flex-row-reverse bg-dark text-white p-4">
-                <div class="py-3 px-5 text-right">
-                  <div class="mb-2">Grand Total</div>
-                  <div class="h2 font-weight-light">$234,234</div>
-                </div>
-
-                <div class="py-3 px-5 text-right">
-                  <div class="mb-2">Discount</div>
-                  <div class="h2 font-weight-light">10%</div>
-                </div>
-
-                <div class="py-3 px-5 text-right">
-                  <div class="mb-2">Sub - Total amount</div>
-                  <div class="h2 font-weight-light">$32,432</div>
-                </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
 
-      <div class="text-light mt-5 mb-5 text-center small">
-        by :
-        <a class="text-light" target="_blank" href="http://totoprayogo.com"
-          >totoprayogo.com</a
-        >
-      </div>
-    </div>
-  </section>
+        <b-table id="report" :items="data" :busy="isBusy" :fields="fields" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" 
+        :per-page="perPage" :current-page="currentPage" :filter="filter" :filter-included-fields="filterOn"
+        @filtered="onFiltered" :sort-direction="sortDirection" show-empty striped hover bordered small 
+        responsive sticky-header caption-top>
+            <template v-slot:table-caption>
+                <b-row>
+                    <b-col>
+                        <b-form-group label="Filter" label-cols-sm="6" label-align-sm="right" label-size="sm" label-for="filterInput" class="mb-0">
+                            <b-input-group size="sm">
+                            <b-form-input v-model="filter" type="search" id="filterInput" placeholder="Type to Search"></b-form-input>
+                            <b-input-group-append>
+                                <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
+                            </b-input-group-append>
+                            </b-input-group>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
+            </template>
+            <template v-slot:table-busy>
+                <div class="text-center text-danger my-2">
+                    <b-spinner class="align-middle"></b-spinner>
+                    <strong>Loading...</strong>
+                </div>
+            </template>
+            <template v-slot:custom-foot>
+                <b-tr>
+                <b-td :colspan="span">
+                    <b-form-group label="Per page" label-cols-sm="6" label-cols-md="4" label-cols-lg="3" label-align-sm="right" label-size="sm" label-for="perPageSelect" class="mb-0">
+                        <b-form-select v-model="perPage" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
+                    </b-form-group>
+                </b-td>
+                <b-td :colspan="span1">
+                    <b-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage"
+                    align="fill" size="sm" class="my-0"></b-pagination>
+                </b-td>
+                </b-tr>
+            </template>
+        </b-table>
+    </section>
 </template>
 
 <style lang="css" scoped>
-body {
-  background: grey;
-  margin-top: 120px;
-  margin-bottom: 120px;
-}
+    .b-table-sticky-header {
+        overflow-y: auto;
+        max-height: 500px;
+    }
 </style>
 
 <script>
 export default {
-  data() {
-    return {
-      report: null,
-      created_by: null,
-    };
-  },
-  created() {
-    var pageURL = location.pathname;
-    this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
+    data() {
+        return {
+            span: 0,
+            span1: 0,
+            data: [],
+            fields: [],
+            perPage: 10,
+            filter: null,
+            sortBy: 'id',
+            filterOn: [],
+            totalRows: 1,
+            isBusy: false,
+            currentPage: 1,
+            sortDesc: true,
+            sortDirection: 'desc',
+            pageOptions: [5, 10, 15, 20, 25, 50, 100],
+            created_by: null,
+        };
+    },
+    created() {
+        this.isBusy = true;
+        var pageURL = location.pathname;
+        this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
 
-    window.backend.GetReport(parseInt(this.id)).then(
-      (report) => {
-        this.report = report;
-      },
-      (err) => {
-        this.$toast.error("Error! " + err);
-      }
-    );
-  },
-  methods: {},
+        window.backend.GetReport(parseInt(this.id)).then((report) => {
+            this.isBusy = false;
+
+            if (report === null) {
+                this.$toast.info("Info! Report returned no data.");
+                return;
+            }
+            
+            const exempt = [
+                "deleted_at",
+                "created_at",
+                "updated_at",
+                "created_by",
+            ],
+            keys = Object.keys(report[0]);
+            keys.forEach((key) => {
+                if (!exempt.includes(key)) {
+                    this.fields.push({ key: key, sortable: true, });
+                }
+            });
+
+            // Set the dataSource
+            this.data = report;
+            
+            // Set the column span
+            this.span = Math.floor(this.fields.length / 2);
+            this.span1 = this.fields.length - parseInt(this.span);
+            
+            // Set the initial number of items
+            this.totalRows = report.length;
+        },
+        (err) => {
+            this.isBusy = false;
+            this.$toast.error("Error! " + err);
+        }
+        );
+    },
+    methods: {
+        onFiltered(filteredItems) {
+        // Trigger pagination to update the number of buttons/pages due to filtering
+        this.totalRows = filteredItems.length
+        this.currentPage = 1
+        }
+    },
 };
 </script>

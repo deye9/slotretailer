@@ -13,7 +13,7 @@
         <b-table id="reportList" :items="data" :busy="isBusy" :fields="fields" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" 
         :per-page="perPage" :current-page="currentPage" :filter="filter" :filter-included-fields="filterOn"
         @filtered="onFiltered" :sort-direction="sortDirection" show-empty striped hover bordered small 
-        responsive sticky-header>
+        responsive sticky-header caption-top>
             <template v-slot:table-caption>
                 <b-row>
                 <b-col>
@@ -38,7 +38,7 @@
                 {{ row.value }}
             </template>
             <template v-slot:cell(actions)="row" v-if="this.$store.state.isAdmin">
-                <b-button size="sm" variant="primary" @click="displayInfo(row.item)" style="margin-right: 2px">
+                <b-button size="sm" variant="primary" @click="editReport(row.item)" style="margin-right: 2px">
                     <b-icon icon="pencil" aria-hidden="true"></b-icon>
                     Edit
                 </b-button>
@@ -46,19 +46,19 @@
                     <b-icon icon="trash" aria-hidden="true"></b-icon>
                     Delete
                 </b-button>
-                <b-button href="#" variant="primary" @click="loadReport(row.item)" class="mr-1">
+                <b-button size="sm" variant="primary" @click="loadReport(row.item)" class="mr-1">
                     <b-icon icon="server" aria-hidden="true"></b-icon>
                     Execute Query
                 </b-button>
             </template>      
             <template v-slot:custom-foot>
                 <b-tr>
-                <b-td colspan="2">
+                <b-td colspan="1">
                     <b-form-group label="Per page" label-cols-sm="6" label-cols-md="4" label-cols-lg="3" label-align-sm="right" label-size="sm" label-for="perPageSelect" class="mb-0">
                     <b-form-select v-model="perPage" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
                     </b-form-group>
                 </b-td>
-                <b-td colspan="1">
+                <b-td colspan="2">
                     <b-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage"
                     align="fill" size="sm" class="my-0"></b-pagination>
                 </b-td>
@@ -79,45 +79,46 @@
 export default {
   data() {
     return {
-      data: [],
-      fields: [],
-      perPage: 10,
-      filter: null,
-      sortBy: 'id',
-      filterOn: [],
-      totalRows: 1,
-      isBusy: false,
-      currentPage: 1,
-      sortDesc: true,
-      sortDirection: 'desc',
-      pageOptions: [5, 10, 15, 20, 25, 50, 100],
+        data: [],
+        fields: [],
+        perPage: 10,
+        filter: null,
+        sortBy: 'id',
+        filterOn: [],
+        totalRows: 1,
+        isBusy: false,
+        currentPage: 1,
+        sortDesc: true,
+        sortDirection: 'desc',
+        pageOptions: [5, 10, 15, 20, 25, 50, 100],
     };
   },
   mounted() {
     this.isBusy = true;
     window.backend.GetReports().then((reports) => {
         if (JSON.stringify(reports) !== "{}") {
-          const exempt = [
-              "query",
-              "deleted_at",
-              "created_at",
-              "updated_at",
-              "created_by",
-            ],
-           keys = Object.keys(reports[0]);
+            const exempt = [
+                "query",
+                "deleted_at",
+                "created_at",
+                "updated_at",
+                "created_by",
+                ],
+            keys = Object.keys(reports[0]);
 
-          keys.forEach((key) => {
-            if (!exempt.includes(key)) {
-              this.fields.push({ key: key, sortable: true, });
-            }
-          });
-          this.fields.push({ key: 'actions', label: 'Actions' });
-          
-          // Set the dataSource
-          this.data = reports;
+            keys.forEach((key) => {
+                if (!exempt.includes(key)) {
+                this.fields.push({ key: key, sortable: true, });
+                }
+            });
 
-          // Set the initial number of items
-          this.totalRows = reports.length;
+            this.fields.push({ key: 'actions', label: 'Actions' });
+
+            // Set the dataSource
+            this.data = reports;
+
+            // Set the initial number of items
+            this.totalRows = reports.length;
         }
         this.isBusy = false;
       },
@@ -128,7 +129,7 @@ export default {
     );
   },
   methods: {
-    displayInfo(row) {
+    editReport(row) {
         this.$store.state.reportTitle = row.title;
         this.$router.push("/reports/edit/" + row.id);
     },
@@ -137,7 +138,7 @@ export default {
         this.$router.push("/reports/display/" + row.id);
     },
     removeRow(item, index) {
-        if (item.created_by === 1) {
+        if (item.created_by === 1 && this.$store.state.user.id !== item.created_by) {
             this.$toast.info("ALERT! You are not permitted to delete a default report.");
             return
         }
@@ -158,6 +159,4 @@ export default {
     }
   }
 };
-
-// v-if="row.item.created_by === this.$store.state.user.id"
 </script>

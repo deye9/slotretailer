@@ -66,6 +66,24 @@ func Dashboard() (response ReportObject, err error) {
 	return
 }
 
+// GetDML returns a report DML Struct.
+func GetDML(id int) (report Reports, err error) {
+	var rows *sql.Rows
+	if rows, err = Get(fmt.Sprintf(`select * from reports where id = %d and deleted_at is null;`, id)); err != nil {
+		CheckError("Error getting Reports DML data.", err, false)
+		return Reports{}, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		if err = rows.Scan(&report.ID, &report.Title, &report.Query, &report.CreatedBy, &report.CreatedAt, &report.UpdatedAt, &report.DeletedAt); err != nil {
+			CheckError("Error Scanning Report DML.", err, false)
+		}
+	}
+
+	return
+}
+
 // GetReport returns a report object.
 func GetReport(id int) (allMaps []map[string]interface{}, err error) {
 	var rows *sql.Rows
@@ -100,13 +118,13 @@ func GetReport(id int) (allMaps []map[string]interface{}, err error) {
 
 		resultMap := make(map[string]interface{})
 		for i, val := range values {
-			resultMap[columns[i]] = val
+			resultMap[columns[i]] = fmt.Sprintf("%s", val)
 		}
 
 		// for each database row / record, a map with the column names and row values is added to the allMaps slice
 		allMaps = append(allMaps, resultMap)
 	}
-	
+
 	return
 }
 
@@ -131,6 +149,26 @@ func GetReports() (reports []Reports, err error) {
 	return
 }
 
+// NewReport creates a new Report in the database
+func NewReport(title, query string, creator int) (id int64, err error) {
+	insertCommand := fmt.Sprintf(`INSERT INTO reports (title, query, created_by) VALUES ("%s", "%s", "%d");`, title, query, creator)
+	if id, err = Insert(insertCommand); err != nil {
+		CheckError("Error Registering the new Report.", err, false)
+	}
+
+	return
+}
+
+// UpdateReport updates the Report in the database
+func UpdateReport(title, query string, recordID int) (err error) {
+	updateCommand := fmt.Sprintf(`UPDATE reports SET title = "%s", query = "%s" WHERE id = "%d";`, title, query, recordID)
+	if err = Modify(updateCommand); err != nil {
+		CheckError("Error Updating the requested Report.", err, false)
+	}
+
+	return
+}
+
 // RemoveReport soft deletes a report from the database
 func RemoveReport(id int) (err error) {
 	if err = Modify(fmt.Sprintf(`update reports set deleted_at = CURRENT_TIMESTAMP where id = %d;`, id)); err != nil {
@@ -139,4 +177,44 @@ func RemoveReport(id int) (err error) {
 	}
 
 	return nil
+}
+
+// GetTableSchema returns the table schema for the Database
+func GetTableSchema() (allMaps []map[string]interface{}, err error) {
+	var rows *sql.Rows
+	var columns []string
+
+	if rows, err = Get("SELECT table_name, json_arrayagg(json_object('column_name', column_name, 'column_type', column_type, 'column_key', column_key)) as columns from information_schema.columns where table_schema = 'retail' group by table_name order by table_name;"); err != nil {
+		CheckError("Error getting Table Schema.", err, false)
+		return nil, err
+	}
+
+	if columns, err = rows.Columns(); err != nil {
+		CheckError("Error getting Row columns from Schema Query.", err, false)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		// Dynamic Result rows scanning.
+		values := make([]interface{}, len(columns))
+		pointers := make([]interface{}, len(columns))
+
+		for i := range values {
+			pointers[i] = &values[i]
+		}
+
+		err = rows.Scan(pointers...)
+
+		resultMap := make(map[string]interface{})
+		for i, val := range values {
+			resultMap[columns[i]] = fmt.Sprintf("%s", val)
+		}
+
+		// for each database row / record, a map with the column names and row values is added to the allMaps slice
+		allMaps = append(allMaps, resultMap)
+	}
+
+	return
 }

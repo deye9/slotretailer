@@ -1,5 +1,6 @@
 <template>
     <section>
+        <br />
         <div class="row">
             <div class="col-8">
                 <h3>Create Report</h3>
@@ -29,28 +30,46 @@
 
         <hr />
         <div>
-            <div class="form-row">
-                <div class="form-group col">
-                    <b-card title="Title" header-tag="header" footer-tag="footer">
-                    <template v-slot:header>
-                        <h6 class="mb-0">Report Builder</h6>
-                    </template>
-                    <b-card-text>
-                        Header and footers using slots.
-                    </b-card-text>
-                    <template v-slot:footer>
-                        <b-button href="#" variant="primary" class="mr-1">
-                            <b-icon icon="server" aria-hidden="true"></b-icon>
-                            Execute Query
-                        </b-button>
-                    </template>
-                    </b-card>
+            <b-card header-tag="header" footer-tag="footer">
+            <template v-slot:header>
+                <h6 class="mb-0">Report Builder</h6>
+            </template>
+            <b-card-text>
+                <div class="form-row">
+                    <div class="form-group col-4">
+                        <div style="max-height: 250px; overflow: scroll">
+                            <span v-for="(item, index) in this.schema" :key="index" style="text-transform: capitalize;">
+                                <strong class="text-primary">
+                                    {{ item.TableName }}
+                                </strong>
+                                <br />
+                                <b-form-checkbox stacked style="text-transform: capitalize;" 
+                                    v-model="selected" @change="toggleAll"
+                                    v-for="option in item.columns"
+                                    :key="option.column_name"
+                                    :title="option.column_type"
+                                    :value="item.TableName + '.' + option.column_name">
+                                    {{option.column_name}}
+                                </b-form-checkbox>
+                                <hr />
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group col-8">
+                        <h3> Generated Query </h3>
+                        <b-form-textarea v-model="qry" placeholder="Enter something..." size="lg" rows="5" max-rows="6"></b-form-textarea>
+                    </div>
                 </div>
-                <div class="form-group col">
-                    <h3> Result </h3>
-                </div>
-            </div>
+            </b-card-text>
+            <template v-slot:footer>
+                <b-button href="#" variant="primary" class="mr-1 float-right" @click="saveQuery">
+                    <b-icon icon="folder" aria-hidden="true"></b-icon>
+                    Save Query
+                </b-button>
+            </template>
+            </b-card>
         </div>
+ 
     </section>
 </template>
 
@@ -60,16 +79,93 @@ import moment from "moment";
 export default {
     data() {
         return {
+            qry: '',
             title: '',
+            schema: [],
             creator: '',
+            selected: [],
             createDate: '',
             created_by: '',
+            dynamicQry: [],
         };
     },
-    mounted() {
+    created() {
         this.createDate = moment().format();
         this.created_by = this.$store.state.user.id;
         this.creator = this.$store.state.user.firstname + " " + this.$store.state.user.lastname;
+
+        window.backend.GetTableSchema().then((schema) => {
+            // Set the dataSource
+            schema.forEach((key) => {
+                this.schema.push({ TableName: key.TABLE_NAME, columns: JSON.parse(key.columns) });
+            });
+            this.dynamicQry = Array.from(this.schema.length);
+        },
+        (err) => {
+            this.$toast.error("Error! " + err);
+        });
+    },
+    methods: {
+        toggleAll(checked) {
+            this.qry = '';
+            this.dynamicQry = [];
+
+            // Get the Details
+            checked.forEach((check) => {
+                let datasplit = check.split(".");
+                if (!this.dynamicQry[datasplit[0]]) {
+                    this.dynamicQry[datasplit[0]] = `SELECT ${datasplit[1]} FROM ${datasplit[0]};`;
+                } else {                    
+                    this.dynamicQry[datasplit[0]] += `${datasplit[1]} `;
+                    this. dynamicQry[datasplit[0]] = this.dynamicQry[datasplit[0]].replace(` FROM ${datasplit[0]};`, ", ") + `FROM ${datasplit[0]};`;
+                } 
+            });
+
+            // Display the query to the user
+            for (var key in this.dynamicQry) {
+                this.qry += this.dynamicQry[key] + "\n";
+            } 
+        },
+        saveQuery() {
+            if (this.title === '') {
+                this.$toast.error("Error! Report Title cannot be empty.");
+                return
+            }
+
+            if (this.qry === '') {
+                this.$toast.error("Error! Query body cannot be empty.");
+                return
+            }
+
+            const invalidCommands = [
+                "create",
+                "drop",
+                "alter",
+                "truncate",
+                "comment",
+                "rename",
+                "update",
+                "delete",
+                "replace",
+                "savepoint",
+                "merge",
+            ];
+
+            invalidCommands.forEach((cmd) => {
+                if (this.qry.toLowerCase().includes(cmd)) {
+                    this.$toast.error(`Error! Your query cannot contain the word ${cmd}.`);
+                    return
+                }
+            });
+
+            window.backend.NewReport(this.title, this.qry, this.created_by).then(() => {
+                this.$toast.success(`Success! Report ${this.title} has been successfully registered.`);
+                this.$router.push("/reports/");
+            },
+            (err) => {
+                this.$toast.error("Error! " + err);
+            });
+        }
     }
 }
 </script>

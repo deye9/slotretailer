@@ -69,9 +69,13 @@ func main() {
 	app.Bind(service.RemoveCustomer)
 
 	// Reports
+	app.Bind(service.GetDML)
+	app.Bind(service.NewReport)
 	app.Bind(service.GetReport)
 	app.Bind(service.GetReports)
+	app.Bind(service.UpdateReport)
 	app.Bind(service.RemoveReport)
+	app.Bind(service.GetTableSchema)
 
 	app.Run()
 }

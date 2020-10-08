@@ -5,9 +5,7 @@
         <h3>New Customer</h3>
       </div>
       <div class="col-4">
-        <router-link to="/customers/" class="btn btn-info float-right"
-          >Back</router-link
-        >
+        <router-link to="/customers/" class="btn btn-info float-right">Back</router-link>
       </div>
     </div>
     <hr />
@@ -20,8 +18,7 @@
           class="form-control"
           placeholder="Customer Code"
           v-model="cardcode"
-          disabled
-        />
+          disabled/>
       </div>
       <div class="form-group col">
         <label for="cardname">Customer Name</label>
