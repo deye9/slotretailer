@@ -113,6 +113,7 @@ type Store struct {
 	BanksAPI     string         `json:"banks,omitempty"`
 	SyncInterval int            `json:"sync_interval,omitempty"`
 	SapKey       string         `json:"sapkey,omitempty"`
+	LogRotation  string         `json:"logrotation,omitempty"`
 	CreatedBy    int            `json:"created_by,omitempty"`
 	CreatedAt    sql.NullString `json:"created_at,omitempty"`
 	UpdatedAt    sql.NullString `json:"updated_at,omitempty"`

@@ -123,6 +123,7 @@ IF NOT EXISTS( SELECT NULL
 
 ALTER table orders add column comment text;
 ALTER table orders add column returned boolean DEFAULT false;
+ALTER table store add column logrotation text NOT NULL;
 
 END IF;
 
@@ -174,4 +175,4 @@ REPLACE INTO reports (id, title, query, created_by) VALUES (4, "Store Inventory 
 REPLACE INTO reports (id, title, query, created_by) VALUES (5, "Global Inventory Level", "select * from products p;", 1);
 
 
--- ALTER table orders add column comment text;
+-- ALTER table store add column logrotation text NOT NULL;

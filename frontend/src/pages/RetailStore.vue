@@ -116,6 +116,15 @@
             />
           </div>
           <div class="form-group col">
+            <label>Log Rotation Details</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Log Rotation"
+              v-model="logrotation"
+            />
+          </div>          
+          <div class="form-group col">
             <br />
             <button type="submit" class="btn btn-primary float-right" @click="StoreDetails">
               {{ buttontext }}
@@ -147,7 +156,7 @@ export default {
       customers: null,
       created_by: null,
       sync_interval: 5,
-
+      logrotation: null,
       buttontext: "Register Store",
     };
   },
@@ -164,6 +173,7 @@ export default {
       this.address = store.address;
       this.products = store.products;
       this.customers = store.customers;
+      this.logrotation = store.logrotation;
       this.sync_interval = store.sync_interval;
       this.created_by = this.$store.state.user.id;
 
@@ -192,6 +202,7 @@ export default {
         products: this.products,
         customers: this.customers,
         updated_at: moment().format(),
+        logrotation: this.logrotation,
         sync_interval: this.sync_interval,
         created_by: this.$store.state.user.id,
       };
@@ -199,21 +210,17 @@ export default {
       // Validate the payload.
       for (var attribute in this.store) {
         if (this.store[attribute] === "" || this.store[attribute] === null) {
-          this.$toast.error(
-            "Error! " + attribute + " cannot be " + this.store[attribute]
-          );
+          this.$toast.error("Error! " + attribute + " cannot be " + this.store[attribute]);
           return;
         }
       }
 
-      window.backend.SaveStore(this.store).then(
-        () => {
-          this.$toast.success("Success! Store details successfully modified.");
-        },
-        (err) => {
-          this.$toast.error("Error! " + err);
-        }
-      );
+      window.backend.SaveStore(this.store).then(() => {
+        this.$toast.success("Success! Store details successfully modified.");
+      },
+      (err) => {
+        this.$toast.error("Error! " + err);
+      });
     },
   },
 };
