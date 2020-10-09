@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	// Global Settings
 	service.Setup()
 	go service.Sync()
@@ -25,6 +24,10 @@ func main() {
 		Colour:    "#131313",
 		Resizable: true,
 	})
+
+	// Sync Details
+	app.Bind(service.GetLog)
+	app.Bind(service.GetLogs)
 
 	// Dashboard
 	app.Bind(service.Dashboard)

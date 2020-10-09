@@ -79,7 +79,7 @@ func Search(searchText string) (result []SearchResult, err error) {
 	var rows *sql.Rows
 	var selectQuery string
 
-	if rows, err = Get(fmt.Sprintf("call searchDB('%s', '%s')", "retail", searchText)); err != nil {
+	if rows, err = Get(fmt.Sprintf("call searchDB('%s', '%s')", dbname, searchText)); err != nil {
 		CheckError("Error getting Search Result", err, false)
 		return nil, err
 	}
@@ -106,7 +106,6 @@ func Search(searchText string) (result []SearchResult, err error) {
 
 		// Build out the queries
 		selectQuery += fmt.Sprintf(`SELECT id AS "column", concat('%s = ', %s) AS "occurrences", '%s' as owner FROM %s WHERE %s LIKE "%s";`, result[1], result[1], result[0], result[0], result[1], "%"+searchText+"%")
-		// selectQuery += fmt.Sprintf(`SELECT json_arrayagg(json_object('id', id, '%s', %s)) AS result FROM %s WHERE %s LIKE "%s";`, result[1], result[1], result[0], result[1], "%"+searchText+"%")
 	}
 
 	// Execute the queries in a batch mode

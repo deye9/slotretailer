@@ -152,32 +152,30 @@ export default {
     };
   },
   mounted() {
-    window.backend.GetStore().then(
-      (store) => {
-        this.id = store.id;
-        this.city = store.city;
-        this.name = store.name;
-        this.banks = store.banks;
-        this.phone = store.phone;
-        this.email = store.email;
-        this.sapkey = store.sapkey;
-        this.orders = store.orders;
-        this.address = store.address;
-        this.products = store.products;
-        this.customers = store.customers;
-        this.sync_interval = store.sync_interval;
-        this.created_by = this.$store.state.user.id;
+    window.backend.GetStore().then((store) => {
+      this.id = store.id;
+      this.city = store.city;
+      this.name = store.name;
+      this.banks = store.banks;
+      this.phone = store.phone;
+      this.email = store.email;
+      this.sapkey = store.sapkey;
+      this.orders = store.orders;
+      this.address = store.address;
+      this.products = store.products;
+      this.customers = store.customers;
+      this.sync_interval = store.sync_interval;
+      this.created_by = this.$store.state.user.id;
 
-        if (this.id === 0) {
-          this.buttontext = "Register Store";
-        } else {
-          this.buttontext = "Update Store";
-        }
-      },
-      (err) => {
-        this.$toast.error("Error! " + err);
+      if (this.id === 0) {
+        this.buttontext = "Register Store";
+      } else {
+        this.buttontext = "Update Store";
       }
-    );
+    },
+    (err) => {
+      this.$toast.error("Error! " + err);
+    });
   },
   methods: {
     StoreDetails() {

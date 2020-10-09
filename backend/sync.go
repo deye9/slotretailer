@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -30,6 +29,7 @@ func Sync() {
 	if duration == 0 {
 		duration = 5
 	}
+
 	tick := time.NewTicker(time.Minute * time.Duration(duration))
 	done := make(chan bool)
 	go scheduler(tick, done)
@@ -53,43 +53,52 @@ func scheduler(tick *time.Ticker, done chan bool) {
 }
 
 func task(t time.Time) {
-	fmt.Println("work started at ", t)
+	str := strings.ReplaceAll(t.String(), "-", "_")
+	str = strings.ReplaceAll(str, ":", "")
+	str = strings.Split(str, " ")[0]
 
-	getAllData()
+	for key, link := range APIlinks {
+		go func() {
+			// Write the sync start details to the File System.
+			WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
+		}()
 
-	time.Sleep(2 * time.Second)
-	fmt.Println("work finished at ", time.Now())
+		getAllData(key, link, str)
+
+		time.Sleep(2 * time.Second)
+	}
 }
 
-// check for connectivity. If err == `Get "https://5f63ea94363f0000162d9307.mockapi.io/api/v1/Products": dial tcp: lookup 5f63ea94363f0000162d9307.mockapi.io: no such host` then we have no internet
+func getAllData(key, link, str string) error {
+	cmd := ""
+	data, err := httpget(link)
+	var response interface{}
 
-func getAllData() error {
-	for key, link := range APIlinks {
-		cmd := ""
-		data, err := httpget(link)
-		var response interface{}
-
-		if strings.ToLower(key) == "orders" {
-			response = []Orders{}
-		} else if strings.ToLower(key) == "products" {
-			response = []Products{}
-		} else if strings.ToLower(key) == "customers" {
-			response = []Customers{}
-		} else if strings.ToLower(key) == "banks" {
-			response = []Banks{}
-		}
-
-		if err = json.Unmarshal(data, &response); err != nil {
-			CheckError("Error unmarshalling data.", err, false)
-			return err
-		}
-		cmd = structToInsertUpdate(response, key)
-
-		if err = Modify(cmd); err != nil {
-			CheckError("Error saving HTTPGET result. ", err, false)
-			return err
-		}
+	if strings.ToLower(key) == "orders" {
+		response = []Orders{}
+	} else if strings.ToLower(key) == "products" {
+		response = []Products{}
+	} else if strings.ToLower(key) == "customers" {
+		response = []Customers{}
+	} else if strings.ToLower(key) == "banks" {
+		response = []Banks{}
 	}
+
+	if err = json.Unmarshal(data, &response); err != nil {
+		CheckError("Error unmarshalling data.", err, false)
+		return err
+	}
+	cmd = structToInsertUpdate(response, key)
+
+	if err = Modify(cmd); err != nil {
+		CheckError("Error saving HTTPGET result. ", err, false)
+		return err
+	}
+
+	go func() {
+		// Write the sync start details to the File System.
+		WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" finished at "+time.Now().String()+"\n"))
+	}()
 	return nil
 }
 
@@ -136,4 +145,30 @@ func httppost(url, payload string) (data []byte, err error) {
 	// // print request `Content-Type` header
 	// requestContentType := res.Request.Header.Get("Content-Type")
 	// fmt.Println("Request content-type:", requestContentType)
+}
+
+// GetLogs returns a list of all available log files.
+func GetLogs() (files []string, err error) {
+	// read the /build/sync/ directory and returns a list of files sorted by filename.
+	fileInfo, err := ioutil.ReadDir(BasePath() + "/build/sync/")
+	if err != nil {
+		return nil, err
+	}
+
+	for _, file := range fileInfo {
+		files = append(files, strings.Replace(file.Name(), ".log", "", -1))
+	}
+
+	return files, nil
+}
+
+// GetLog returns the details of the log file requested.
+func GetLog(id string) (fileContent string, err error) {
+	var fileInfo []byte
+
+	if fileInfo, err = ReadFile(BasePath() + "/build/sync/" + id); err != nil {
+		return "", err
+	}
+
+	return string(fileInfo), nil
 }

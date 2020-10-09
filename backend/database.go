@@ -1,11 +1,14 @@
 package service
 
 import (
+	"bufio"
 	"context"
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -15,19 +18,56 @@ import (
 
 // DbConn returns a pointer to the current DBConnection object
 var DbConn *sql.DB
-var username string = "appuser"
-var password string = "password"
-var dbname string = "retail"
-var hostname string = "localhost:3306"
+var dbname string
+var username string
+var password string
+var hostname string
 
 // Build out the DSN to the database.
 func dsn() string {
+	var err error = nil
+	var file io.Reader
+
+	if file, err = os.Open(BasePath() + "/build/.env"); err != nil {
+		CheckError("Unable to read the .env for the database connection setup.", err, true)
+		return ""
+	}
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+
+	for scanner.Scan() {
+		var text []string
+		text = strings.Split(scanner.Text(), "=")
+
+		switch strings.ToLower(text[0]) {
+		case "dbname":
+			dbname = text[1]
+
+		case "username":
+			username = text[1]
+
+		case "password":
+			password = text[1]
+
+		case "hostname":
+			hostname = text[1]
+		}
+	}
+
 	return fmt.Sprintf("%s:%s@tcp(%s)/%s?multiStatements=true", username, password, hostname, dbname)
 }
 
 // Setup performs all needed operations
 func Setup() {
 	var err error
+
+	_, err = os.Stat(BasePath() + "/build/.env")
+	if os.IsNotExist(err) {
+		CheckError("No .env file exists for the database connection setup.", err, true)
+		return
+	}
+
 	if DbConn, err = connectDB(); err != nil {
 		CheckError("Error Connecting to the Database", err, true)
 	}

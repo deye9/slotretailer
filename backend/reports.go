@@ -184,7 +184,7 @@ func GetTableSchema() (allMaps []map[string]interface{}, err error) {
 	var rows *sql.Rows
 	var columns []string
 
-	if rows, err = Get("SELECT table_name, json_arrayagg(json_object('column_name', column_name, 'column_type', column_type, 'column_key', column_key)) as columns from information_schema.columns where table_schema = 'retail' group by table_name order by table_name;"); err != nil {
+	if rows, err = Get("SELECT table_name, json_arrayagg(json_object('column_name', column_name, 'column_type', column_type, 'column_key', column_key)) as columns from information_schema.columns where table_schema = '" + dbname + "' group by table_name order by table_name;"); err != nil {
 		CheckError("Error getting Table Schema.", err, false)
 		return nil, err
 	}
