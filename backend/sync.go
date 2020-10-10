@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -19,6 +20,9 @@ func Sync() {
 
 	// Get the store details
 	GetStore()
+
+	// rotateLogs
+	rotateLogs()
 
 	// APIlinks["orders"] = LocalStore.OrdersAPI
 	APIlinks["banks"] = LocalStore.BanksAPI
@@ -171,4 +175,53 @@ func GetLog(id string) (fileContent string, err error) {
 	}
 
 	return string(fileInfo), nil
+}
+
+// rotateLogs rotates the sync logs based on the configured Frequency
+func rotateLogs() {
+
+	// Get the default time Calculations
+	t := time.Now()
+	dateRange := []string{}
+	year, currentWeek := t.ISOWeek()
+	yesterday := t.AddDate(0, 0, -1)
+	lastMonth := t.AddDate(0, -1, 0)
+	lastQuarter := t.AddDate(0, -3, 0)
+	lastYear := t.AddDate(-1, 0, 0)
+
+	switch strings.ToLower(LocalStore.LogRotation) {
+	case "daily":
+		dateRange = append(dateRange, yesterday.String())
+
+	case "weekly":
+		start, end := WeekRange(year, currentWeek-1)
+		dateRange = append(dateRange, start.String())
+		for i := 1; i <= 5; i++ {
+			dateRange = append(dateRange, start.AddDate(0, 0, i).String())
+		}
+		dateRange = append(dateRange, end.String())
+
+	case "bi-weekly":
+		start := WeekStart(year, currentWeek-2)
+		dateRange = append(dateRange, start.String())
+		for i := 1; i <= 13; i++ {
+			dateRange = append(dateRange, start.AddDate(0, 0, i).String())
+		}
+
+	case "monthly":
+		dateRange = append(dateRange, lastMonth.String())
+
+	case "quarterly":
+		dateRange = append(dateRange, lastQuarter.String())
+
+	case "yearly":
+		dateRange = append(dateRange, lastYear.String())
+	}
+
+	for _, date := range dateRange {
+		str := strings.ReplaceAll(date, "-", "_")
+		str = strings.ReplaceAll(str, ":", "")
+		str = strings.Split(str, " ")[0] + ".log"
+		deleteFile(BasePath() + "/build/sync/" + str)
+	}
 }

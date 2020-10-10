@@ -117,12 +117,15 @@
           </div>
           <div class="form-group col">
             <label>Log Rotation Details</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Log Rotation"
-              v-model="logrotation"
-            />
+            <b-form-select v-model="logrotation" class="mb-3">
+              <b-form-select-option :value="null">Please select Log Rotation Frequency</b-form-select-option>
+              <b-form-select-option value="Daily">Daily</b-form-select-option>
+              <b-form-select-option value="Weekly">Weekly</b-form-select-option>
+              <b-form-select-option value="Bi-weekly">Bi-weekly</b-form-select-option>
+              <b-form-select-option value="Monthly">Monthly</b-form-select-option>
+              <b-form-select-option value="Quarterly">Quarterly</b-form-select-option>
+              <b-form-select-option value="Yearly">Yearly</b-form-select-option>
+            </b-form-select>
           </div>          
           <div class="form-group col">
             <br />
@@ -189,6 +192,11 @@ export default {
   },
   methods: {
     StoreDetails() {
+      if (this.logrotation === null) {
+        this.$toast.error("Error! Invalid value set for log Rotation.");
+        return;
+      }
+
       this.store = {
         id: this.id,
         city: this.city,
