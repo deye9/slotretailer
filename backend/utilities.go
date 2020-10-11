@@ -102,6 +102,14 @@ func WeekStart(year, week int) time.Time {
 	return t
 }
 
+func lastPeriod(t time.Time, period time.Month) (start, end time.Time) {
+	y, m, _ := t.Date()
+	loc := t.Location()
+	start = time.Date(y, m-period, 1, 0, 0, 0, 0, loc)
+	end = time.Date(y, m, 1, 0, 0, 0, -1, loc)
+	return start, end
+}
+
 // deleteFile removes a file from the specified Path
 func deleteFile(filePath string) (err error) {
 	// delete file

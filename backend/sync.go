@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"os"
 	"os/signal"
@@ -22,7 +23,7 @@ func Sync() {
 	GetStore()
 
 	// rotateLogs
-	rotateLogs()
+	go rotateLogs()
 
 	// APIlinks["orders"] = LocalStore.OrdersAPI
 	APIlinks["banks"] = LocalStore.BanksAPI
@@ -62,10 +63,8 @@ func task(t time.Time) {
 	str = strings.Split(str, " ")[0]
 
 	for key, link := range APIlinks {
-		go func() {
-			// Write the sync start details to the File System.
-			WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
-		}()
+		// Write the sync start details to the File System via a Goroutine.
+		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
 
 		getAllData(key, link, str)
 
@@ -99,10 +98,8 @@ func getAllData(key, link, str string) error {
 		return err
 	}
 
-	go func() {
-		// Write the sync start details to the File System.
-		WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" finished at "+time.Now().String()+"\n"))
-	}()
+	// Write the sync start details to the File System via a Goroutine.
+	go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" finished at "+time.Now().String()+"\n"))
 	return nil
 }
 
@@ -177,51 +174,80 @@ func GetLog(id string) (fileContent string, err error) {
 	return string(fileInfo), nil
 }
 
+func sapAuthenticate() {
+	url := "https://197.255.32.34:50000/b1s/v1/Login"
+	method := "POST"
+
+	payload := strings.NewReader("{\n    \"CompanyDB\": \"SlotTESTDB\",\n    \"UserName\": \"Tech1\",\n    \"Password\": \"P@ss0123\"\n}")
+
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, payload)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Cookie", "B1SESSION=66f5ed8a-0bb5-11eb-8000-00155d0abe08; ROUTEID=.node7")
+
+	res, err := client.Do(req)
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+
+	fmt.Println(string(body))
+}
+
 // rotateLogs rotates the sync logs based on the configured Frequency
 func rotateLogs() {
-
 	// Get the default time Calculations
+	const (
+		month    = 1
+		quarter  = 3
+		fullYear = 12
+	)
 	t := time.Now()
-	dateRange := []string{}
 	year, currentWeek := t.ISOWeek()
 	yesterday := t.AddDate(0, 0, -1)
-	lastMonth := t.AddDate(0, -1, 0)
-	lastQuarter := t.AddDate(0, -3, 0)
-	lastYear := t.AddDate(-1, 0, 0)
 
 	switch strings.ToLower(LocalStore.LogRotation) {
 	case "daily":
-		dateRange = append(dateRange, yesterday.String())
+		deleteFile(BasePath() + "/build/sync/" + yesterday.Format("2006_01_02.log"))
 
 	case "weekly":
-		start, end := WeekRange(year, currentWeek-1)
-		dateRange = append(dateRange, start.String())
+		start := WeekStart(year, currentWeek)
+		deleteFile(BasePath() + "/build/sync/" + start.Format("2006_01_02.log"))
 		for i := 1; i <= 5; i++ {
-			dateRange = append(dateRange, start.AddDate(0, 0, i).String())
+			deleteFile(BasePath() + "/build/sync/" + start.AddDate(0, 0, i).Format("2006_01_02.log"))
 		}
-		dateRange = append(dateRange, end.String())
 
 	case "bi-weekly":
-		start := WeekStart(year, currentWeek-2)
-		dateRange = append(dateRange, start.String())
+		start := WeekStart(year, currentWeek-1)
+		deleteFile(BasePath() + "/build/sync/" + start.Format("2006_01_02.log"))
 		for i := 1; i <= 13; i++ {
-			dateRange = append(dateRange, start.AddDate(0, 0, i).String())
+			deleteFile(BasePath() + "/build/sync/" + start.AddDate(0, 0, i).Format("2006_01_02.log"))
 		}
 
 	case "monthly":
-		dateRange = append(dateRange, lastMonth.String())
+		start, end := lastPeriod(t, month)
+		days := int(math.Abs(math.Round(start.Sub(end).Hours() / 24)))
+
+		for i := 1; i <= days; i++ {
+			deleteFile(BasePath() + "/build/sync/" + start.AddDate(0, 0, i).Format("2006_01_02.log"))
+		}
 
 	case "quarterly":
-		dateRange = append(dateRange, lastQuarter.String())
+		start, end := lastPeriod(t, quarter)
+		days := int(math.Abs(math.Round(start.Sub(end).Hours() / 24)))
+
+		for i := 1; i <= days; i++ {
+			deleteFile(BasePath() + "/build/sync/" + start.AddDate(0, 0, i).Format("2006_01_02.log"))
+		}
 
 	case "yearly":
-		dateRange = append(dateRange, lastYear.String())
-	}
+		start, end := lastPeriod(t, fullYear)
+		days := int(math.Abs(math.Round(start.Sub(end).Hours() / 24)))
 
-	for _, date := range dateRange {
-		str := strings.ReplaceAll(date, "-", "_")
-		str = strings.ReplaceAll(str, ":", "")
-		str = strings.Split(str, " ")[0] + ".log"
-		deleteFile(BasePath() + "/build/sync/" + str)
+		for i := 1; i <= days; i++ {
+			deleteFile(BasePath() + "/build/sync/" + start.AddDate(0, 0, i).Format("2006_01_02.log"))
+		}
 	}
 }

@@ -109,7 +109,9 @@
           <div class="form-group col">
             <label for="sync_interval">Sync Interval in Minutes</label>
             <input
-              type="text"
+              min="30"
+              step="1"
+              type="number"
               class="form-control"
               placeholder="Sync Interval"
               v-model="sync_interval"
