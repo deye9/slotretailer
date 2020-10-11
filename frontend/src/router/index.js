@@ -25,8 +25,8 @@ import GetCustomers from "@/components/customers/GetCustomers";
 
 import Orders from "@/pages/Orders";
 import NewOrder from "@/components/orders/NewOrder";
-import EditOrder from "@/components/orders/EditOrder";
 import GetOrders from "@/components/orders/GetOrders";
+import ReturnOrder from "@/components/orders/ReturnOrder";
 import OrderDetails from "@/components/orders/OrderDetails";
 
 import Products from "@/pages/Products";
@@ -137,8 +137,8 @@ const router = new Router({
                     component: NewOrder
                 },
                 {
-                    path: "edit/:id",
-                    component: EditOrder
+                    path: "return/:id",
+                    component: ReturnOrder
                 },
                 {
                     path: "details/:id",

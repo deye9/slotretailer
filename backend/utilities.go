@@ -112,6 +112,12 @@ func lastPeriod(t time.Time, period time.Month) (start, end time.Time) {
 
 // deleteFile removes a file from the specified Path
 func deleteFile(filePath string) (err error) {
+	// Check if the file exists before we attempt to delete it
+	_, err = os.Stat(filePath)
+	if os.IsNotExist(err) {
+		return nil
+	}
+
 	// delete file
 	if err = os.Remove(filePath); err != nil {
 		CheckError("Unable to remove File "+filePath, err, false)

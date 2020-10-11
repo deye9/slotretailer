@@ -50,10 +50,10 @@
         <b-button size="sm" variant="primary" @click="displayInfo(row.item)" title="Order Details" style="margin-right: 2px">
             <b-icon icon="eye" aria-hidden="true"></b-icon>
         </b-button>
-        <b-button size="sm" variant="primary" @click="edit(row.item)" title="Order Details" style="margin-right: 2px">
+        <b-button size="sm" variant="primary" @click="edit(row.item)" title="Order Return" style="margin-right: 2px">
           <b-icon icon="minecart-loaded" aria-hidden="true"></b-icon>
         </b-button>
-        <b-button size="sm" variant="danger" @click="removeRow(row.item, row.index)" title="Sales Order Return" class="mr-1">
+        <b-button size="sm" variant="danger" @click="removeRow(row.item, row.index)" title="Delete Sales Order" class="mr-1">
           <b-icon icon="trash" aria-hidden="true"></b-icon>
         </b-button>
       </template>
@@ -102,45 +102,44 @@ export default {
   mounted() {
     this.isBusy = true;
     window.backend.GetOrders().then((orders) => {
-        if (JSON.stringify(orders) !== "{}") {
-          const exempt = [
-              "items",
-              "docnum",
-              "comment",
-              "payments",
-              "docentry",
-              "cardcode",
-              "deleted_at",
-              "updated_at",
-              "created_by",
-              "created_at",
-            ],
-            keys = Object.keys(orders[0]);
+      if (JSON.stringify(orders) !== "{}") {
+        const exempt = [
+            "items",
+            "docnum",
+            "comment",
+            "payments",
+            "docentry",
+            "cardcode",
+            "deleted_at",
+            "updated_at",
+            "created_by",
+            "created_at",
+          ],
+          keys = Object.keys(orders[0]);
 
-          keys.forEach((key) => {
-            if (!exempt.includes(key)) {
-              this.fields.push({ key: key, sortable: true, });
-            }
-          });
-          this.fields.push({ key: 'actions', label: 'Actions' });
+        keys.forEach((key) => {
+          if (!exempt.includes(key)) {
+            this.fields.push({ key: key, sortable: true, });
+          }
+        });
+        this.fields.push({ key: 'actions', label: 'Actions' });
 
-          // Set the dataSource
-          this.data = orders;
+        // Set the dataSource
+        this.data = orders;
 
-          // Set the initial number of items
-          this.totalRows = orders.length;
-        }
-        this.isBusy = false;
-      },
-      (err) => {
-        this.$toast.error("Error! " + err);
-        this.isBusy = false;
+        // Set the initial number of items
+        this.totalRows = orders.length;
       }
-    );
+      this.isBusy = false;
+    },
+    (err) => {
+      this.$toast.error("Error! " + err);
+      this.isBusy = false;
+    });
   },
   methods: {
     edit(row) {
-      this.$router.push("/orders/edit/" + row.id);
+      this.$router.push("/orders/return/" + row.id);
     },
     printOrder(row) {
       this.$router.push("/orders/edit/" + row.id);

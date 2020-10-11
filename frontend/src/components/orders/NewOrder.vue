@@ -176,7 +176,8 @@
             <label for="discount">Discount:</label>
           </b-col>
           <b-col>
-            <input id="discount" name="discount" type="number" class="form-control" placeholder="Discount" min="1" step="0.1" value="0" />
+            <input id="discount" name="discount" type="number" class="form-control" placeholder="Discount" min="1" step="0.1" value="0" :disabled="disabled" />
+            <b-button id="authorizeButton" v-b-modal.modal-multi-3 size="sm">Authorize Discount</b-button>
           </b-col>
         </b-row>
 
@@ -186,6 +187,35 @@
       </b-container>
     </b-modal>
 
+    <b-modal id="modal-multi-3" size="md" title="Authorize Discount" ref="authorize-modal" hide-footer>
+      <form @submit.prevent="login">
+        <div class="form-signin">
+          <div class="text-center mb-4">
+            <img class="mb-4" src="../../assets/img/slot.png" />
+            <h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
+            <p>
+              Kindly sign in here to be able to use authorize the Discount.
+              <br />
+              <code>
+                Only a Valid System Administrator can authorize this action.
+              </code>
+            </p>
+          </div>
+
+          <div class="form-label-group">
+            <input type="email" v-model="email" class="form-control" placeholder="Email address" required autofocus />
+            <label for="inputEmail">Email address</label>
+          </div>
+
+          <div class="form-label-group">
+            <input type="password" v-model="password" class="form-control" placeholder="Password" required />
+            <label for="inputPassword">Password</label>
+          </div>
+
+          <button class="btn btn-lg btn-primary btn-block" @click="login">Sign in</button>
+        </div>
+      </form>
+    </b-modal>
   </section>
 </template>
 
@@ -223,39 +253,45 @@ export default {
 
       // Payments
       fields: ['_id', 'payment_method', 'banks', 'amount_paid', 'actions'],
+
+      // Login
+      email: "",
+      password: "",
+      disabled: true,
     };
   },
   async created() {
+    // Determine the state of the Discount input
+    if (this.$store.state.isAdmin)
+    {
+      this.disabled = false;
+      document.getElementById('authorizeButton').disabled = true;
+    }
+
     // Get all customers
-    window.backend.GetCustomers().then(
-      (customers) => {
-        this.customers = customers;
-      },
-      (err) => {
-        this.$toast.error("Error! " + err);
-      }
-    );
+    window.backend.GetCustomers().then((customers) => {
+      this.customers = customers;
+    },
+    (err) => {
+      this.$toast.error("Error! " + err);
+    });
 
     // Get all inventory
-    window.backend.GetProducts().then(
-      (inventory) => {
-        this.inventory = inventory;
-      },
-      (err) => {
-        this.$toast.error("Error! " + err);
-      }
-    );
+    window.backend.GetProducts().then((inventory) => {
+      this.inventory = inventory;
+    },
+    (err) => {
+      this.$toast.error("Error! " + err);
+    });
 
     // Get all banks
-    window.backend.GetBanks().then(
-      (banks) => {
-        this.banks = banks;
-        this.payments.push({_id: this.payments.length + 1 });
-      },
-      (err) => {
-        this.$toast.error("Error! " + err);
-      }
-    );
+    window.backend.GetBanks().then((banks) => {
+      this.banks = banks;
+      this.payments.push({_id: this.payments.length + 1 });
+    },
+    (err) => {
+      this.$toast.error("Error! " + err);
+    });
   },
   methods: {
     /**
@@ -301,6 +337,31 @@ export default {
       document.getElementById("price").value = `₦${this.item.price}`;
     },
 
+    // Login Modal
+    async login() {
+      const email = this.email,
+        password = this.password;
+
+      if (password === "" || email === "") {
+        this.$toast.error("Error! Invalid Credentials Supplied.");
+        return false;
+      }
+
+      window.backend.Login(email, password).then((result) => {
+        if (result.id !== undefined) {
+          this.email = "";
+          this.password = "";
+          document.getElementById('discount').disabled = false;
+          document.getElementById('authorizeButton').disabled = true;
+          // Hide the modal
+          this.$refs['authorize-modal'].hide()
+        } else {
+          this.$toast.error("Error! Invalid login Credentials.");
+        }
+      },(err) => {
+          this.$toast.success("Error! " + err);
+      });
+    },
     // Items Modal
     async removeItemRow(event) {
       let id = event.target.parentNode.id, 
