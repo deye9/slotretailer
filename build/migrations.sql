@@ -115,6 +115,18 @@ CREATE TABLE IF NOT EXISTS reports (
     deleted_at  TIMESTAMP NULL
 );
 
+CREATE TABLE IF NOT EXISTS audits (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    user_id     INT NOT NULL,
+    action       TEXT NOT NULL,
+    old_values  TEXT NOT NULL,
+    new_values  TEXT NOT NULL,
+    url         TEXT NOT NULL,
+    created_by  INT NOT NULL,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP NULL
+);
+
 IF NOT EXISTS( SELECT NULL
             FROM INFORMATION_SCHEMA.COLUMNS
            WHERE table_name = 'orders'

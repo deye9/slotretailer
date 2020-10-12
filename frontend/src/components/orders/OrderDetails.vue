@@ -237,5 +237,9 @@ export default {
       }
     );
   }
+  //   var doc = new jsPDF();
+
+  // // Set the document to automatically print via JS
+  // doc.autoPrint();
 };
 </script>
