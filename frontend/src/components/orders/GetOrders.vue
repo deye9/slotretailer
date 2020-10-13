@@ -102,7 +102,7 @@ export default {
   mounted() {
     this.isBusy = true;
     window.backend.GetOrders().then((orders) => {
-      if (JSON.stringify(orders) !== "{}") {
+      if (JSON.stringify(orders) !== "{}" && orders !== null) {
         const exempt = [
             "items",
             "docnum",

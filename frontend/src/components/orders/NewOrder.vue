@@ -177,7 +177,7 @@
           </b-col>
           <b-col>
             <input id="discount" name="discount" type="number" class="form-control" placeholder="Discount" min="1" step="0.1" value="0" :disabled="disabled" />
-            <b-button id="authorizeButton" v-b-modal.modal-multi-3 size="sm">Authorize Discount</b-button>
+            <b-button id="authorizeButton" :disabled="CanAuthorize" v-b-modal.modal-multi-3 size="sm">Authorize Discount</b-button>
           </b-col>
         </b-row>
 
@@ -252,6 +252,7 @@ export default {
       footerBgVariant: "secondary",
 
       // Payments
+      CanAuthorize: false,
       fields: ['_id', 'payment_method', 'banks', 'amount_paid', 'actions'],
 
       // Login
@@ -265,7 +266,7 @@ export default {
     if (this.$store.state.isAdmin)
     {
       this.disabled = false;
-      document.getElementById('authorizeButton').disabled = true;
+      this.CanAuthorize = true;
     }
 
     // Get all customers
@@ -351,8 +352,8 @@ export default {
         if (result.id !== undefined) {
           this.email = "";
           this.password = "";
+          this.CanAuthorize = true;
           document.getElementById('discount').disabled = false;
-          document.getElementById('authorizeButton').disabled = true;
           // Hide the modal
           this.$refs['authorize-modal'].hide()
         } else {
