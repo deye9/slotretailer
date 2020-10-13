@@ -117,14 +117,12 @@ CREATE TABLE IF NOT EXISTS reports (
 
 CREATE TABLE IF NOT EXISTS audits (
     id          INT AUTO_INCREMENT PRIMARY KEY,
-    user_id     INT NOT NULL,
-    action       TEXT NOT NULL,
-    old_values  TEXT NOT NULL,
-    new_values  TEXT NOT NULL,
+    old_row_data JSON,
+    new_row_data JSON,
+    dml_type    ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
     url         TEXT NOT NULL,
-    created_by  INT NOT NULL,
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP NULL
+    dml_created_by  INT NOT NULL,
+    dml_timestamp  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 IF NOT EXISTS( SELECT NULL
