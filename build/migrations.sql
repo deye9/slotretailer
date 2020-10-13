@@ -120,10 +120,285 @@ CREATE TABLE IF NOT EXISTS audits (
     old_row_data JSON,
     new_row_data JSON,
     dml_type    ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
-    url         TEXT NOT NULL,
     dml_created_by  INT NOT NULL,
     dml_timestamp  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- CUSTOMERS TRIGGER
+drop trigger if exists customer_insert_audit;
+drop trigger if exists customer_update_audit;
+drop trigger if exists customer_delete_audit;
+
+DELIMITER $$
+
+CREATE trigger customer_insert_audit
+AFTER INSERT ON customers FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (null, 
+    JSON_OBJECT('id', new.id, 'cardcode', new.cardcode, 'cardname', new.cardname, 'address', new.address, 'phone', new.phone, 'phone1', new.phone1, 'city', new.city, 'email', new.email, 'synced', new.synced, 'created_at', new.created_at), 
+    'INSERT', new.created_by);
+END $$    
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE trigger customer_update_audit
+AFTER UPDATE ON customers FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (JSON_OBJECT('id', old.id, 'cardcode', old.cardcode, 'cardname', old.cardname, 'address', old.address, 'phone', old.phone, 'phone1', old.phone1, 'city', old.city, 'email', old.email, 'synced', old.synced, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+    JSON_OBJECT('id', new.id, 'cardcode', new.cardcode, 'cardname', new.cardname, 'address', new.address, 'phone', new.phone, 'phone1', new.phone1, 'city', new.city, 'email', new.email, 'synced', new.synced, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at), 
+    'UPDATE', new.created_by);
+END $$    
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE trigger customer_delete_audit
+AFTER DELETE ON customers FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (JSON_OBJECT('id', old.id, 'cardcode', old.cardcode, 'cardname', old.cardname, 'address', old.address, 'phone', old.phone, 'phone1', old.phone1, 'city', old.city, 'email', old.email, 'synced', old.synced, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+	null, 'DELETE', old.created_by);
+END $$    
+
+DELIMITER ;
+
+-- USERS TRIGGER
+drop trigger if exists user_insert_audit;
+drop trigger if exists user_update_audit;
+drop trigger if exists user_delete_audit;
+
+DELIMITER $$
+
+CREATE trigger user_insert_audit
+AFTER INSERT ON users FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (null, 
+    JSON_OBJECT('id', new.id, 'firstname', new.firstname, 'lastname', new.lastname, 'email', new.email, 'password', new.password, 'isadmin', new.isadmin, 'created_at', new.created_at), 
+    'INSERT', new.created_by);
+END $$    
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE trigger user_update_audit
+AFTER UPDATE ON users FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (JSON_OBJECT('id', old.id, 'firstname', old.firstname, 'lastname', old.lastname, 'email', old.email, 'password', old.password, 'isadmin', old.isadmin, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+    JSON_OBJECT('id', new.id, 'firstname', new.firstname, 'lastname', new.lastname, 'email', new.email, 'password', new.password, 'isadmin', new.isadmin, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at), 
+    'UPDATE', new.created_by);
+END $$    
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE trigger user_delete_audit
+AFTER DELETE ON users FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (JSON_OBJECT('id', old.id, 'firstname', old.firstname, 'lastname', old.lastname, 'email', old.email, 'password', old.password, 'isadmin', old.isadmin, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+	null, 'DELETE', old.created_by);
+END $$    
+
+DELIMITER ;
+
+-- STORES TRIGGER
+drop trigger if exists store_insert_audit;
+drop trigger if exists store_update_audit;
+drop trigger if exists store_delete_audit;
+
+DELIMITER $$
+
+CREATE trigger store_insert_audit
+AFTER INSERT ON store FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (null, 
+    JSON_OBJECT('id', new.id, 'name', new.name, 'address', new.address, 'phone', new.phone, 'city', new.city, 'email', new.email, 'orders', new.orders, 'products', new.products, 'customers', new.customers, 'banks', new.banks, 'sync_interval', new.sync_interval, 'sapkey', new.sapkey, 'logrotation', new.logrotation, 'created_at', new.created_at), 
+    'INSERT', new.created_by);
+END $$    
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE trigger store_update_audit
+AFTER UPDATE ON store FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (JSON_OBJECT('id', old.id, 'name', old.name, 'address', old.address, 'phone', old.phone, 'city', old.city, 'email', old.email, 'orders', old.orders, 'products', old.products, 'customers', old.customers, 'banks', old.banks, 'sync_interval', old.sync_interval, 'sapkey', old.sapkey, 'logrotation', old.logrotation, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+    JSON_OBJECT('id', new.id, 'name', new.name, 'address', new.address, 'phone', new.phone, 'city', new.city, 'email', new.email, 'orders', new.orders, 'products', new.products, 'customers', new.customers, 'banks', new.banks, 'sync_interval', new.sync_interval, 'sapkey', new.sapkey, 'logrotation', new.logrotation, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at), 
+    'UPDATE', new.created_by);
+END $$    
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE trigger store_delete_audit
+AFTER DELETE ON store FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (JSON_OBJECT('id', old.id, 'name', old.name, 'address', old.address, 'phone', old.phone, 'city', old.city, 'email', old.email, 'orders', old.orders, 'products', old.products, 'customers', old.customers, 'banks', old.banks, 'sync_interval', old.sync_interval, 'sapkey', old.sapkey, 'logrotation', old.logrotation, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+	null, 'DELETE', old.created_by);
+END $$    
+
+DELIMITER ;
+
+-- ORDERS TRIGGER
+drop trigger if exists order_insert_audit;
+drop trigger if exists order_update_audit;
+drop trigger if exists order_delete_audit;
+
+DELIMITER $$
+
+CREATE trigger order_insert_audit
+AFTER INSERT ON orders FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (null, 
+    JSON_OBJECT('id', new.id, 'docentry', new.docentry, 'docnum', new.docnum, 'canceled', new.canceled, 'cardcode', new.cardcode, 'cardname', new.cardname, 'vatsum', new.vatsum, 'doctotal', new.doctotal, 'synced', new.synced, 'comment', new.comment, 'returned', new.returned, 'created_at', new.created_at), 
+    'INSERT', new.created_by);
+END $$    
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE trigger order_update_audit
+AFTER UPDATE ON orders FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (JSON_OBJECT('id', old.id, 'docentry', old.docentry, 'docnum', old.docnum, 'canceled', old.canceled, 'cardcode', old.cardcode, 'cardname', old.cardname, 'vatsum', old.vatsum, 'doctotal', old.doctotal, 'synced', old.synced, 'comment', old.comment, 'returned', old.returned, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+    JSON_OBJECT('id', new.id, 'docentry', new.docentry, 'docnum', new.docnum, 'canceled', new.canceled, 'cardcode', new.cardcode, 'cardname', new.cardname, 'vatsum', new.vatsum, 'doctotal', new.doctotal, 'synced', new.synced, 'comment', new.comment, 'returned', new.returned, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at), 
+    'UPDATE', new.created_by);
+END $$    
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE trigger order_delete_audit
+AFTER DELETE ON orders FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (JSON_OBJECT('id', old.id, 'docentry', old.docentry, 'docnum', old.docnum, 'canceled', old.canceled, 'cardcode', old.cardcode, 'cardname', old.cardname, 'vatsum', old.vatsum, 'doctotal', old.doctotal, 'synced', old.synced, 'comment', old.comment, 'returned', old.returned, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+	null, 'DELETE', old.created_by);
+END $$    
+
+DELIMITER ;
+
+-- ORDEREDITEMS TRIGGER
+drop trigger if exists ordereditems_insert_audit;
+drop trigger if exists ordereditems_update_audit;
+drop trigger if exists ordereditems_delete_audit;
+
+DELIMITER $$
+
+CREATE trigger ordereditems_insert_audit
+AFTER INSERT ON ordereditems FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (null, 
+    JSON_OBJECT('id', new.id, 'orderid', new.orderid, 'itemcode', new.itemcode, 'itemname', new.itemname, 'price', new.price, 'quantity', new.quantity, 'discount', new.discount), 
+    'INSERT', null);
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE trigger ordereditems_update_audit
+AFTER UPDATE ON ordereditems FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (JSON_OBJECT('id', old.id, 'orderid', old.orderid, 'itemcode', old.itemcode, 'itemname', old.itemname, 'price', old.price, 'quantity', old.quantity, 'discount', old.discount),
+    JSON_OBJECT('id', new.id, 'orderid', new.orderid, 'itemcode', new.itemcode, 'itemname', new.itemname, 'price', new.price, 'quantity', new.quantity, 'discount', new.discount), 
+    'UPDATE', null);
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE trigger ordereditems_delete_audit
+AFTER DELETE ON ordereditems FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (JSON_OBJECT('id', old.id, 'orderid', old.orderid, 'itemcode', old.itemcode, 'itemname', old.itemname, 'price', old.price, 'quantity', old.quantity, 'discount', old.discount),
+	null, 'DELETE', null);
+END $$
+
+DELIMITER ;
+
+-- PAYMENTS TRIGGER
+drop trigger if exists payments_insert_audit;
+drop trigger if exists payments_update_audit;
+drop trigger if exists payments_delete_audit;
+
+DELIMITER $$
+
+CREATE trigger payments_insert_audit
+AFTER INSERT ON payments FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (null, 
+    JSON_OBJECT('id', new.id, 'orderid', new.orderid, 'docentry', new.docentry, 'docnum', new.docnum, 'canceled', new.canceled, 'paymenttype', new.paymenttype, 'paymentdetails', new.paymentdetails, 'amount', new.amount), 
+    'INSERT', null);
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE trigger payments_update_audit
+AFTER UPDATE ON payments FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (JSON_OBJECT('id', old.id, 'orderid', old.orderid, 'docentry', old.docentry, 'docnum', old.docnum, 'canceled', old.canceled, 'paymenttype', old.paymenttype, 'paymentdetails', old.paymentdetails, 'amount', old.amount),
+    JSON_OBJECT('id', new.id, 'orderid', new.orderid, 'docentry', new.docentry, 'docnum', new.docnum, 'canceled', new.canceled, 'paymenttype', new.paymenttype, 'paymentdetails', new.paymentdetails, 'amount', new.amount), 
+    'UPDATE', null);
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE trigger payments_delete_audit
+AFTER DELETE ON payments FOR EACH ROW
+BEGIN
+	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+    VALUES
+    (JSON_OBJECT('id', old.id, 'orderid', old.orderid, 'docentry', old.docentry, 'docnum', old.docnum, 'canceled', old.canceled, 'paymenttype', old.paymenttype, 'paymentdetails', old.paymentdetails, 'amount', old.amount),
+	null, 'DELETE', null);
+END $$
+
+DELIMITER ;
 
 IF NOT EXISTS( SELECT NULL
             FROM INFORMATION_SCHEMA.COLUMNS
