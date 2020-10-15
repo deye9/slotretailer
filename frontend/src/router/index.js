@@ -14,6 +14,7 @@ import GetUsers from "@/components/users/GetUsers";
 
 import Reports from "@/pages/Reports";
 import Report from "@/components/reports/Report";
+import AuditLogs from "@/components/reports/AuditLogs";
 import NewReport from "@/components/reports/NewReport";
 import EditReport from "@/components/reports/EditReport";
 import GetReports from "@/components/reports/GetReports";
@@ -190,6 +191,10 @@ const router = new Router({
                 {
                     path: "edit/:id",
                     component: EditReport
+                },
+                {
+                    path: "/auditlogs",
+                    component: AuditLogs
                 }
             ]
         },

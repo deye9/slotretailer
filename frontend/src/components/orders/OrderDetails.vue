@@ -64,7 +64,7 @@
         <label for="docnum">Created On</label>
         <br />
         <span class="btn btn-info" disabled>
-          {{ this.user.created_at.String }}
+          {{ this.user.created_at.Time }}
         </span>
       </div>
     </div>

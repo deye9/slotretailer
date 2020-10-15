@@ -64,6 +64,7 @@ func main() {
 	app.Bind(service.Login)
 	app.Bind(service.Search)
 	app.Bind(service.GetBanks)
+	app.Bind(service.GetAuditLog)
 	app.Bind(service.PaymentOnOrder)
 
 	// Admin

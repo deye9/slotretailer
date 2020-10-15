@@ -64,7 +64,7 @@
         <label for="docnum">Created On</label>
         <br />
         <span class="btn btn-info" disabled>
-          {{ this.user.created_at.String }}
+          {{ this.user.created_at.Time }}
         </span>
       </div>
     </div>
@@ -216,14 +216,13 @@ export default {
         });
 
         window.backend.PaymentOnOrder(parseInt(this.id)).then((payment) => {
-            if (JSON.stringify(payment) !== "{}") {
-              this.payment = payment;
-            }
-          },
-          (err) => {
-            this.$toast.error("Error! " + err);
+          if (JSON.stringify(payment) !== "{}") {
+            this.payment = payment;
           }
-        );
+        },
+        (err) => {
+          this.$toast.error("Error! " + err);
+        });
 
         window.backend.GetUser(parseInt(order.created_by)).then((user) => {
             if (JSON.stringify(user) !== "{}") {
@@ -236,8 +235,7 @@ export default {
       },
       (err) => {
         this.$toast.error("Error! " + err);
-      }
-    );
+      });
   },
   methods: {
     CreateReturn() {

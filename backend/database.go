@@ -55,7 +55,7 @@ func dsn() string {
 		}
 	}
 
-	return fmt.Sprintf("%s:%s@tcp(%s)/%s?multiStatements=true", username, password, hostname, dbname)
+	return fmt.Sprintf("%s:%s@tcp(%s)/%s?multiStatements=true&parseTime=true", username, password, hostname, dbname)
 }
 
 // Setup performs all needed operations

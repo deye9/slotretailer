@@ -34,9 +34,12 @@
             <b-dropdown-item href="#">
               <router-link to="/products/" class="text-dark">Inventory</router-link>
             </b-dropdown-item>
-            <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item href="#">
               <router-link :to="{ name: 'retailstore' }" class="text-dark">Store Details</router-link>
+            </b-dropdown-item>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-item href="#">
+              <router-link to="/reports/auditlogs" class="text-dark">Audit Logs</router-link>
             </b-dropdown-item>
             <b-dropdown-item href="#">
               <router-link :to="{ name: 'sync' }" class="text-dark">Sync Details</router-link>

@@ -2,7 +2,6 @@ package service
 
 import (
 	"database/sql"
-	"time"
 )
 
 // Products struct
@@ -29,19 +28,19 @@ type Banks struct {
 
 // Customers struct
 type Customers struct {
-	ID        int            `json:"id,omitempty"`
-	CardCode  string         `json:"cardcode,omitempty"` // 15
-	CardName  string         `json:"cardname,omitempty"` // 100
-	Address   string         `json:"address,omitempty"`  // 100
-	Phone     string         `json:"phone,omitempty"`    // 20
-	Phone1    string         `json:"phone1,omitempty"`   // 20
-	City      string         `json:"city,omitempty"`     // 100
-	Email     string         `json:"email,omitempty"`    // 100
-	Synced    bool           `json:"synced,omitempty"`
-	CreatedBy int            `json:"created_by,omitempty"`
-	CreatedAt sql.NullString `json:"created_at,omitempty"`
-	UpdatedAt sql.NullString `json:"updated_at,omitempty"`
-	DeletedAt sql.NullString `json:"deleted_at,omitempty"`
+	ID        int          `json:"id,omitempty"`
+	CardCode  string       `json:"cardcode,omitempty"` // 15
+	CardName  string       `json:"cardname,omitempty"` // 100
+	Address   string       `json:"address,omitempty"`  // 100
+	Phone     string       `json:"phone,omitempty"`    // 20
+	Phone1    string       `json:"phone1,omitempty"`   // 20
+	City      string       `json:"city,omitempty"`     // 100
+	Email     string       `json:"email,omitempty"`    // 100
+	Synced    bool         `json:"synced,omitempty"`
+	CreatedBy int          `json:"created_by,omitempty"`
+	CreatedAt sql.NullTime `json:"created_at,omitempty"`
+	UpdatedAt sql.NullTime `json:"updated_at,omitempty"`
+	DeletedAt sql.NullTime `json:"deleted_at,omitempty"`
 }
 
 // Orders struct
@@ -60,9 +59,9 @@ type Orders struct {
 	Comment   sql.NullString `json:"comment,omitempty"`
 	Returned  bool           `json:"returned"`
 	CreatedBy int            `json:"created_by,omitempty"`
-	CreatedAt sql.NullString `json:"created_at,omitempty"`
-	UpdatedAt sql.NullString `json:"updated_at,omitempty"`
-	DeletedAt sql.NullString `json:"deleted_at,omitempty"`
+	CreatedAt sql.NullTime   `json:"created_at,omitempty"`
+	UpdatedAt sql.NullTime   `json:"updated_at,omitempty"`
+	DeletedAt sql.NullTime   `json:"deleted_at,omitempty"`
 }
 
 // OrderedItems struct
@@ -90,37 +89,37 @@ type Payments struct {
 
 // Users struct
 type Users struct {
-	ID        int            `json:"id,omitempty"`
-	FirstName string         `json:"firstname,omitempty"` // 100
-	LastName  string         `json:"lastname,omitempty"`  // 100
-	Email     string         `json:"email,omitempty"`     // 100
-	Password  string         `json:"password,omitempty"`  // 100
-	IsAdmin   bool           `json:"isadmin"`
-	CreatedBy int            `json:"created_by,omitempty"`
-	CreatedAt sql.NullString `json:"created_at,omitempty"`
-	UpdatedAt sql.NullString `json:"updated_at,omitempty"`
-	DeletedAt sql.NullString `json:"deleted_at,omitempty"`
+	ID        int          `json:"id,omitempty"`
+	FirstName string       `json:"firstname,omitempty"` // 100
+	LastName  string       `json:"lastname,omitempty"`  // 100
+	Email     string       `json:"email,omitempty"`     // 100
+	Password  string       `json:"password,omitempty"`  // 100
+	IsAdmin   bool         `json:"isadmin"`
+	CreatedBy int          `json:"created_by,omitempty"`
+	CreatedAt sql.NullTime `json:"created_at,omitempty"`
+	UpdatedAt sql.NullTime `json:"updated_at,omitempty"`
+	DeletedAt sql.NullTime `json:"deleted_at,omitempty"`
 }
 
 // Store struct
 type Store struct {
-	ID           int            `json:"id,omitempty"`
-	Name         string         `json:"name,omitempty"`    // 100
-	Address      string         `json:"address,omitempty"` // 100
-	Phone        string         `json:"phone,omitempty"`   // 20
-	City         string         `json:"city,omitempty"`    // 100
-	Email        string         `json:"email,omitempty"`   // 100
-	OrdersAPI    string         `json:"orders,omitempty"`
-	ProductsAPI  string         `json:"products,omitempty"`
-	CustomersAPI string         `json:"customers,omitempty"`
-	BanksAPI     string         `json:"banks,omitempty"`
-	SyncInterval int            `json:"sync_interval,omitempty"`
-	SapKey       string         `json:"sapkey,omitempty"`
-	LogRotation  string         `json:"logrotation,omitempty"`
-	CreatedBy    int            `json:"created_by,omitempty"`
-	CreatedAt    sql.NullString `json:"created_at,omitempty"`
-	UpdatedAt    sql.NullString `json:"updated_at,omitempty"`
-	DeletedAt    sql.NullString `json:"deleted_at,omitempty"`
+	ID           int          `json:"id,omitempty"`
+	Name         string       `json:"name,omitempty"`    // 100
+	Address      string       `json:"address,omitempty"` // 100
+	Phone        string       `json:"phone,omitempty"`   // 20
+	City         string       `json:"city,omitempty"`    // 100
+	Email        string       `json:"email,omitempty"`   // 100
+	OrdersAPI    string       `json:"orders,omitempty"`
+	ProductsAPI  string       `json:"products,omitempty"`
+	CustomersAPI string       `json:"customers,omitempty"`
+	BanksAPI     string       `json:"banks,omitempty"`
+	SyncInterval int          `json:"sync_interval,omitempty"`
+	SapKey       string       `json:"sapkey,omitempty"`
+	LogRotation  string       `json:"logrotation,omitempty"`
+	CreatedBy    int          `json:"created_by,omitempty"`
+	CreatedAt    sql.NullTime `json:"created_at,omitempty"`
+	UpdatedAt    sql.NullTime `json:"updated_at,omitempty"`
+	DeletedAt    sql.NullTime `json:"deleted_at,omitempty"`
 }
 
 // SearchResult struct
@@ -132,23 +131,23 @@ type SearchResult struct {
 
 // Reports struct
 type Reports struct {
-	ID        int            `json:"id,omitempty"`
-	Title     string         `json:"title,omitempty"`
-	Query     string         `json:"query,omitempty"`
-	CreatedBy int            `json:"created_by,omitempty"`
-	CreatedAt sql.NullString `json:"created_at,omitempty"`
-	UpdatedAt sql.NullString `json:"updated_at,omitempty"`
-	DeletedAt sql.NullString `json:"deleted_at,omitempty"`
+	ID        int          `json:"id,omitempty"`
+	Title     string       `json:"title,omitempty"`
+	Query     string       `json:"query,omitempty"`
+	CreatedBy int          `json:"created_by,omitempty"`
+	CreatedAt sql.NullTime `json:"created_at,omitempty"`
+	UpdatedAt sql.NullTime `json:"updated_at,omitempty"`
+	DeletedAt sql.NullTime `json:"deleted_at,omitempty"`
 }
 
 // AuditLog struct
 type AuditLog struct {
-	ID         int       `json:"id,omitempty"`
-	CreatedBy  string    `json:"created_by,omitempty"`
-	DmlType    string    `json:"dml_type,omitempty"`
-	OldRowData string    `json:"old_row_data,omitempty"`
-	NewRowData string    `json:"new_row_data,omitempty"`
-	LoggedOn   time.Time `json:"timestamp,omitempty"`
+	ID         int            `json:"id,omitempty"`
+	CreatedBy  string         `json:"created_by,omitempty"`
+	DmlType    string         `json:"dml_type,omitempty"`
+	OldRowData sql.NullString `json:"old_row_data,omitempty"`
+	NewRowData string         `json:"new_row_data,omitempty"`
+	LoggedOn   sql.NullTime   `json:"timestamp,omitempty"`
 }
 
 // REMEMBER TO MODIFY THE migrations.sql ONCE MODIFIED via an alter statement.
