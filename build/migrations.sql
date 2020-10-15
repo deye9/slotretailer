@@ -117,12 +117,17 @@ CREATE TABLE IF NOT EXISTS reports (
 
 CREATE TABLE IF NOT EXISTS audits (
     id          INT AUTO_INCREMENT PRIMARY KEY,
-    old_row_data JSON,
-    new_row_data JSON,
+    old_row_data JSON NULL,
+    new_row_data JSON NULL,
     dml_type    ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
-    dml_created_by  INT NOT NULL,
+    dml_created_by  INT NULL DEFAULT 0,
     dml_timestamp  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ALTER TABLE audits
+-- CHANGE COLUMN `old_row_data` `old_row_data` JSON NULL ,
+-- CHANGE COLUMN `new_row_data` `new_row_data` JSON NULL ,
+-- CHANGE COLUMN `dml_created_by` `dml_created_by` INT NULL DEFAULT 0 ;
 
 -- CUSTOMERS TRIGGER
 drop trigger if exists customer_insert_audit;
@@ -277,7 +282,7 @@ BEGIN
     (null, 
     JSON_OBJECT('id', new.id, 'docentry', new.docentry, 'docnum', new.docnum, 'canceled', new.canceled, 'cardcode', new.cardcode, 'cardname', new.cardname, 'vatsum', new.vatsum, 'doctotal', new.doctotal, 'synced', new.synced, 'comment', new.comment, 'returned', new.returned, 'created_at', new.created_at), 
     'INSERT', new.created_by);
-END $$    
+END $$
 
 DELIMITER ;
 

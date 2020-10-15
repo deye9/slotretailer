@@ -424,7 +424,7 @@ export default {
       } else {
         let numVal = Number(discount / 100),
           discountVal = price - price * numVal;
-        total = `₦${(quantity * price - discountVal).toFixed(2)}`;
+        total = `₦${discountVal.toFixed(2)}`;
       }
       row.cells[6].innerHTML = total;
       

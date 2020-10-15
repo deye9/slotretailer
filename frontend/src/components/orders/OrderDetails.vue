@@ -110,16 +110,8 @@
               <td>
                 {{ item.discount }}
               </td>
-              <td v-if="item.discount === 0">
-                ₦{{ parseFloat(item.quantity * item.price).toFixed(2)}}
-              </td>
-              <td v-else>
-                ₦{{
-                  parseFloat(
-                    item.quantity * item.price -
-                      (item.price - item.price * (item.discount / 100))
-                  ).toFixed(2)
-                }}
+              <td>
+                {{ item.total }}
               </td>
             </tr>
           </tbody>
@@ -204,9 +196,13 @@ export default {
 
         this.order.items.forEach(item => {
           if (item.discount === 0) {
+            item.total = Number(item.quantity) * parseFloat(item.price);
             this.subtotal = parseFloat(this.subtotal) + parseFloat(item.quantity) * parseFloat(item.price).toFixed(2);
           } else {
-            this.subtotal = parseFloat(parseFloat(item.quantity) * parseFloat(item.price) - (parseFloat(item.price) - parseFloat(item.price) * (parseFloat(item.discount) / 100))).toFixed(2);
+            let numVal = Number(item.discount / 100),
+              discountVal = item.price - item.price * numVal;
+            item.total = `₦${discountVal.toFixed(2)}`;
+            this.subtotal += parseFloat(discountVal).toFixed(2);
           }
 
           this.vatAmount = parseFloat((7.5 / 100) * this.subtotal).toFixed(2);
