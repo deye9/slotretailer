@@ -142,7 +142,7 @@ BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
     (null, 
-    JSON_OBJECT('id', new.id, 'cardcode', new.cardcode, 'cardname', new.cardname, 'address', new.address, 'phone', new.phone, 'phone1', new.phone1, 'city', new.city, 'email', new.email, 'synced', new.synced, 'created_at', new.created_at), 
+    JSON_OBJECT('id', new.id, 'cardcode', new.cardcode, 'cardname', new.cardname, 'address', new.address, 'phone', new.phone, 'phone1', new.phone1, 'city', new.city, 'email', new.email, 'synced', new.synced, 'created_at', new.created_at, 'created_by', new.created_by), 
     'INSERT', new.created_by);
 END $$    
 
@@ -155,8 +155,8 @@ AFTER UPDATE ON customers FOR EACH ROW
 BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
-    (JSON_OBJECT('id', old.id, 'cardcode', old.cardcode, 'cardname', old.cardname, 'address', old.address, 'phone', old.phone, 'phone1', old.phone1, 'city', old.city, 'email', old.email, 'synced', old.synced, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
-    JSON_OBJECT('id', new.id, 'cardcode', new.cardcode, 'cardname', new.cardname, 'address', new.address, 'phone', new.phone, 'phone1', new.phone1, 'city', new.city, 'email', new.email, 'synced', new.synced, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at), 
+    (JSON_OBJECT('id', old.id, 'cardcode', old.cardcode, 'cardname', old.cardname, 'address', old.address, 'phone', old.phone, 'phone1', old.phone1, 'city', old.city, 'email', old.email, 'synced', old.synced, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
+    JSON_OBJECT('id', new.id, 'cardcode', new.cardcode, 'cardname', new.cardname, 'address', new.address, 'phone', new.phone, 'phone1', new.phone1, 'city', new.city, 'email', new.email, 'synced', new.synced, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at, 'created_by', new.created_by), 
     'UPDATE', new.created_by);
 END $$    
 
@@ -169,7 +169,7 @@ AFTER DELETE ON customers FOR EACH ROW
 BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
-    (JSON_OBJECT('id', old.id, 'cardcode', old.cardcode, 'cardname', old.cardname, 'address', old.address, 'phone', old.phone, 'phone1', old.phone1, 'city', old.city, 'email', old.email, 'synced', old.synced, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+    (JSON_OBJECT('id', old.id, 'cardcode', old.cardcode, 'cardname', old.cardname, 'address', old.address, 'phone', old.phone, 'phone1', old.phone1, 'city', old.city, 'email', old.email, 'synced', old.synced, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
 	null, 'DELETE', old.created_by);
 END $$    
 
@@ -188,7 +188,7 @@ BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
     (null, 
-    JSON_OBJECT('id', new.id, 'firstname', new.firstname, 'lastname', new.lastname, 'email', new.email, 'password', new.password, 'isadmin', new.isadmin, 'created_at', new.created_at), 
+    JSON_OBJECT('id', new.id, 'firstname', new.firstname, 'lastname', new.lastname, 'email', new.email, 'password', new.password, 'isadmin', new.isadmin, 'created_at', new.created_at, 'created_by', new.created_by), 
     'INSERT', new.created_by);
 END $$    
 
@@ -201,8 +201,8 @@ AFTER UPDATE ON users FOR EACH ROW
 BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
-    (JSON_OBJECT('id', old.id, 'firstname', old.firstname, 'lastname', old.lastname, 'email', old.email, 'password', old.password, 'isadmin', old.isadmin, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
-    JSON_OBJECT('id', new.id, 'firstname', new.firstname, 'lastname', new.lastname, 'email', new.email, 'password', new.password, 'isadmin', new.isadmin, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at), 
+    (JSON_OBJECT('id', old.id, 'firstname', old.firstname, 'lastname', old.lastname, 'email', old.email, 'password', old.password, 'isadmin', old.isadmin, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
+    JSON_OBJECT('id', new.id, 'firstname', new.firstname, 'lastname', new.lastname, 'email', new.email, 'password', new.password, 'isadmin', new.isadmin, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at, 'created_by', new.created_by), 
     'UPDATE', new.created_by);
 END $$    
 
@@ -215,7 +215,7 @@ AFTER DELETE ON users FOR EACH ROW
 BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
-    (JSON_OBJECT('id', old.id, 'firstname', old.firstname, 'lastname', old.lastname, 'email', old.email, 'password', old.password, 'isadmin', old.isadmin, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+    (JSON_OBJECT('id', old.id, 'firstname', old.firstname, 'lastname', old.lastname, 'email', old.email, 'password', old.password, 'isadmin', old.isadmin, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
 	null, 'DELETE', old.created_by);
 END $$    
 
@@ -234,7 +234,7 @@ BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
     (null, 
-    JSON_OBJECT('id', new.id, 'name', new.name, 'address', new.address, 'phone', new.phone, 'city', new.city, 'email', new.email, 'orders', new.orders, 'products', new.products, 'customers', new.customers, 'banks', new.banks, 'sync_interval', new.sync_interval, 'sapkey', new.sapkey, 'logrotation', new.logrotation, 'created_at', new.created_at), 
+    JSON_OBJECT('id', new.id, 'name', new.name, 'address', new.address, 'phone', new.phone, 'city', new.city, 'email', new.email, 'orders', new.orders, 'products', new.products, 'customers', new.customers, 'banks', new.banks, 'sync_interval', new.sync_interval, 'sapkey', new.sapkey, 'logrotation', new.logrotation, 'created_at', new.created_at, 'created_by', new.created_by), 
     'INSERT', new.created_by);
 END $$    
 
@@ -247,8 +247,8 @@ AFTER UPDATE ON store FOR EACH ROW
 BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
-    (JSON_OBJECT('id', old.id, 'name', old.name, 'address', old.address, 'phone', old.phone, 'city', old.city, 'email', old.email, 'orders', old.orders, 'products', old.products, 'customers', old.customers, 'banks', old.banks, 'sync_interval', old.sync_interval, 'sapkey', old.sapkey, 'logrotation', old.logrotation, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
-    JSON_OBJECT('id', new.id, 'name', new.name, 'address', new.address, 'phone', new.phone, 'city', new.city, 'email', new.email, 'orders', new.orders, 'products', new.products, 'customers', new.customers, 'banks', new.banks, 'sync_interval', new.sync_interval, 'sapkey', new.sapkey, 'logrotation', new.logrotation, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at), 
+    (JSON_OBJECT('id', old.id, 'name', old.name, 'address', old.address, 'phone', old.phone, 'city', old.city, 'email', old.email, 'orders', old.orders, 'products', old.products, 'customers', old.customers, 'banks', old.banks, 'sync_interval', old.sync_interval, 'sapkey', old.sapkey, 'logrotation', old.logrotation, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
+    JSON_OBJECT('id', new.id, 'name', new.name, 'address', new.address, 'phone', new.phone, 'city', new.city, 'email', new.email, 'orders', new.orders, 'products', new.products, 'customers', new.customers, 'banks', new.banks, 'sync_interval', new.sync_interval, 'sapkey', new.sapkey, 'logrotation', new.logrotation, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at, 'created_by', new.created_by), 
     'UPDATE', new.created_by);
 END $$    
 
@@ -261,12 +261,13 @@ AFTER DELETE ON store FOR EACH ROW
 BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
-    (JSON_OBJECT('id', old.id, 'name', old.name, 'address', old.address, 'phone', old.phone, 'city', old.city, 'email', old.email, 'orders', old.orders, 'products', old.products, 'customers', old.customers, 'banks', old.banks, 'sync_interval', old.sync_interval, 'sapkey', old.sapkey, 'logrotation', old.logrotation, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+    (JSON_OBJECT('id', old.id, 'name', old.name, 'address', old.address, 'phone', old.phone, 'city', old.city, 'email', old.email, 'orders', old.orders, 'products', old.products, 'customers', old.customers, 'banks', old.banks, 'sync_interval', old.sync_interval, 'sapkey', old.sapkey, 'logrotation', old.logrotation, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
 	null, 'DELETE', old.created_by);
 END $$    
 
 DELIMITER ;
 
+-- ORDERS TRIGGER
 -- ORDERS TRIGGER
 drop trigger if exists order_insert_audit;
 drop trigger if exists order_update_audit;
@@ -280,7 +281,7 @@ BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
     (null, 
-    JSON_OBJECT('id', new.id, 'docentry', new.docentry, 'docnum', new.docnum, 'canceled', new.canceled, 'cardcode', new.cardcode, 'cardname', new.cardname, 'vatsum', new.vatsum, 'doctotal', new.doctotal, 'synced', new.synced, 'comment', new.comment, 'returned', new.returned, 'created_at', new.created_at), 
+    JSON_OBJECT('id', new.id, 'docentry', new.docentry, 'docnum', new.docnum, 'canceled', new.canceled, 'cardcode', new.cardcode, 'cardname', new.cardname, 'vatsum', new.vatsum, 'doctotal', new.doctotal, 'synced', new.synced, 'comment', new.comment, 'returned', new.returned, 'created_at', new.created_at, 'created_by', new.created_by), 
     'INSERT', new.created_by);
 END $$
 
@@ -293,8 +294,8 @@ AFTER UPDATE ON orders FOR EACH ROW
 BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
-    (JSON_OBJECT('id', old.id, 'docentry', old.docentry, 'docnum', old.docnum, 'canceled', old.canceled, 'cardcode', old.cardcode, 'cardname', old.cardname, 'vatsum', old.vatsum, 'doctotal', old.doctotal, 'synced', old.synced, 'comment', old.comment, 'returned', old.returned, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
-    JSON_OBJECT('id', new.id, 'docentry', new.docentry, 'docnum', new.docnum, 'canceled', new.canceled, 'cardcode', new.cardcode, 'cardname', new.cardname, 'vatsum', new.vatsum, 'doctotal', new.doctotal, 'synced', new.synced, 'comment', new.comment, 'returned', new.returned, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at), 
+    (JSON_OBJECT('id', old.id, 'docentry', old.docentry, 'docnum', old.docnum, 'canceled', old.canceled, 'cardcode', old.cardcode, 'cardname', old.cardname, 'vatsum', old.vatsum, 'doctotal', old.doctotal, 'synced', old.synced, 'comment', old.comment, 'returned', old.returned, 'created_by', old.created_by, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+    JSON_OBJECT('id', new.id, 'docentry', new.docentry, 'docnum', new.docnum, 'canceled', new.canceled, 'cardcode', new.cardcode, 'cardname', new.cardname, 'vatsum', new.vatsum, 'doctotal', new.doctotal, 'synced', new.synced, 'comment', new.comment, 'returned', new.returned, 'created_by', new.created_by, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at), 
     'UPDATE', new.created_by);
 END $$    
 
@@ -307,7 +308,7 @@ AFTER DELETE ON orders FOR EACH ROW
 BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
-    (JSON_OBJECT('id', old.id, 'docentry', old.docentry, 'docnum', old.docnum, 'canceled', old.canceled, 'cardcode', old.cardcode, 'cardname', old.cardname, 'vatsum', old.vatsum, 'doctotal', old.doctotal, 'synced', old.synced, 'comment', old.comment, 'returned', old.returned, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at),
+    (JSON_OBJECT('id', old.id, 'docentry', old.docentry, 'docnum', old.docnum, 'canceled', old.canceled, 'cardcode', old.cardcode, 'cardname', old.cardname, 'vatsum', old.vatsum, 'doctotal', old.doctotal, 'synced', old.synced, 'comment', old.comment, 'returned', old.returned, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
 	null, 'DELETE', old.created_by);
 END $$    
 

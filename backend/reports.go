@@ -9,7 +9,7 @@ import (
 func TodaysOrders() (orders []Orders, err error) {
 	var rows *sql.Rows
 	if rows, err = Get(`select * from orders where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;`); err != nil {
-		CheckError("Error getting Orders.", err, false)
+		CheckError("Error getting Today's Orders.", err, false)
 		return nil, err
 	}
 
@@ -17,7 +17,7 @@ func TodaysOrders() (orders []Orders, err error) {
 	for rows.Next() {
 		order := Orders{}
 		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum, &order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt); err != nil {
-			CheckError("Error Scanning Orders.", err, false)
+			CheckError("Error Scanning Today's Orders.", err, false)
 		} else {
 			orders = append(orders, order)
 		}

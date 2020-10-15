@@ -1,6 +1,9 @@
 package service
 
-import "database/sql"
+import (
+	"database/sql"
+	"time"
+)
 
 // Products struct
 type Products struct {
@@ -136,6 +139,16 @@ type Reports struct {
 	CreatedAt sql.NullString `json:"created_at,omitempty"`
 	UpdatedAt sql.NullString `json:"updated_at,omitempty"`
 	DeletedAt sql.NullString `json:"deleted_at,omitempty"`
+}
+
+// AuditLog struct
+type AuditLog struct {
+	ID         int       `json:"id,omitempty"`
+	CreatedBy  string    `json:"created_by,omitempty"`
+	DmlType    string    `json:"dml_type,omitempty"`
+	OldRowData string    `json:"old_row_data,omitempty"`
+	NewRowData string    `json:"new_row_data,omitempty"`
+	LoggedOn   time.Time `json:"timestamp,omitempty"`
 }
 
 // REMEMBER TO MODIFY THE migrations.sql ONCE MODIFIED via an alter statement.

@@ -131,3 +131,11 @@ func Search(searchText string) (result []SearchResult, err error) {
 
 	return
 }
+
+// GetAuditLog returns all the audit logs generated btw yesterday and today
+func GetAuditLog() (auditLogs []map[string]interface{}, err error) {
+	// var rows *sql.Rows
+	// select a.id, old_row_data, new_row_data, dml_type, concat(u.firstname, ' ', u.lastname) as 'created_by', dml_timestamp as 'timestamp' from audits a inner join users u on a.dml_created_by = u.id where date(dml_timestamp) between date((subdate(current_date, 1))) and date(CURRENT_DATE);
+
+	return
+}
