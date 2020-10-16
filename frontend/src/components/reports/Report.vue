@@ -1,6 +1,6 @@
 <template>
-    <section>
-        <div class="container flex-xl-nowrap2" style="margin-top: 10em;">
+    <section class="container">
+        <div class="flex-xl-nowrap2" style="margin-top: 10em;">
             <div class="row">
                 <div class="col-12">
                 <div class="card">

@@ -1,13 +1,13 @@
 <template>
-    <section>
-        <div class="container flex-xl-nowrap2" style="margin-top: 30em;">
+    <section class="container">
+        <div class="flex-xl-nowrap2" style="margin-top: 10em;">
             <div class="row">
                 <div class="col-12">
                 <div class="card">
                     <div class="card-body p-0">
                         <div class="row p-2">
                             <div class="col-12 text-center">
-                                <img src="../../assets/img/slot.png" />
+                                <img src="../assets/img/slot.png" />
                                 <br />
                                 <h3>Audit Log Report.</h3>
                                 <hr />
@@ -89,12 +89,10 @@ export default {
         };
     },
     created() {
-        alert(12345);
         this.isBusy = true;
 
         window.backend.GetAuditLog().then((report) => {
             this.isBusy = false;
-            console.log(report);
             if (report === null) {
                 this.$toast.info("Info! Report returned no data.");
                 return;

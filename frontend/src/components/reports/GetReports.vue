@@ -1,5 +1,5 @@
 <template>
-    <section>
+    <section class="container">
         <div class="row flex-xl-nowrap2">
             <div class="col-8">
                 <h3>Registered Reports</h3>

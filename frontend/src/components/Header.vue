@@ -39,7 +39,7 @@
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item href="#">
-              <router-link to="/reports/auditlogs" class="text-dark">Audit Logs</router-link>
+              <router-link to="/auditlogs" class="text-dark">Audit Logs</router-link>
             </b-dropdown-item>
             <b-dropdown-item href="#">
               <router-link :to="{ name: 'sync' }" class="text-dark">Sync Details</router-link>
