@@ -132,10 +132,30 @@ func Search(searchText string) (result []SearchResult, err error) {
 	return
 }
 
-// GetAuditLog returns all the audit logs generated btw yesterday and today
-func GetAuditLog() (auditLogs []AuditLog, err error) {
+// GetAuditLogs returns all the audit logs generated btw yesterday and today
+func GetAuditLogs() (auditLogs []AuditLog, err error) {
 	var rows *sql.Rows
 	if rows, err = Get(`select a.id, old_row_data, new_row_data, dml_type, concat(u.firstname, ' ', u.lastname) as 'created_by', dml_timestamp as 'timestamp' from audits a inner join users u on a.dml_created_by = u.id where date(dml_timestamp) between date((subdate(current_date, 1))) and date(CURRENT_DATE);`); err != nil {
+		CheckError("Error getting Audit Logs.", err, false)
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		log := AuditLog{}
+		if err = rows.Scan(&log.ID, &log.OldRowData, &log.NewRowData, &log.DmlType, &log.CreatedBy, &log.LoggedOn); err != nil {
+			CheckError("Error Scanning Audit Logs data.", err, false)
+		} else {
+			auditLogs = append(auditLogs, log)
+		}
+	}
+	return
+}
+
+// GetAuditLog returns all the audit logs generated btw yesterday and today
+func GetAuditLog(startDate, endDate string) (auditlog []AuditLog, err error) {
+	var rows *sql.Rows
+	if rows, err = Get(fmt.Sprintf(`select a.id, old_row_data, new_row_data, dml_type, concat(u.firstname, ' ', u.lastname) as 'created_by', dml_timestamp as 'timestamp' from audits a inner join users u on a.dml_created_by = u.id where date(dml_timestamp) between date('%s') and date('%s');`, startDate, endDate)); err != nil {
 		CheckError("Error getting Audit Log.", err, false)
 		return nil, err
 	}
@@ -146,7 +166,7 @@ func GetAuditLog() (auditLogs []AuditLog, err error) {
 		if err = rows.Scan(&log.ID, &log.OldRowData, &log.NewRowData, &log.DmlType, &log.CreatedBy, &log.LoggedOn); err != nil {
 			CheckError("Error Scanning Audit Log.", err, false)
 		} else {
-			auditLogs = append(auditLogs, log)
+			auditlog = append(auditlog, log)
 		}
 	}
 	return
