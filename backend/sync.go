@@ -40,7 +40,7 @@ func Sync() {
 	go scheduler(tick, done)
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	<-sigs
+	<-sigs // recieve only channel
 	done <- true
 	//os.Exit(1)
 }

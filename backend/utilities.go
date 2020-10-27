@@ -126,3 +126,12 @@ func deleteFile(filePath string) (err error) {
 
 	return nil
 }
+
+func renameFile(oldName, newName string) (err error) {
+	if err = os.Rename(oldName, newName); err != nil {
+		CheckError("Unable to rename File "+oldName, err, false)
+		return err
+	}
+
+	return nil
+}

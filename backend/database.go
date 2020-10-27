@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	// Default mysql Driver
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -24,7 +25,7 @@ var password string
 var hostname string
 
 // Build out the DSN to the database.
-func dsn() string {
+func dsn(dbName string) string {
 	var err error = nil
 	var file io.Reader
 
@@ -55,6 +56,9 @@ func dsn() string {
 		}
 	}
 
+	if dbName == "sys" {
+		return fmt.Sprintf("%s:%s@tcp(%s)/%s?multiStatements=true&parseTime=true", username, password, hostname, "sys")
+	}
 	return fmt.Sprintf("%s:%s@tcp(%s)/%s?multiStatements=true&parseTime=true", username, password, hostname, dbname)
 }
 
@@ -62,18 +66,20 @@ func dsn() string {
 func Setup() {
 	var err error
 
-	_, err = os.Stat(BasePath() + "/build/.env")
-	if os.IsNotExist(err) {
+	if _, err = os.Stat(BasePath() + "/build/.env"); os.IsNotExist(err) {
 		CheckError("No .env file exists for the database connection setup.", err, true)
 		return
 	}
 
-	if DbConn, err = connectDB(); err != nil {
+	if DbConn, err = connectDB("sys"); err != nil {
 		CheckError("Error Connecting to the Database", err, true)
 	}
 
-	createDB()
-	runMigrations()
+	// Run migrations and create the DB only if there is a valid migration file.
+	if _, err = os.Stat(BasePath() + "/build/migrations.sql"); !os.IsNotExist(err) {
+		createDB()
+		runMigrations()
+	}
 
 	DbConn.SetMaxOpenConns(3)
 	DbConn.SetMaxIdleConns(3)
@@ -90,11 +96,19 @@ func createDB() {
 
 	_, err = res.RowsAffected()
 	CheckError("Error when fetching rows from DB.", err, true)
+
+	// Close the previous connection to the database
+	DbConn.Close()
+
+	// Open a new connection to the database
+	if DbConn, err = connectDB(dbname); err != nil {
+		CheckError("Error Connecting to the Database", err, true)
+	}
 }
 
 // connectDB returns a *sql.DB instance or an error if present
-func connectDB() (*sql.DB, error) {
-	return sql.Open("mysql", dsn())
+func connectDB(dbName string) (*sql.DB, error) {
+	return sql.Open("mysql", dsn(dbName))
 }
 
 // StructToMap Converts a struct to a map while maintaining the json alias as keys
@@ -121,9 +135,11 @@ func runMigrations() (bool, error) {
 
 	if _, err = DbConn.Exec(string(fileContent)); err != nil {
 		CheckError("Error Migrating File: ", err, false)
-		return false, err
+		// return false, err
 	}
 
+	// Rename the migration file
+	renameFile(BasePath()+"/build/migrations.sql", BasePath()+"/build/migrated.sql")
 	return true, nil
 }
 
@@ -235,7 +251,16 @@ func MaptoUpdate(mapData map[string]interface{}, tableName, tableKey string) (st
 
 // Get retrieves data from the data store.
 func Get(selectQuery string) (rows *sql.Rows, err error) {
-	return DbConn.Query(selectQuery)
+	// DbConn.QueryRow()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	if rows, err = DbConn.QueryContext(ctx, selectQuery); err != nil {
+		return nil, err
+	}
+
+	return
+	// return DbConn.Query(selectQuery)
 }
 
 // Insert creates record(s) in the data store.
