@@ -5,7 +5,7 @@
         <h3>Sales Order</h3>
       </div>
       <div class="col-4">
-        <router-link :to="{name: 'neworder'}" class="btn btn-info float-right">New Order</router-link>
+        <router-link :to="{name: 'neworder'}" class="btn btn-info btn-sm float-right">New Order</router-link>
       </div>
     </div>
     <hr />
@@ -51,7 +51,6 @@ export default {
     this.$refs.myTable.setLoadingState(true);
     window.backend.GetOrders().then((orders) => {
       if (JSON.stringify(orders) === "{}" || orders === null) {
-        this.$toast.info("Error! No Sales Order was returned.");
         this.$refs.myTable.setLoadingState(false);
         return;
       }

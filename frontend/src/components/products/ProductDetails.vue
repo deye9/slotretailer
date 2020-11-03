@@ -5,7 +5,7 @@
         <h3>{{ this.product["itemname"] }}</h3>
       </div>
       <div class="col-4">
-        <router-link :to="{name: 'productlist'}" class="btn btn-info float-right">Back</router-link>
+        <router-link :to="{name: 'productlist'}" class="btn btn-info btn-sm float-right">Back</router-link>
       </div>
     </div>
     <hr />

@@ -17,6 +17,7 @@
     "regenerator-runtime": "^0.13.3",
     "vue": "^2.6.11",
     "vue-router": "^3.4.8",
+    "vue-select": "^3.10.8",
     "vue-tables-2": "^2.1.46",
     "vue-toastification": "^1.7.8",
     "vuejs-datepicker": "^1.6.2",

@@ -27,7 +27,7 @@
               required
             />
           </div>
-          <button @click="login" class="btn btn-lg btn-primary btn-block mt-3">
+          <button @click="login" class="btn btn-lg btn-sm btn-primary btn-block mt-3">
             Login
           </button>
         </form>

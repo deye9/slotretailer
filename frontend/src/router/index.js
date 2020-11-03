@@ -35,9 +35,11 @@ import NewCustomer from "@/components/customers/NewCustomer";
 import GetCustomers from "@/components/customers/GetCustomers";
 import EditCustomer from "@/components/customers/EditCustomer";
 
+import vSelect from "vue-select";
 import {ClientTable} from 'vue-tables-2';
 
 Vue.use(Router);
+Vue.component("v-select", vSelect);
 Vue.use(ClientTable, {}, false, 'bootstrap4');
 
 const originalPush = Router.prototype.push;

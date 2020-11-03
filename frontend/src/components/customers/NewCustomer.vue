@@ -5,7 +5,7 @@
         <h3>New Customer</h3>
       </div>
       <div class="col-4">
-        <router-link :to="{name: 'customerlist'}" class="btn btn-info float-right">Back</router-link>
+        <router-link :to="{name: 'customerlist'}" class="btn btn-info btn-sm float-right">Back</router-link>
       </div>
     </div>
     <hr />
@@ -85,7 +85,7 @@
       </div>
     </div>
 
-    <button type="submit" id="register" class="btn btn-primary float-right" @click="Registration">
+    <button type="submit" id="register" class="btn btn-primary btn-sm float-right" @click="Registration">
       Register Customer
     </button>
 

@@ -1,16 +1,16 @@
 <template>
-  <section>
+  <div style="margin-top: 5em; font-size: 14px;">
     <div class="row">
       <div class="col-8">
         <h3>New Sales Order</h3>
       </div>
       <div class="col-4">
-        <router-link to="/orders/" class="btn btn-info float-right">Back</router-link>
+        <router-link :to="{name: 'orderlist'}" class="btn btn-info btn-sm float-right">Back</router-link>
       </div>
     </div>
     <hr />
 
-    <div class="form-row" small>
+    <div class="form-row">
       <div class="form-group col">
         <label for="cardname">Customer</label>
         <v-select label="cardname" @search="fetchCustomer" :options="customers" v-model="customer"></v-select>
@@ -29,7 +29,48 @@
       </div>
     </div>
 
-    <h3 style="margin-bottom: 50px">
+    <div class="form-row">
+      <div class="form-group col-8">
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <caption>
+              <h5>Ordered Items</h5>
+            </caption>
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Item Code</th>
+                <th scope="col">Item Name</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Price</th>
+                <th scope="col">Discount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, i) in items" :key="'row' + i" >
+                <th scope="row">{{ item.id }}</th>
+                <td>{{ item.itemcode }}</td>
+                <td>
+                  {{ item.itemname }}
+                  <!-- <select v-model="selecteditem" @change="itemSelected($event)">
+                    <option v-for="sItem in inventory" :key="sItem.itemcode" :value="sItem.itemcode">{{sItem.itemname}}</option>
+                  </select> -->
+                </td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.discount }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="form-group col-4">
+        <h5>Payments</h5>
+        <v-client-table ref="myPayments" id="myPayments" :columns="paymentcolumns" v-model="payments" :options="options"></v-client-table>
+      </div>
+    </div>
+
+    <!--    <h3 style="margin-bottom: 50px">
       <span class="float-left">
         Order Details <small>Double click to remove item.</small>
       </span>
@@ -37,7 +78,7 @@
     </h3>
     <hr />
 
-    <div style="max-height: 300px; overflow: scroll">
+ <div style="max-height: 300px; overflow: scroll">
       <div class="table-responsive-sm">
         <table class="table table-bordered table-hover table-striped table-sm">
           <thead class="thead-dark">
@@ -135,7 +176,6 @@
       </button>
     </div>
 
-    <!-- Modals -->
     <b-modal id="modal-item" centered title="Add New Item Row" :header-bg-variant="headerBgVariant"
       @hidden="resetModal" @show="resetModal" :header-text-variant="headerTextVariant" @ok="AddItem"
       :body-bg-variant="bodyBgVariant" :body-text-variant="bodyTextVariant"
@@ -215,50 +255,60 @@
           <button class="btn btn-lg btn-primary btn-block" @click="login">Sign in</button>
         </div>
       </form>
-    </b-modal>
-  </section>
+    </b-modal> -->
+  </div>
 </template>
 
+<style scoped>
+caption {
+    padding-top: .75rem;
+    padding-bottom: .75rem;
+    color: Black;
+    text-align: left;
+    caption-side: top;
+}
+</style>
 <script>
 import moment from "moment";
+import "vue-select/dist/vue-select.css";
 
 export default {
   data() {
     return {
-      rows: [],
-      docnum: 0,
-      fired: [],
-      order: {},
       banks: [],
-      item: null,
+      items: [],
+      options: {},
       payments: [],
       customers: [],
       inventory: [],
-      amountPaid: 0,
-      grandTotal: 0,
-      canPay: false,
-      customer: null,
-      isDisabled: true,
-      currentPayment: [],
-      currentDate: moment().format("dddd, MMMM Do YYYY, h:mm:ss a"),
-      
-      // Modal
-      bodyBgVariant: "light",
-      bodyTextVariant: "dark",
-      headerBgVariant: "dark",
-      footerTextVariant: "dark",
-      headerTextVariant: "light",
-      paymentVariant: "secondary",
-      footerBgVariant: "secondary",
+      selecteditem: '',
+      ordercolumns: [],
+      paymentcolumns: [],
+      allowDelete: false,
+      currentDate: moment().format("Do of MMMM YYYY"),
+      dateColumns:['created_at','updated_at', 'deleted_at'],
 
-      // Payments
-      CanAuthorize: false,
-      fields: ['_id', 'payment_method', 'banks', 'amount_paid', 'actions'],
+      // rows: [],
+      // docnum: 0,
+      // fired: [],
+      // order: {},
+      // item: null,
+      // amountPaid: 0,
+      // grandTotal: 0,
+      // canPay: false,
+      // customer: null,
+      // isDisabled: true,
+      // currentPayment: [],
+      // 
 
-      // Login
-      email: "",
-      password: "",
-      disabled: true,
+      // // Payments
+      // CanAuthorize: false,
+      // fields: ['_id', 'payment_method', 'banks', 'amount_paid', 'actions'],
+
+      // // Login
+      // email: "",
+      // password: "",
+      // disabled: true,
     };
   },
   async created() {
@@ -271,6 +321,7 @@ export default {
 
     // Get all customers
     window.backend.GetCustomers().then((customers) => {
+      console.log(customers);
       this.customers = customers;
     },
     (err) => {
@@ -280,6 +331,7 @@ export default {
     // Get all inventory
     window.backend.GetProducts().then((inventory) => {
       this.inventory = inventory;
+      // this.addItemRow();
     },
     (err) => {
       this.$toast.error("Error! " + err);
@@ -317,302 +369,315 @@ export default {
       loading(false);
       return;
     },
-    fetchItem(search, loading) {
-      loading(true);
-      if (search.length >= 3) {
-        this.item = this.inventory.filter((item) => {
-          return (
-            item.itemcode.toLowerCase() === search.toLowerCase() ||
-            item.itemname.toLowerCase() === search.toLowerCase() ||
-            item.codebars.toLowerCase() === search.toLowerCase() ||
-            item.serialnumber.toLowerCase() === search.toLowerCase()
-          );
-        })[0];
-        document.getElementById("price").value = `₦${this.item.price}`;
-      }
-      loading(false);
-      return;
-    },
-    getItem(value) {
-      this.item = value;
-      document.getElementById("price").value = `₦${this.item.price}`;
-    },
-
-    // Login Modal
-    async login() {
-      const email = this.email,
-        password = this.password;
-
-      if (password === "" || email === "") {
-        this.$toast.error("Error! Invalid Credentials Supplied.");
-        return false;
-      }
-
-      window.backend.Login(email, password).then((result) => {
-        if (result.id !== undefined) {
-          this.email = "";
-          this.password = "";
-          this.CanAuthorize = true;
-          document.getElementById('discount').disabled = false;
-          // Hide the modal
-          this.$refs['authorize-modal'].hide()
-        } else {
-          this.$toast.error("Error! Invalid login Credentials.");
-        }
-      },(err) => {
-          this.$toast.success("Error! " + err);
+    addItemRow() {
+      this.items.push({
+        id: this.items.length + 1,
+        quantity: '0',
+        price: '₦0.00',
+        discount: '0.00',
+        itemcode: '',
+        itemname: '',
       });
     },
-    // Items Modal
-    async removeItemRow(event) {
-      let id = event.target.parentNode.id, 
-        row = document.getElementById(`${id}`);
+    itemSelected() {
 
-      // Remove the table row from the table
-      row.parentNode.removeChild(row);
+    }
+    // fetchItem(search, loading) {
+    //   loading(true);
+    //   if (search.length >= 3) {
+    //     this.item = this.inventory.filter((item) => {
+    //       return (
+    //         item.itemcode.toLowerCase() === search.toLowerCase() ||
+    //         item.itemname.toLowerCase() === search.toLowerCase() ||
+    //         item.codebars.toLowerCase() === search.toLowerCase() ||
+    //         item.serialnumber.toLowerCase() === search.toLowerCase()
+    //       );
+    //     })[0];
+    //     document.getElementById("price").value = `₦${this.item.price}`;
+    //   }
+    //   loading(false);
+    //   return;
+    // },
+    // getItem(value) {
+    //   this.item = value;
+    //   document.getElementById("price").value = `₦${this.item.price}`;
+    // },
 
-      // Calculate the Grand Total
-      await this.TableTotal(document.getElementById("orderedItems"));
-    },
-    async AddItem(bvModalEvt) {
-      if (this.item === null) {
-        this.$toast.error("Error! No Product selected.");
+    // // Login Modal
+    // async login() {
+    //   const email = this.email,
+    //     password = this.password;
 
-        // Prevent modal from closing
-        bvModalEvt.preventDefault();
+    //   if (password === "" || email === "") {
+    //     this.$toast.error("Error! Invalid Credentials Supplied.");
+    //     return false;
+    //   }
 
-        return;
-      }
+    //   window.backend.Login(email, password).then((result) => {
+    //     if (result.id !== undefined) {
+    //       this.email = "";
+    //       this.password = "";
+    //       this.CanAuthorize = true;
+    //       document.getElementById('discount').disabled = false;
+    //       // Hide the modal
+    //       this.$refs['authorize-modal'].hide()
+    //     } else {
+    //       this.$toast.error("Error! Invalid login Credentials.");
+    //     }
+    //   },(err) => {
+    //       this.$toast.success("Error! " + err);
+    //   });
+    // },
+    // // Items Modal
+    // async removeItemRow(event) {
+    //   let id = event.target.parentNode.id, 
+    //     row = document.getElementById(`${id}`);
 
-      if (document.getElementById("quantity").value <= 0) {
-        this.$toast.error("Error! Invalid Product quantity.");
+    //   // Remove the table row from the table
+    //   row.parentNode.removeChild(row);
 
-        // Prevent modal from closing
-        bvModalEvt.preventDefault();
+    //   // Calculate the Grand Total
+    //   await this.TableTotal(document.getElementById("orderedItems"));
+    // },
+    // async AddItem(bvModalEvt) {
+    //   if (this.item === null) {
+    //     this.$toast.error("Error! No Product selected.");
 
-        return;
-      }
+    //     // Prevent modal from closing
+    //     bvModalEvt.preventDefault();
 
-      // Get a reference to the Table body
-      let total = 0,
-        discount = document.getElementById("discount").value,
-        quantity = document.getElementById("quantity").value,
-        tableRef = document.getElementById("orderedItems"),
-        rowCnt = tableRef.rows.length + 1,
-        // Insert a row in the table at the last row
-        row = tableRef.insertRow(),
-        price = document.getElementById("price").value.replace("₦", "");
+    //     return;
+    //   }
 
-      row.id = `row${rowCnt}`;
-      row.addEventListener("dblclick", this.removeItemRow);
+    //   if (document.getElementById("quantity").value <= 0) {
+    //     this.$toast.error("Error! Invalid Product quantity.");
 
-      // Insert the needed cells
-      for (let index = 0; index <= 6; index++) {
-        row.insertCell(index);
-      }
+    //     // Prevent modal from closing
+    //     bvModalEvt.preventDefault();
 
-      // Update the innerHTML of the cells to the new values.
-      row.cells[0].innerHTML = rowCnt;
-      row.cells[1].innerHTML = this.item.itemcode;
-      row.cells[2].innerHTML = this.item.itemname;
-      row.cells[3].innerHTML = quantity;
-      row.cells[4].innerHTML = `₦${price}`;
-      row.cells[5].innerHTML = discount;
+    //     return;
+    //   }
 
-      if (parseInt(discount) === 0) {
-        total = `₦${Number(quantity) * parseFloat(price)}`;
-      } else {
-        let numVal = Number(discount / 100),
-          discountVal = price - price * numVal;
-        total = `₦${discountVal.toFixed(2)}`;
-      }
-      row.cells[6].innerHTML = total;
+    //   // Get a reference to the Table body
+    //   let total = 0,
+    //     discount = document.getElementById("discount").value,
+    //     quantity = document.getElementById("quantity").value,
+    //     tableRef = document.getElementById("orderedItems"),
+    //     rowCnt = tableRef.rows.length + 1,
+    //     // Insert a row in the table at the last row
+    //     row = tableRef.insertRow(),
+    //     price = document.getElementById("price").value.replace("₦", "");
+
+    //   row.id = `row${rowCnt}`;
+    //   row.addEventListener("dblclick", this.removeItemRow);
+
+    //   // Insert the needed cells
+    //   for (let index = 0; index <= 6; index++) {
+    //     row.insertCell(index);
+    //   }
+
+    //   // Update the innerHTML of the cells to the new values.
+    //   row.cells[0].innerHTML = rowCnt;
+    //   row.cells[1].innerHTML = this.item.itemcode;
+    //   row.cells[2].innerHTML = this.item.itemname;
+    //   row.cells[3].innerHTML = quantity;
+    //   row.cells[4].innerHTML = `₦${price}`;
+    //   row.cells[5].innerHTML = discount;
+
+    //   if (parseInt(discount) === 0) {
+    //     total = `₦${Number(quantity) * parseFloat(price)}`;
+    //   } else {
+    //     let numVal = Number(discount / 100),
+    //       discountVal = price - price * numVal;
+    //     total = `₦${discountVal.toFixed(2)}`;
+    //   }
+    //   row.cells[6].innerHTML = total;
       
-      // Calculate the Grand Total
-      await this.TableTotal(tableRef);
+    //   // Calculate the Grand Total
+    //   await this.TableTotal(tableRef);
 
-      // Reset the modal controls /values
-      this.resetModal();
+    //   // Reset the modal controls /values
+    //   this.resetModal();
 
-      // Allow for payment as we have a valid item now
-      this.isDisabled = false;
-      this.paymentVariant = "info";
-    },
-    async TableTotal(tableRef) {
-      let val = 0.0;
+    //   // Allow for payment as we have a valid item now
+    //   this.isDisabled = false;
+    //   this.paymentVariant = "info";
+    // },
+    // async TableTotal(tableRef) {
+    //   let val = 0.0;
       
-      for (var i = 0; i < tableRef.rows.length; i++) {
-        let data = tableRef.rows[i].cells[6].innerHTML.replace("₦", "");
-        val += parseFloat(data);
-      }
+    //   for (var i = 0; i < tableRef.rows.length; i++) {
+    //     let data = tableRef.rows[i].cells[6].innerHTML.replace("₦", "");
+    //     val += parseFloat(data);
+    //   }
 
-      this.grandTotal = (7.5 / 100) * val + val;
-      document.getElementById("subTotal").innerHTML = `₦${val}`;
-      document.getElementById("grandTotal").innerHTML = `₦${parseFloat(this.grandTotal).toFixed(2)}`;
-      document.getElementById("vatAmount").innerHTML = `₦${parseFloat((7.5 / 100) * val).toFixed(2)}`;
+    //   this.grandTotal = (7.5 / 100) * val + val;
+    //   document.getElementById("subTotal").innerHTML = `₦${val}`;
+    //   document.getElementById("grandTotal").innerHTML = `₦${parseFloat(this.grandTotal).toFixed(2)}`;
+    //   document.getElementById("vatAmount").innerHTML = `₦${parseFloat((7.5 / 100) * val).toFixed(2)}`;
 
-      // Payment Details
-      document.getElementById("balanceDue").innerHTML = document.getElementById("grandTotal").innerHTML;
-      document.getElementById("expectedPayment").innerHTML = document.getElementById("grandTotal").innerHTML;
-    },
-    async resetModal() {
-      this.item = null;
-      if (document.getElementById("quantity") !== null) {
-        document.getElementById("quantity").value = 1;
-        document.getElementById("discount").value = 0;
-        document.getElementById("price").value = "₦0.00";
-      }
-    },
+    //   // Payment Details
+    //   document.getElementById("balanceDue").innerHTML = document.getElementById("grandTotal").innerHTML;
+    //   document.getElementById("expectedPayment").innerHTML = document.getElementById("grandTotal").innerHTML;
+    // },
+    // async resetModal() {
+    //   this.item = null;
+    //   if (document.getElementById("quantity") !== null) {
+    //     document.getElementById("quantity").value = 1;
+    //     document.getElementById("discount").value = 0;
+    //     document.getElementById("price").value = "₦0.00";
+    //   }
+    // },
 
-    // Payment Section
-    async updatePayment() { 
-      let amountPaid = 0.0, 
-        totalAmt = document.getElementById("expectedPayment").innerHTML,
-        tableRef = document.getElementById("paymentList").getElementsByTagName('tbody')[0],
-        rowCnt = tableRef.rows.length;
+    // // Payment Section
+    // async updatePayment() { 
+    //   let amountPaid = 0.0, 
+    //     totalAmt = document.getElementById("expectedPayment").innerHTML,
+    //     tableRef = document.getElementById("paymentList").getElementsByTagName('tbody')[0],
+    //     rowCnt = tableRef.rows.length;
 
-      this.currentPayment = [];
+    //   this.currentPayment = [];
 
-      // Get the amount paid so far.
-      for (var i = 0; i < rowCnt; i++) {
-        if (tableRef.rows[i].cells[2].childNodes[0].value === "") {
-          this.currentPayment.push({
-            id: this.id,
-            docnum: 0,
-            docentry: 0,
-            orderid: null,
-            canceled: false,
-            amount: tableRef.rows[i].cells[3].childNodes[0].value,
-            paymenttype: tableRef.rows[i].cells[1].childNodes[0].value,
-          });
-        } else {
-          this.currentPayment.push({
-            id: this.id,
-            docnum: 0,
-            docentry: 0,
-            orderid: null,
-            canceled: false,
-            amount: tableRef.rows[i].cells[3].childNodes[0].value,
-            paymenttype: tableRef.rows[i].cells[1].childNodes[0].value,
-            paymentdetails: tableRef.rows[i].cells[2].childNodes[0].value,
-          });
-        }
-        amountPaid += parseFloat(tableRef.rows[i].cells[3].childNodes[0].value);
-      }
-      document.getElementById('amtPaid').innerHTML = `₦${parseFloat(amountPaid).toFixed(2)}`;
+    //   // Get the amount paid so far.
+    //   for (var i = 0; i < rowCnt; i++) {
+    //     if (tableRef.rows[i].cells[2].childNodes[0].value === "") {
+    //       this.currentPayment.push({
+    //         id: this.id,
+    //         docnum: 0,
+    //         docentry: 0,
+    //         orderid: null,
+    //         canceled: false,
+    //         amount: tableRef.rows[i].cells[3].childNodes[0].value,
+    //         paymenttype: tableRef.rows[i].cells[1].childNodes[0].value,
+    //       });
+    //     } else {
+    //       this.currentPayment.push({
+    //         id: this.id,
+    //         docnum: 0,
+    //         docentry: 0,
+    //         orderid: null,
+    //         canceled: false,
+    //         amount: tableRef.rows[i].cells[3].childNodes[0].value,
+    //         paymenttype: tableRef.rows[i].cells[1].childNodes[0].value,
+    //         paymentdetails: tableRef.rows[i].cells[2].childNodes[0].value,
+    //       });
+    //     }
+    //     amountPaid += parseFloat(tableRef.rows[i].cells[3].childNodes[0].value);
+    //   }
+    //   document.getElementById('amtPaid').innerHTML = `₦${parseFloat(amountPaid).toFixed(2)}`;
 
-      // Calculate the difference and display the balance due
-      document.getElementById("balanceDue").innerHTML = `₦${parseFloat(totalAmt.replace("₦", "") - amountPaid).toFixed(2)}`;
-    },
-    async addRow(row) {
-      // Avoid add multiple rows when payment methods change.
-      if (!this.fired.includes(row.index)) {
-        // Add a new row automatically.
-        this.payments.push({_id: this.payments.length + 1 });
+    //   // Calculate the difference and display the balance due
+    //   document.getElementById("balanceDue").innerHTML = `₦${parseFloat(totalAmt.replace("₦", "") - amountPaid).toFixed(2)}`;
+    // },
+    // async addRow(row) {
+    //   // Avoid add multiple rows when payment methods change.
+    //   if (!this.fired.includes(row.index)) {
+    //     // Add a new row automatically.
+    //     this.payments.push({_id: this.payments.length + 1 });
 
-        // Log it to the array to avoid it firing twice
-        this.fired.push(row.index);
+    //     // Log it to the array to avoid it firing twice
+    //     this.fired.push(row.index);
 
-        let rowID = `paymentList__row_${row.item._id}`,
-        selectedRow = document.getElementById(rowID);
+    //     let rowID = `paymentList__row_${row.item._id}`,
+    //     selectedRow = document.getElementById(rowID);
 
-        selectedRow.cells[4].childNodes[0].disabled = true;
-      }
-    },
-    async removePayment(index) {
-      if (this.payments.length > 1) {
-        // Remove the row from the table
-        document.getElementById("paymentList").getElementsByTagName('tbody')[0].deleteRow(index);
+    //     selectedRow.cells[4].childNodes[0].disabled = true;
+    //   }
+    // },
+    // async removePayment(index) {
+    //   if (this.payments.length > 1) {
+    //     // Remove the row from the table
+    //     document.getElementById("paymentList").getElementsByTagName('tbody')[0].deleteRow(index);
 
-        await this.updatePayment();
-        this.$toast.success("Success! Payment has been successfully deleted.");
-      }
-    },    
-    async paymentMethod(event, row) {
-      let rowID = `paymentList__row_${row.item._id}`,
-        selectedRow = document.getElementById(rowID);
+    //     await this.updatePayment();
+    //     this.$toast.success("Success! Payment has been successfully deleted.");
+    //   }
+    // },    
+    // async paymentMethod(event, row) {
+    //   let rowID = `paymentList__row_${row.item._id}`,
+    //     selectedRow = document.getElementById(rowID);
 
-      selectedRow.cells[2].childNodes[0].disabled = true;
+    //   selectedRow.cells[2].childNodes[0].disabled = true;
 
-      if (event.target.value.toLowerCase() === "pos" || event.target.value.toLowerCase() === "bank transfer") {
-        // Display list of banks for selection and allow for value entry.
-        selectedRow.cells[2].childNodes[0].disabled = false;
-      }
-    },
-    async SaveOrder() {
-      let val = 0,
-        items = [],
-        tableRef = document.getElementById("orderedItems"),
-        rowCnt = tableRef.rows.length,
-        balance = document.getElementById("balanceDue").innerHTML;
+    //   if (event.target.value.toLowerCase() === "pos" || event.target.value.toLowerCase() === "bank transfer") {
+    //     // Display list of banks for selection and allow for value entry.
+    //     selectedRow.cells[2].childNodes[0].disabled = false;
+    //   }
+    // },
+    // async SaveOrder() {
+    //   let val = 0,
+    //     items = [],
+    //     tableRef = document.getElementById("orderedItems"),
+    //     rowCnt = tableRef.rows.length,
+    //     balance = document.getElementById("balanceDue").innerHTML;
 
-      if (this.customer === null) {
-        this.$toast.error("Error! You are yet to associate a customer to this order.");
-        return;
-      }
+    //   if (this.customer === null) {
+    //     this.$toast.error("Error! You are yet to associate a customer to this order.");
+    //     return;
+    //   }
 
-      if (rowCnt === 0) {
-        this.$toast.error("Error! You are not permitted to create an empty Sales Order.");
-        return;
-      }
+    //   if (rowCnt === 0) {
+    //     this.$toast.error("Error! You are not permitted to create an empty Sales Order.");
+    //     return;
+    //   }
 
-      if (balance !== '₦0.00' || this.currentPayment.length === 0) {
-        this.$toast.error("Error! You are yet to finalize payment on this order.");
-        return;
-      }
+    //   if (balance !== '₦0.00' || this.currentPayment.length === 0) {
+    //     this.$toast.error("Error! You are yet to finalize payment on this order.");
+    //     return;
+    //   }
 
-      var r = confirm("Are you sure you want to create this Sales Order!");
-      if (r == false) {
-        return;
-      }
+    //   var r = confirm("Are you sure you want to create this Sales Order!");
+    //   if (r == false) {
+    //     return;
+    //   }
 
-      // Build out the header.
-      this.order = {
-        id: this.id,
-        docentry: 0,
-        vatsum: 7.5,
-        synced: false,
-        canceled: false,
-        docnum: this.docnum,
-        cardname: this.customer.cardname,
-        cardcode: this.customer.cardcode,
-        created_by: this.$store.state.user.id,
-      };
+    //   // Build out the header.
+    //   this.order = {
+    //     id: this.id,
+    //     docentry: 0,
+    //     vatsum: 7.5,
+    //     synced: false,
+    //     canceled: false,
+    //     docnum: this.docnum,
+    //     cardname: this.customer.cardname,
+    //     cardcode: this.customer.cardcode,
+    //     created_by: this.$store.state.user.id,
+    //   };
 
-      // Build out the Line items.
-      for (var i = 0; i < rowCnt; i++) {
-        let orderItem = {
-          orderid: null,
-          quantity: tableRef.rows[i].cells[3].innerHTML,
-          discount: tableRef.rows[i].cells[5].innerHTML,
-          itemname: tableRef.rows[i].cells[2].innerHTML,
-          itemcode: tableRef.rows[i].cells[1].innerHTML,
-          price: tableRef.rows[i].cells[4].innerHTML.replace("₦", ""),
-        };
+    //   // Build out the Line items.
+    //   for (var i = 0; i < rowCnt; i++) {
+    //     let orderItem = {
+    //       orderid: null,
+    //       quantity: tableRef.rows[i].cells[3].innerHTML,
+    //       discount: tableRef.rows[i].cells[5].innerHTML,
+    //       itemname: tableRef.rows[i].cells[2].innerHTML,
+    //       itemcode: tableRef.rows[i].cells[1].innerHTML,
+    //       price: tableRef.rows[i].cells[4].innerHTML.replace("₦", ""),
+    //     };
 
-        // Get the total value of the order
-        val += parseFloat(tableRef.rows[i].cells[6].innerHTML.replace("₦", ""));
+    //     // Get the total value of the order
+    //     val += parseFloat(tableRef.rows[i].cells[6].innerHTML.replace("₦", ""));
 
-        // Add the ordered items to the items array
-        items.push(orderItem);
-      }
+    //     // Add the ordered items to the items array
+    //     items.push(orderItem);
+    //   }
 
-      this.order.items = items;
-      this.order.payments = this.currentPayment;
-      this.order.doctotal = (7.5 / 100) * val + val;
-      document.getElementById("subTotal").innerHTML = `₦${val}`;
-      document.getElementById("vatAmount").innerHTML = `₦${parseFloat((7.5 / 100) * val).toFixed(2)}`;
+    //   this.order.items = items;
+    //   this.order.payments = this.currentPayment;
+    //   this.order.doctotal = (7.5 / 100) * val + val;
+    //   document.getElementById("subTotal").innerHTML = `₦${val}`;
+    //   document.getElementById("vatAmount").innerHTML = `₦${parseFloat((7.5 / 100) * val).toFixed(2)}`;
 
-      window.backend.NewOrder(this.order).then(() => {
-          this.$toast.success("Success! Order has been successfully saved.");
-          this.$router.push("/orders/");
-        },
-        (err) => {
-          this.$toast.error("Error! " + err);
-        }
-      );
-    },
-    DraftOrder() {},
+    //   window.backend.NewOrder(this.order).then(() => {
+    //       this.$toast.success("Success! Order has been successfully saved.");
+    //       this.$router.push("/orders/");
+    //     },
+    //     (err) => {
+    //       this.$toast.error("Error! " + err);
+    //     }
+    //   );
+    // },
+    // DraftOrder() {},
   },
 };
 </script>

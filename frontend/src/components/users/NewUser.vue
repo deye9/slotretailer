@@ -5,7 +5,7 @@
         <h3>New User</h3>
       </div>
       <div class="col-4">
-        <router-link :to="{name: 'userlist'}" class="btn btn-info float-right">Back</router-link>
+        <router-link :to="{name: 'userlist'}" class="btn btn-info btn-sm float-right">Back</router-link>
       </div>
     </div>
     <hr />
@@ -51,7 +51,7 @@
         <input type="checkbox" v-model="isadmin" required />
       </div>
       <div class="form-group col">
-        <button type="submit" class="btn btn-primary float-right" @click="RegisterUser">
+        <button type="submit" class="btn btn-primary btn-sm float-right" @click="RegisterUser">
           Register User
         </button>
       </div>

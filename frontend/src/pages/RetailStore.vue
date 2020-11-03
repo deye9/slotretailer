@@ -77,7 +77,7 @@
     </div>
 
     <br />
-    <button type="submit" class="btn btn-primary float-right" @click="StoreDetails">
+    <button type="submit" class="btn btn-primary btn-sm float-right" @click="StoreDetails">
       {{ buttontext }}
     </button>    
   </section>

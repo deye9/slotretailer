@@ -5,7 +5,7 @@
                 <h3>Registered Reports</h3>
             </div>
             <div class="col-4">
-                <router-link :to="{name: 'newreport'}" class="btn btn-info float-right">Create Report</router-link>
+                <router-link :to="{name: 'newreport'}" class="btn btn-info btn-sm float-right">Create Report</router-link>
             </div>
         </div>
         <hr />

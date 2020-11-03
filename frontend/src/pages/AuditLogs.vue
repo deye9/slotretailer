@@ -15,7 +15,7 @@
             </div>
             <div class="col-2">
                 <br />
-                <button type="button" class="btn btn-outline-primary mt-2" @click="loadLog">Load Audit Log</button>
+                <button type="button" class="btn btn-sm btn-outline-primary mt-2" @click="loadLog">Load Audit Log</button>
             </div>
         </div>
         <hr />

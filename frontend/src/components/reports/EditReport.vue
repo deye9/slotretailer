@@ -6,7 +6,7 @@
                 <h3>Editing Report <strong>{{this.title}}</strong></h3>
             </div>
             <div class="col-4">
-                <router-link :to="{ name: 'reportlist' }" class="btn btn-info float-right">Back</router-link>
+                <router-link :to="{ name: 'reportlist' }" class="btn btn-info btn-sm float-right">Back</router-link>
             </div>
         </div>
         <hr />
@@ -59,7 +59,7 @@
                     </div>
                 </div>
                 <div class="card-footer text-muted">
-                    <button class="btn btn-primary mr-1 float-right" @click="updateQuery">
+                    <button class="btn btn-primary btn-sm mr-1 float-right" @click="updateQuery">
                         Update Query
                     </button>
                 </div>

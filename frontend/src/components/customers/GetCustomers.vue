@@ -5,7 +5,7 @@
         <h3>Registered Customers</h3>
       </div>
       <div class="col-4">
-        <router-link :to="{ name: 'newcustomer' }" class="btn btn-info float-right">New Customer</router-link>
+        <router-link :to="{ name: 'newcustomer' }" class="btn btn-info btn-sm float-right">New Customer</router-link>
       </div>
     </div>
     

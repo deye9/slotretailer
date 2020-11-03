@@ -1,0 +1,3 @@
+2020-11-03 21:54:47.945999 +0100 WAT m=+494.739354251 Error Scanning Customers.: context canceled
+2020-11-03 23:14:43.084511 +0100 WAT m=+0.018104974 Error Scanning store.: context canceled
+2020-11-03 23:14:43.084509 +0100 WAT m=+0.018102097 LocalStore endpoint missing.: Missing endpoint from application

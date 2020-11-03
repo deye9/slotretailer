@@ -5,7 +5,7 @@
         <h3>Editing customer: {{ this.cardname }}</h3>
       </div>
       <div class="col-4">
-        <router-link :to="{name: 'customerlist'}" class="btn btn-info float-right">Back</router-link>
+        <router-link :to="{name: 'customerlist'}" class="btn btn-info btn-sm float-right">Back</router-link>
       </div>
     </div>
     <hr />
@@ -52,7 +52,7 @@
       </div>
     </div>
 
-    <button type="submit" id="update" class="btn btn-primary float-right" @click="Modification">
+    <button type="submit" id="update" class="btn btn-primary btn-sm float-right" @click="Modification">
       Update Customer
     </button>
   </section>
