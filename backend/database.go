@@ -243,16 +243,16 @@ func MaptoUpdate(mapData map[string]interface{}, tableName, tableKey string) (st
 
 // Get retrieves data from the data store.
 func Get(selectQuery string) (rows *sql.Rows, err error) {
-	// DbConn.QueryRow()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	// // DbConn.QueryRow()
+	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// defer cancel()
 
-	if rows, err = DbConn.QueryContext(ctx, selectQuery); err != nil {
-		return nil, err
-	}
+	// if rows, err = DbConn.QueryContext(ctx, selectQuery); err != nil {
+	// 	return nil, err
+	// }
 
-	return
-	// return DbConn.Query(selectQuery)
+	// return
+	return DbConn.Query(selectQuery)
 }
 
 // Insert creates record(s) in the data store.

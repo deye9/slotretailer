@@ -11,7 +11,7 @@
     </select>
 
     <br />
-    <div id="displayContent" style="white-space: pre-line;max-height: 350px; overflow: scroll;"></div>
+    <div id="displayContent" style="white-space: pre-line;"></div>
   </section>
 </template>
 

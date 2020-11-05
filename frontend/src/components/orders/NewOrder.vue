@@ -1,5 +1,5 @@
 <template>
-  <div style="margin-top: 5em; font-size: 14px;">
+  <section>
     <div class="row">
       <div class="col-8">
         <h3>New Sales Order</h3>
@@ -13,7 +13,7 @@
     <div class="form-row">
       <div class="form-group col">
         <label for="cardname">Customer</label>
-        <v-select label="cardname" @search="fetchCustomer" :options="customers" v-model="customer"></v-select>
+        <v-select label="cardname" @search="fetchCustomer" :options="customers" v-model="customer" :clearable="false" placeholder="Kindly select Customer"></v-select>
       </div>
       <div class="form-group col">
         <label>Customer Code</label>
@@ -29,46 +29,73 @@
       </div>
     </div>
 
-    <div class="form-row">
-      <div class="form-group col-8">
-        <div class="table-responsive">
-          <table class="table table-sm">
-            <caption>
-              <h5>Ordered Items</h5>
-            </caption>
-            <thead class="thead-dark">
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Item Code</th>
-                <th scope="col">Item Name</th>
-                <th scope="col">Quantity</th>
-                <th scope="col">Price</th>
-                <th scope="col">Discount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, i) in items" :key="'row' + i" >
-                <th scope="row">{{ item.id }}</th>
-                <td>{{ item.itemcode }}</td>
-                <td>
-                  {{ item.itemname }}
-                  <!-- <select v-model="selecteditem" @change="itemSelected($event)">
-                    <option v-for="sItem in inventory" :key="sItem.itemcode" :value="sItem.itemcode">{{sItem.itemname}}</option>
-                  </select> -->
-                </td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.price }}</td>
-                <td>{{ item.discount }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div class="table-responsive">
+        <table class="table table-fixed table-bordered table-hover table-sm">
+          <caption>
+            <h5 style="display:inline-flex;" class="float-left">Ordered Items</h5>
+            <button class="btn btn-primary btn-sm mr-2 float-right">Payment</button>
+          </caption>
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Item Code</th>
+              <th scope="col">Item Name</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Price</th>
+              <th scope="col">Discount</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody id="LineItems">
+            <tr v-for="(item, i) in items" :key="'row' + i" :id="'row' + i" >
+              <th scope="row">{{ i + 1 }}</th>
+              <td>{{ item.itemcode }}</td>
+              <td>
+                <v-select label="itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
+              </td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.price }}</td>
+              <td>{{ item.discount }}</td>
+              <td>
+                <button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteItemRow('row' + i)">Remove Item</button>
+                <button :id="'add' + i" class="btn btn-primary btn-sm mr-2 float-right" @click="addItemRow('add' + i)">New Item</button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot id="ItemsFooter">
+            <tr>
+              <td colspan="6" class="text-right font-weight-bold">
+                Invoice Subtotal:
+              </td>
+              <td id="subTotal" class="font-weight-bold bg-primary text-white">
+                ₦0.00
+              </td>
+            </tr>
+            <tr>
+              <td colspan="6" class="text-right font-weight-bold">7.5% VAT:</td>
+              <td id="vatAmount" class="font-weight-bold bg-primary text-white">
+                ₦0.00
+              </td>
+            </tr>
+            <tr>
+              <td colspan="6" class="text-right font-weight-bold">
+                Grand Total:
+              </td>
+              <td id="grandTotal" class="font-weight-bold bg-primary text-white">
+                ₦0.00
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
-      <div class="form-group col-4">
+ <!--     <div class="form-row">
+      <div class="form-group col-12">
+        
+      </div>
+     <div class="form-group col-4">
         <h5>Payments</h5>
-        <v-client-table ref="myPayments" id="myPayments" :columns="paymentcolumns" v-model="payments" :options="options"></v-client-table>
-      </div>
-    </div>
+      </div> 
+    </div>-->
 
     <!--    <h3 style="margin-bottom: 50px">
       <span class="float-left">
@@ -256,18 +283,20 @@
         </div>
       </form>
     </b-modal> -->
-  </div>
+
+  </section>
 </template>
 
 <style scoped>
-caption {
+  caption {
     padding-top: .75rem;
     padding-bottom: .75rem;
     color: Black;
     text-align: left;
     caption-side: top;
-}
+  }
 </style>
+
 <script>
 import moment from "moment";
 import "vue-select/dist/vue-select.css";
@@ -281,6 +310,7 @@ export default {
       payments: [],
       customers: [],
       inventory: [],
+      customer: null,
       selecteditem: '',
       ordercolumns: [],
       paymentcolumns: [],
@@ -296,7 +326,7 @@ export default {
       // amountPaid: 0,
       // grandTotal: 0,
       // canPay: false,
-      // customer: null,
+      // 
       // isDisabled: true,
       // currentPayment: [],
       // 
@@ -321,7 +351,6 @@ export default {
 
     // Get all customers
     window.backend.GetCustomers().then((customers) => {
-      console.log(customers);
       this.customers = customers;
     },
     (err) => {
@@ -331,7 +360,7 @@ export default {
     // Get all inventory
     window.backend.GetProducts().then((inventory) => {
       this.inventory = inventory;
-      // this.addItemRow();
+      this.addItemRow();
     },
     (err) => {
       this.$toast.error("Error! " + err);
@@ -369,7 +398,14 @@ export default {
       loading(false);
       return;
     },
-    addItemRow() {
+    addItemRow(butID) {
+      if (butID !== undefined) {
+        // Remove Button from table cell
+        var myobj = document.getElementById(butID);
+        myobj.remove();
+      }
+      
+      this.selecteditem = '';
       this.items.push({
         id: this.items.length + 1,
         quantity: '0',
@@ -378,6 +414,26 @@ export default {
         itemcode: '',
         itemname: '',
       });
+
+      const el = document.getElementById("ItemsFooter");
+      if (el) {
+        el.scrollIntoView();
+      }
+    },
+    deleteItemRow(rowid) {
+      if (rowid !== undefined) {
+        // Get a reference to the row
+        var row = document.getElementById(rowid);
+        
+        // Remove the table row from the table
+        row.parentNode.removeChild(row);
+      }
+
+      // If count of rows in Tbody is 0, then add a default new row.
+      let rowCount = document.getElementById('LineItems').getElementsByTagName("tr").length;
+      if (rowCount <= 0) {
+        this.addItemRow();
+      }
     },
     itemSelected() {
 

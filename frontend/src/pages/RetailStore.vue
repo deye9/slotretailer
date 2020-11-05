@@ -1,6 +1,6 @@
 <template>
   <section>
-    <h1>Store Setup</h1>
+    <h3>Store Setup</h3>
     <hr />
 
     <div class="form-row">

@@ -1,6 +1,6 @@
 <template>
   <section>
-    <h1>Dashboard</h1>
+    <h3>Dashboard</h3>
     <hr />
 
     <v-client-table ref="myTable" :columns="columns" v-model="data" :options="options">

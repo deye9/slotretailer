@@ -15,7 +15,7 @@
             </div>
             <div class="col-2">
                 <br />
-                <button type="button" class="btn btn-sm btn-outline-primary mt-2" @click="loadLog">Load Audit Log</button>
+                <button id="logloader" type="button" class="btn btn-sm btn-outline-primary mt-2" @click="loadLog">Load Audit Log</button>
             </div>
         </div>
         <hr />
@@ -75,10 +75,13 @@ export default {
         },
     methods: {
         loadLog() {
+            // Disable the loadlog button
             this.$refs.myTable.setLoadingState(true);
+            document.getElementById("logloader").disabled = true;
             window.backend.GetAuditLog(this.startdate, this.enddate).then((auditLog) => {
                 if (auditLog === null) {
                     this.$refs.myTable.setLoadingState(false);
+                    document.getElementById("logloader").disabled = false;
                     this.$toast.info("Info! There is no Audit Log for selected Period.");
                     return;
                 }
@@ -94,10 +97,14 @@ export default {
                 });
 
                 this.title = `Audit Log Report for <i class="text-primary">${moment(this.startdate).format('dddd, MMMM Do YYYY')}</i> to <i class="text-primary">${moment(this.enddate).format('dddd, MMMM Do YYYY')}</i>`;
+
+                // Re-enable the log button
+                document.getElementById("logloader").disabled = false;
             },
             (err) => {
                 this.$toast.error("Error! " + err);
                 this.$refs.myTable.setLoadingState(false);
+                document.getElementById("logloader").disabled = false;
             });
         },
         dateFormatter(date) {
