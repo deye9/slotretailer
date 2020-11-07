@@ -72,7 +72,7 @@ export default {
             this.isBusy = false;
             this.$toast.error("Error! " + err);
         });
-        },
+    },
     methods: {
         loadLog() {
             // Disable the loadlog button

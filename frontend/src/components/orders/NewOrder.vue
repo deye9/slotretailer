@@ -43,19 +43,29 @@
               <th scope="col">Quantity</th>
               <th scope="col">Price</th>
               <th scope="col">Discount</th>
+              <th scope="col">Total</th>
               <th scope="col"></th>
             </tr>
           </thead>
           <tbody id="LineItems">
-            <tr v-for="(item, i) in items" :key="'row' + i" :id="'row' + i" >
+            <tr v-for="(item, i) in items" :key="'row' + i" :id="'row' + i">
               <th scope="row">{{ i + 1 }}</th>
               <td>{{ item.itemcode }}</td>
               <td>
-                <v-select label="itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
+                <v-select label="itemname" @search="(search, loading) => fetchProduct(search, loading, 'row' + i)" v-model="item.itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
               </td>
-              <td>{{ item.quantity }}</td>
-              <td>{{ item.price }}</td>
-              <td>{{ item.discount }}</td>
+              <td>
+                <input type="number" min="1" step="1" class="form-control" :value="item.quantity" />
+              </td>
+              <td>
+                {{ item.price }}
+              </td>
+              <td>
+                <div :contenteditable="isAdmin" @click="getPermission" @keypress="validateInput" @blur="applyDiscount(i)" v-text="item.discount"></div>
+              </td>
+              <td>
+                {{ item.total }}
+              </td>
               <td>
                 <button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteItemRow('row' + i)">Remove Item</button>
                 <button :id="'add' + i" class="btn btn-primary btn-sm mr-2 float-right" @click="addItemRow('add' + i)">New Item</button>
@@ -64,7 +74,7 @@
           </tbody>
           <tfoot id="ItemsFooter">
             <tr>
-              <td colspan="6" class="text-right font-weight-bold">
+              <td colspan="7" class="text-right font-weight-bold">
                 Invoice Subtotal:
               </td>
               <td id="subTotal" class="font-weight-bold bg-primary text-white">
@@ -72,13 +82,13 @@
               </td>
             </tr>
             <tr>
-              <td colspan="6" class="text-right font-weight-bold">7.5% VAT:</td>
+              <td colspan="7" class="text-right font-weight-bold">7.5% VAT:</td>
               <td id="vatAmount" class="font-weight-bold bg-primary text-white">
                 ₦0.00
               </td>
             </tr>
             <tr>
-              <td colspan="6" class="text-right font-weight-bold">
+              <td colspan="7" class="text-right font-weight-bold">
                 Grand Total:
               </td>
               <td id="grandTotal" class="font-weight-bold bg-primary text-white">
@@ -284,6 +294,51 @@
       </form>
     </b-modal> -->
 
+    <!-- Modal -->
+    <div class="modal fade" id="adminModal" data-backdrop="static" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header text-center bg-dark text-white">
+            <h5 class="modal-title" id="adminModalLabel">Authorize Discount</h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form @submit.prevent="adminLogin">
+              <div class="form-signin">
+                <div class="text-center mb-4">
+                  <img class="mb-4" src="../../assets/images/slot.png" />
+                  <h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
+                  <p>
+                    Kindly sign in here to be able to authorize the Discount.
+                    <br />
+                    <code>
+                      Only a Valid System Administrator can authorize this action.
+                    </code>
+                  </p>
+                </div>
+
+                <div class="form-group">
+                  <label for="inputEmail">Email address</label>
+                  <input type="email" v-model="email" class="form-control" placeholder="Email address" required autofocus />
+                </div>
+
+                <div class="form-group">
+                  <label for="inputPassword">Password</label>
+                  <input type="password" v-model="password" class="form-control" placeholder="Password" required />
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary btn-sm mr-2" @click="adminLogin">Authorize</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </section>
 </template>
 
@@ -298,55 +353,38 @@
 </style>
 
 <script>
+import $ from "jquery";
 import moment from "moment";
 import "vue-select/dist/vue-select.css";
 
 export default {
   data() {
     return {
+      // Login
+      email: "",
+      password: "",
+      
       banks: [],
       items: [],
+      item: null,
       options: {},
       payments: [],
       customers: [],
       inventory: [],
+      isAdmin: false,
       customer: null,
       selecteditem: '',
       ordercolumns: [],
       paymentcolumns: [],
-      allowDelete: false,
       currentDate: moment().format("Do of MMMM YYYY"),
       dateColumns:['created_at','updated_at', 'deleted_at'],
-
-      // rows: [],
-      // docnum: 0,
-      // fired: [],
-      // order: {},
-      // item: null,
-      // amountPaid: 0,
-      // grandTotal: 0,
-      // canPay: false,
-      // 
-      // isDisabled: true,
-      // currentPayment: [],
-      // 
-
-      // // Payments
-      // CanAuthorize: false,
-      // fields: ['_id', 'payment_method', 'banks', 'amount_paid', 'actions'],
-
-      // // Login
-      // email: "",
-      // password: "",
-      // disabled: true,
     };
   },
   async created() {
-    // Determine the state of the Discount input
+    // Determine the state of the Discount element
     if (this.$store.state.isAdmin)
     {
-      this.disabled = false;
-      this.CanAuthorize = true;
+      this.isAdmin = true;
     }
 
     // Get all customers
@@ -398,6 +436,22 @@ export default {
       loading(false);
       return;
     },
+    async fetchProduct(search, loading, rowID) {
+      loading(true);
+      if (search.length >= 3) {  
+        this.item = await this.inventory.filter((item) => {
+          return (
+            item.itemcode.toLowerCase() === search.toLowerCase() ||
+            item.itemname.toLowerCase() === search.toLowerCase() ||
+            item.codebars.toLowerCase() === search.toLowerCase() ||
+            item.serialnumber.toLowerCase() === search.toLowerCase()
+          );
+        })[0];
+        await this.populateRow(rowID);
+      }
+      loading(false);
+      return;
+    },
     addItemRow(butID) {
       if (butID !== undefined) {
         // Remove Button from table cell
@@ -408,11 +462,12 @@ export default {
       this.selecteditem = '';
       this.items.push({
         id: this.items.length + 1,
-        quantity: '0',
-        price: '₦0.00',
-        discount: '0.00',
+        quantity: 1,
         itemcode: '',
         itemname: '',
+        discount: '0%',
+        price: '₦0.00',
+        total: '₦0.00',
       });
 
       const el = document.getElementById("ItemsFooter");
@@ -435,25 +490,98 @@ export default {
         this.addItemRow();
       }
     },
+    async adminLogin() {
+      const email = this.email,
+        password = this.password;
+
+      if (password === "" || email === "") {
+        this.$toast.error("Error! Invalid Credentials Supplied.");
+        return false;
+      }
+
+      window.backend.Login(email, password).then((result) => {
+        if (result.id !== undefined && result.isadmin === true) {
+          this.email = "";
+          this.password = "";
+          this.isAdmin = true;
+          // Hide the modal
+          $('#adminModal').modal('hide');
+        } else {
+          this.$toast.error("Error! Invalid login Credentials.");
+        }
+      },(err) => {
+          this.$toast.success("Error! " + err);
+      });
+    },
+    async getPermission() {
+      // Check for permissions
+      if (this.isAdmin === false) {
+        // Display admin login Modal
+        $('#adminModal').modal('show');
+      }
+    },
+    async validateInput() {
+      // Perform a quick clean up
+      if (event.target.innerText === '0%') {
+        event.target.innerText = '';
+      }
+
+      // Reject all keypress characters that are not numeric
+      if (isNaN(String.fromCharCode(event.which)) || event.which == '13') {
+        event.preventDefault();
+      }
+    },
+    async applyDiscount(rowIndex) {
+      // Perform a quick clean up
+      if (this.items[rowIndex].price === '₦0.00') {
+        event.target.innerText = '0%';
+        this.$toast.error("Error! Discount cannot be applied on ₦0.00. \nKindly select a product with a valid Price.");
+        return;
+      }
+
+      if (event.target.innerText === '' || event.target.innerText < 0 || event.target.innerText > 100) {
+        event.target.innerText = '0%';
+        this.$toast.error("Error! Discount must be between 0% and 100%;");
+        return;
+      }
+
+      // Calculate the % discount.
+      var numVal1 = parseFloat(this.items[rowIndex].price.replace("₦", ""));
+      var numVal2 = parseFloat(event.target.innerText.replace("%", "")) / 100;
+
+      this.items[rowIndex].total = "₦" + parseFloat(Number(this.items[rowIndex].quantity) * (numVal1 - (numVal1 * numVal2))).toFixed(2);
+
+      // Add the percentage Symbol
+      event.target.innerText += "%";
+
+      // Store the data into the items array
+      this.items[rowIndex].discount = event.target.innerText;
+
+      // Reset the Discount element to its inital state.
+      if (this.$store.state.isAdmin)
+      {
+        this.isAdmin = false;
+      }
+    },
+    async populateRow(rowID) {
+      if (this.item === undefined) {
+        return;
+      }
+
+      let rowIndex = rowID.split('row')[1];
+
+      // Set the table data
+      this.items[rowIndex].quantity = 1;
+      this.items[rowIndex].id = rowIndex;
+      this.items[rowIndex].discount = '0%';
+      this.items[rowIndex].price = `₦${this.item.price}`;
+      this.items[rowIndex].itemcode = this.item.itemcode;
+      this.items[rowIndex].itemname = this.item.itemname;
+    },
     itemSelected() {
 
     }
-    // fetchItem(search, loading) {
-    //   loading(true);
-    //   if (search.length >= 3) {
-    //     this.item = this.inventory.filter((item) => {
-    //       return (
-    //         item.itemcode.toLowerCase() === search.toLowerCase() ||
-    //         item.itemname.toLowerCase() === search.toLowerCase() ||
-    //         item.codebars.toLowerCase() === search.toLowerCase() ||
-    //         item.serialnumber.toLowerCase() === search.toLowerCase()
-    //       );
-    //     })[0];
-    //     document.getElementById("price").value = `₦${this.item.price}`;
-    //   }
-    //   loading(false);
-    //   return;
-    // },
+
     // getItem(value) {
     //   this.item = value;
     //   document.getElementById("price").value = `₦${this.item.price}`;
