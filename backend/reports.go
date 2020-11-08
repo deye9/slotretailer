@@ -16,7 +16,7 @@ func TodaysOrders() (orders []Orders, err error) {
 	defer rows.Close()
 	for rows.Next() {
 		order := Orders{}
-		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum, &order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt); err != nil {
+		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum, &order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt, &order.Comment, &order.Returned); err != nil {
 			CheckError("Error Scanning Today's Orders.", err, false)
 		} else {
 			orders = append(orders, order)
@@ -34,7 +34,7 @@ func WeekTopSellers() (items []OrderedItems, err error) {
 		inner join orders o on o.id = i.orderid WHERE cast(created_at as date) BETWEEN
 		cast(DATE_ADD(CURDATE(), INTERVAL(1 - DAYOFWEEK(CURDATE())) DAY) as date) AND
 		cast(DATE_ADD(CURDATE(), INTERVAL(7 - DAYOFWEEK(CURDATE())) DAY) as date) AND
-		deleted_At is null GROUP BY i.id, i.orderid, i.itemcode, i.itemname;`); err != nil {
+		o.deleted_At is null GROUP BY i.id, i.orderid, i.itemcode, i.itemname;`); err != nil {
 		CheckError("Error getting Top Sellers.", err, false)
 		return nil, err
 	}
