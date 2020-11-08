@@ -32,6 +32,9 @@ https://blog.golang.org/laws-of-reflection
  v-show="this.$store.state.isAdmin"
 
 TODO:
+0. Order printing.
+1. Permissions on order discount
+
 1. Loader for data entry pages
 4. Sync [order => post, get]
 6. Dashboard

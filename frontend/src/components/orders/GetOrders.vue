@@ -11,6 +11,18 @@
     <hr />
 
     <v-client-table ref="myTable" id="myTable" :columns="columns" v-model="data" :options="options">
+      <div slot="canceled" slot-scope="{row}" style="text-transform: capitalize;">
+        {{row.canceled}}
+      </div>
+      <div slot="doctotal" slot-scope="{row}">
+        ₦{{row.doctotal}}
+      </div>
+      <div slot="synced" slot-scope="{row}" style="text-transform: capitalize;">
+        {{row.synced}}
+      </div>
+      <div slot="returned" slot-scope="{row}" style="text-transform: capitalize;">
+        {{row.returned}}
+      </div>
       <div id="actions" slot="actions" slot-scope="{row}" :v-show="allowDelete">
         <a class="btn btn-primary btn-sm mr-2" title="Print Sales Order" @click="printOrder(row)">
           <i class="bi bi-pencil-fill">&nbsp;</i>
@@ -56,12 +68,12 @@ export default {
       }
 
       const exempt = [
+          "vatsum",
           "items",
           "docnum",
           "comment",
           "payments",
           "docentry",
-          "cardcode",
           "deleted_at",
           "updated_at",
           "created_by",
@@ -111,4 +123,8 @@ export default {
     },
   },
 };
+  //   var doc = new jsPDF();
+
+  // // Set the document to automatically print via JS
+  // doc.autoPrint();
 </script>
