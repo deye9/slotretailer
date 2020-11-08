@@ -5,6 +5,8 @@ import Router from 'vue-router';
 // Module Routes
 import Sync from "@/pages/Sync";
 import Login from "@/pages/Login";
+import Search from "@/pages/Search";
+
 import Dashboard from "@/pages/Dashboard";
 import AuditLogs from "@/pages/AuditLogs";
 import RetailStore from "@/pages/RetailStore";
@@ -55,7 +57,12 @@ const router = new Router({
         path: "/",
         name: "login",
         component: Login
-    },
+    }, 
+    {
+        path: "/search/:q",
+        name: "search",
+        component: Search
+    },  
     {
         path: "/sync",
         name: "sync",

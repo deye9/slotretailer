@@ -412,41 +412,47 @@ REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin)
 SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true
 WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');
 
--- CREATE PROCEDURE `searchDB`(tableSchema nvarchar(50), searchTerm nvarchar(50))
--- BEGIN
--- SET @condition = concat("LIKE '%", searchTerm, "%'");
--- SET @column_types_regexp = '^((var)?char|(var)?binary|blob|text|enum|set)\\(';
+DROP procedure IF EXISTS `searchDB`;
+
+DELIMITER $$
+USE `retail`$$
+CREATE PROCEDURE `searchDB` (tableSchema nvarchar(50), searchTerm nvarchar(50))
+BEGIN
+SET @condition = concat("LIKE '%", searchTerm, "%'");
+SET @column_types_regexp = '^((var)?char|(var)?binary|blob|text|enum|set)\\(';
 
 -- Reset @sql_query in case it was used previously
--- SET @sql_query = '';
+SET @sql_query = '';
 
 -- Build query for each table and merge with previous queries with UNION
--- SELECT
+SELECT
     -- Use 'DISTINCT IF(QUERYBUILDING, NULL, NULL)'
     -- to only select a single null value
     -- instead of selecting the query over and over again as it's built
-   --  DISTINCT IF(@sql_query := CONCAT(
-      --   IF(LENGTH(@sql_query), CONCAT(@sql_query, " UNION "), ""),
-        -- 'SELECT ',
-           --  QUOTE(CONCAT('`', `table_name`, '`.`', `column_name`, '`')), ' AS `column`, ',
-            -- 'COUNT(*) AS occurrences ',
-        -- 'FROM `', `table_schema`, '`.`', `table_name`, '` ',
-        -- 'WHERE `', `column_name`, '` ', @condition
-    -- ), NULL, NULL) query
--- FROM (
-   --  SELECT table_schema, table_name, column_name FROM information_schema.columns
-    -- WHERE table_schema = tableSchema AND column_type REGEXP @column_types_regexp
--- ) results;
+    DISTINCT IF(@sql_query := CONCAT(
+        IF(LENGTH(@sql_query), CONCAT(@sql_query, " UNION "), ""),
+        'SELECT ',
+            QUOTE(CONCAT('`', `table_name`, '`.`', `column_name`, '`')), ' AS `column`, ',
+            'COUNT(*) AS occurrences ',
+        'FROM `', `table_schema`, '`.`', `table_name`, '` ',
+        'WHERE `', `column_name`, '` ', @condition
+    ), NULL, NULL) query
+FROM (
+    SELECT table_schema, table_name, column_name FROM information_schema.columns
+    WHERE table_schema = tableSchema AND column_type REGEXP @column_types_regexp
+) results;
 
 -- Only return results with at least one occurrence
--- SET @sql_query = CONCAT("SELECT * FROM (", @sql_query, ") results WHERE occurrences > 0");
+SET @sql_query = CONCAT("SELECT * FROM (", @sql_query, ") results WHERE occurrences > 0");
 
 -- Run built query
--- PREPARE statement FROM @sql_query;
--- EXECUTE statement;
--- DEALLOCATE PREPARE statement;
+PREPARE statement FROM @sql_query;
+EXECUTE statement;
+DEALLOCATE PREPARE statement;
 
--- END
+END$$
+
+DELIMITER ;
 
 -- Default Reports
 REPLACE INTO reports (id, title, query, created_by) VALUES (1, "Todays Orders", "select * from orders where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);

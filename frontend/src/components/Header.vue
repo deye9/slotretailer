@@ -58,8 +58,8 @@
                     </div>
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0 mr-2">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <form class="form-inline my-2 my-lg-0 mr-2" @submit.prevent="search">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" v-model="searchTerm">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
             </form>
             <router-link :to="{ name: 'login' }" @click.native="logout" v-show="this.$store.state.isLoggedIn" style="float:right;" class="nav-link">
@@ -70,36 +70,35 @@
 </template>
 
 <script>
-export default {
-  data() {
-      return {
-        searchTerm: '',
-      }
-    },
-  methods: {
-    search(evt) {
-      evt.preventDefault();
+    export default {
+        data() {
+            return {
+                searchTerm: '',
+            }
+        },
+        methods: {
+            search(evt) {
+                evt.preventDefault();
 
-      if (this.searchTerm === '') {
-        this.$toast.error("Error! You cannot search for an empty string.");
-        return;
-      }
+                if (this.searchTerm === '') {
+                    this.$toast.error("Error! You cannot search for an empty string.");
+                    return;
+                }
 
-      if (this.searchTerm.length <= 2) {
-        this.$toast.info("Info! You need 3 characters or more for a search.");
-        return;
-      }
+                if (this.searchTerm.length <= 2) {
+                    this.$toast.info("Info! You need 3 characters or more for a search.");
+                    return;
+                }
 
-      this.$router.push("/search/" + this.searchTerm);
-    },
-    logout() {
-      // Set the user state to an empty object
-      this.$store.state.user = {};
-      this.$store.state.isLoggedIn = false;
-      this.$router.push({name: "login"});
-    },
-  },
-};
+                const q = this.searchTerm;
+                this.$router.push({ name: "search", params: {q} });
+            },
+            logout() {
+                // Set the user state to an empty object
+                this.$store.state.user = {};
+                this.$store.state.isLoggedIn = false;
+                this.$router.push({name: "login"});
+            },
+        },
+    };
 </script>
-
-<style scoped></style>

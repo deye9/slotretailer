@@ -35,8 +35,9 @@ export default {
     created() {
         var pageURL = location.pathname;
         this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
-        
-        window.backend.GetReport(parseInt(this.id)).then((report) => {    
+
+        window.backend.GetReport(parseInt(this.id)).then((report) => {  
+            console.log(report);  
             this.$refs.myTable.setLoadingState(true);
             if (report === null) {
                 this.$refs.myTable.setLoadingState(false);

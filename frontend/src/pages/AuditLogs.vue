@@ -50,7 +50,7 @@ export default {
 
         };
     },
-    created() {
+    mounted() {
         this.$refs.myTable.setLoadingState(true);
         window.backend.GetAuditLogs().then((auditLog) => {
             if (auditLog === null) {
