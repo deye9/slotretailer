@@ -13,55 +13,55 @@
     <div class="form-row">
       <div class="form-group col">
         <label>Item Code</label>
-        <input type="text" class="form-control" disabled v-model="this.product.itemcode" />
+        <input type="text" class="form-control form-control-sm" disabled v-model="this.product.itemcode" />
       </div>
       <div class="form-group col">
         <label>Item Name</label>
-        <input type="text" class="form-control" disabled v-model="this.product.itemname" />
+        <input type="text" class="form-control form-control-sm" disabled v-model="this.product.itemname" />
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group col">
         <label>SAP Code Bars</label>
-        <input type="text" class="form-control" disabled v-model="this.product.codebars" />
+        <input type="text" class="form-control form-control-sm" disabled v-model="this.product.codebars" />
       </div>
       <div class="form-group col">
         <label>Serial Number</label>
-        <input type="text" class="form-control" disabled v-model="this.product.serialnumber" />
+        <input type="text" class="form-control form-control-sm" disabled v-model="this.product.serialnumber" />
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group col">
         <label>Warehouse</label>
-        <input type="text" class="form-control" disabled v-model="this.product.warehouse" />
+        <input type="text" class="form-control form-control-sm" disabled v-model="this.product.warehouse" />
       </div>
       <div class="form-group col">
         <label>Manufacturer</label>
-        <input type="text" class="form-control" disabled v-model="this.product.manufacturer" />
+        <input type="text" class="form-control form-control-sm" disabled v-model="this.product.manufacturer" />
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group col">
         <label>Current Inventory</label>
-        <input type="text" class="form-control" disabled v-model="this.product.onhand" />
+        <input type="text" class="form-control form-control-sm" disabled v-model="this.product.onhand" />
       </div>
       <div class="form-group col">
         <label>Price</label>
-        <input type="text" class="form-control" disabled v-model="this.product.price" />
+        <input type="text" class="form-control form-control-sm" disabled v-model="this.product.price" />
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group col">
         <label>Vat</label>
-        <input type="text" class="form-control" disabled v-model="this.product.vat" />
+        <input type="text" class="form-control form-control-sm" disabled v-model="this.product.vat" />
       </div>
       <div class="form-group col">
         <label>Min SAP Level</label>
-        <input type="text" class="form-control" disabled v-model="this.product.minlevel" />
+        <input type="text" class="form-control form-control-sm" disabled v-model="this.product.minlevel" />
       </div>
     </div>
   </section>

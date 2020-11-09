@@ -43,6 +43,7 @@ func main() {
 	// Store Details
 	app.Bind(service.GetStore)
 	app.Bind(service.SaveStore)
+	app.Bind(service.GetStores)
 
 	// Customers Details
 	app.Bind(service.NewCustomer)
@@ -60,6 +61,7 @@ func main() {
 	app.Bind(service.GetProducts)
 	app.Bind(service.CreateReturn)
 	app.Bind(service.ProductDetails)
+	app.Bind(service.GetStoreProducts)
 
 	// Metadata Collection / Application Utilities
 	app.Bind(service.Login)

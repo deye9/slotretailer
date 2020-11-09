@@ -6,30 +6,30 @@
     <div class="form-row">
       <div class="form-group col">
         <label for="name">Name</label>
-        <input type="text" class="form-control" placeholder="Store name" v-model="name" />
+        <input type="text" class="form-control form-control-sm" placeholder="Store name" v-model="name" />
       </div>
       <div class="form-group col">
         <label for="email">Email</label>
-        <input type="email" class="form-control" placeholder="Email Address" v-model="email" />
+        <input type="email" class="form-control form-control-sm" placeholder="Email Address" v-model="email" />
       </div>
       <div class="form-group col">
         <label for="phone">Phone</label>
-        <input type="text" class="form-control" placeholder="Phone Number" v-model="phone" />
+        <input type="text" class="form-control form-control-sm" placeholder="Phone Number" v-model="phone" />
       </div>
     </div>
     
     <div class="form-row">
       <div class="form-group col">
         <label for="city">City</label>
-        <input type="text" class="form-control" placeholder="City" v-model="city" />
+        <input type="text" class="form-control form-control-sm" placeholder="City" v-model="city" />
       </div>
       <div class="form-group col">
         <label for="address">Address</label>
-        <input type="text" class="form-control" placeholder="Address" v-model="address" />
+        <input type="text" class="form-control form-control-sm" placeholder="Address" v-model="address" />
       </div>
       <div class="form-group col">
         <label for="address">SAP Store Identifier</label>
-        <input type="text" class="form-control" placeholder="SAP Store Identifier" v-model="sapkey" />
+        <input type="text" class="form-control form-control-sm" placeholder="SAP Store Identifier" v-model="sapkey" />
       </div>
     </div>
 
@@ -39,22 +39,22 @@
         <div class="form-row">
           <div class="form-group col">
             <label for="orders">Orders API</label>
-            <input type="text" class="form-control" placeholder="Orders API" v-model="orders" />
+            <input type="text" class="form-control form-control-sm" placeholder="Orders API" v-model="orders" />
           </div>
           <div class="form-group col">
             <label for="products">Products API</label>
-            <input type="text" class="form-control" placeholder="Products API" v-model="products" />
+            <input type="text" class="form-control form-control-sm" placeholder="Products API" v-model="products" />
           </div>
           <div class="form-group col">
             <label for="customers">Customers API</label>
-            <input type="text" class="form-control" placeholder="Customers API" v-model="customers" />
+            <input type="text" class="form-control form-control-sm" placeholder="Customers API" v-model="customers" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group col">
             <label for="banks">Banks API</label>
-            <input type="text" class="form-control" placeholder="Banks API" v-model="banks" />
+            <input type="text" class="form-control form-control-sm" placeholder="Banks API" v-model="banks" />
           </div>
           <div class="form-group col">
             <label for="sync_interval">Sync Interval in Minutes</label>
@@ -62,7 +62,7 @@
           </div>
           <div class="form-group col">
             <label>Log Rotation Details</label>
-            <select v-model="logrotation" class="form-control">
+            <select v-model="logrotation" class="form-control form-control-sm">
               <option value="null">Please select Log Rotation Frequency</option>
               <option value="Daily">Daily</option>
               <option value="Weekly">Weekly</option>

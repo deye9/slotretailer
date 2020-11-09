@@ -18,10 +18,18 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 CREATE TABLE IF NOT EXISTS banks (
-    id           INT AUTO_INCREMENT PRIMARY KEY,
-    name         VARCHAR(255) NOT NULL UNIQUE,
-    code         VARCHAR(255) NOT NULL
+    `id`           INT AUTO_INCREMENT PRIMARY KEY,
+    `name`         VARCHAR(255) NOT NULL UNIQUE,
+    `code`         VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE stores (
+  id int NOT NULL AUTO_INCREMENT,
+  name varchar(255) NOT NULL,
+  code varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+)
 
 CREATE TABLE IF NOT EXISTS customers (
     id          INT AUTO_INCREMENT PRIMARY KEY,
@@ -126,6 +134,19 @@ CREATE TABLE IF NOT EXISTS audits (
     dml_type    ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
     dml_created_by  INT NULL DEFAULT 0,
     dml_timestamp  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS transfers(
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    fromwhs     int,
+    towhs       int,
+    comment     text,
+    canceled    boolean,
+    synced      boolean,
+    created_by  INT NOT NULL,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP NULL,
+    deleted_at  TIMESTAMP NULL
 );
 
 ALTER table orders add column comment text;

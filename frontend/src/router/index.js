@@ -37,6 +37,11 @@ import NewCustomer from "@/components/customers/NewCustomer";
 import GetCustomers from "@/components/customers/GetCustomers";
 import EditCustomer from "@/components/customers/EditCustomer";
 
+import StockTransfers from "@/pages/StockTransfers";
+import NewTransfer from "@/components/transfers/NewTransfer";
+import GetTransfers from "@/components/transfers/GetTransfers";
+import EditTransfer from "@/components/transfers/EditTransfer";
+
 import vSelect from "vue-select";
 import {ClientTable} from 'vue-tables-2';
 
@@ -172,6 +177,25 @@ const router = new Router({
             path: "edit/:id",
             name: "editcustomer",
             component: EditCustomer
+        }]
+    },
+    {
+        path: "/transfers",
+        name: "transfers",
+        component: StockTransfers,
+        children: [{
+            path: "/",
+            name: "transferlist",
+            component: GetTransfers
+        }, {
+            path: "new",
+            name: "newtransfer",
+            component: NewTransfer
+        },
+        {
+            path: "edit/:id",
+            name: "edittransfer",
+            component: EditTransfer
         }]
     },
     {

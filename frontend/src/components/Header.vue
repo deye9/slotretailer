@@ -25,7 +25,7 @@
                     </router-link>
                 </li>
                 <li class="nav-item">
-                    <router-link :to="{ name: 'orders' }" class="nav-link">
+                    <router-link :to="{ name: 'transferlist' }" class="nav-link">
                         Stock Transfers
                     </router-link>
                 </li>

@@ -13,17 +13,17 @@
     <div class="form-row">
       <div class="form-group col">
         <label for="cardcode">Customer Code</label>
-        <input type="text" class="form-control" placeholder="Customer Code" v-model="cardcode" disabled/>
+        <input type="text" class="form-control form-control-sm" placeholder="Customer Code" v-model="cardcode" disabled/>
       </div>
       <div class="form-group col">
         <label for="cardname">Customer Name</label>
-        <input type="text" class="form-control" placeholder="Customer name" v-model="cardname" required />
+        <input type="text" class="form-control form-control-sm" placeholder="Customer name" v-model="cardname" required />
       </div>
     </div>
 
     <div class="form-group">
       <label for="email">Email Address</label>
-      <input type="email" class="form-control" placeholder="Email Address" v-model="email" required />
+      <input type="email" class="form-control form-control-sm" placeholder="Email Address" v-model="email" required />
     </div>
 
     <div class="card mb-3">
@@ -34,7 +34,7 @@
             <label for="city">City</label>
             <input
               type="text"
-              class="form-control"
+              class="form-control form-control-sm"
               placeholder="City"
               v-model="city"
               required
@@ -44,7 +44,7 @@
             <label for="address">Contact Address</label>
             <input
               type="text"
-              class="form-control"
+              class="form-control form-control-sm"
               placeholder="Contact Address"
               v-model="address"
               required
@@ -61,7 +61,7 @@
               id="phone"
               :key="phone"
               type="text"
-              class="form-control"
+              class="form-control form-control-sm"
               placeholder="Phone Number"
               v-model="phone"
               @blur="handleBlur"
@@ -74,7 +74,7 @@
               id="phone1"
               :key="phone1"
               type="text"
-              class="form-control"
+              class="form-control form-control-sm"
               placeholder="Phone Number"
               v-model="phone1"
               @blur="handleBlur"

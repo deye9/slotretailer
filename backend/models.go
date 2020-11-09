@@ -150,4 +150,17 @@ type AuditLog struct {
 	LoggedOn   sql.NullTime   `json:"timestamp,omitempty"`
 }
 
+// ReportObject struct
+type ReportObject struct {
+	Items  []OrderedItems `json:"items"`
+	Orders []Orders       `json:"orders"`
+}
+
+// Stores struct
+type Stores struct {
+	ID   int    `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+	Code string `json:"code,omitempty"`
+}
+
 // REMEMBER TO MODIFY THE migrations.sql ONCE MODIFIED via an alter statement.

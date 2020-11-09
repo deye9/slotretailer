@@ -13,17 +13,17 @@
     <div class="form-row">
       <div class="form-group col">
         <label for="firstname">First Name</label>
-        <input type="text" class="form-control" placeholder="First name" v-model="firstname" required />
+        <input type="text" class="form-control form-control-sm" placeholder="First name" v-model="firstname" required />
       </div>
       <div class="form-group col">
         <label for="lastname">Last Name</label>
-        <input type="text" class="form-control" placeholder="Last name" v-model="lastname" required />
+        <input type="text" class="form-control form-control-sm" placeholder="Last name" v-model="lastname" required />
       </div>
     </div>
 
     <div class="form-group">
       <label for="email">Email</label>
-      <input type="email" class="form-control" placeholder="Email Address" v-model="email" required />
+      <input type="email" class="form-control form-control-sm" placeholder="Email Address" v-model="email" required />
     </div>
 
     <div class="card">
@@ -32,11 +32,11 @@
         <div class="form-row">
           <div class="form-group col">
             <label for="password">Password</label>
-            <input type="password" class="form-control" placeholder="Password" v-model="password" required />
+            <input type="password" class="form-control form-control-sm" placeholder="Password" v-model="password" required />
           </div>
           <div class="form-group col">
             <label for="confirmpassword">Confirm Password</label>
-            <input type="password" class="form-control" placeholder="Confirm Password" v-model="confirmpassword" required />
+            <input type="password" class="form-control form-control-sm" placeholder="Confirm Password" v-model="confirmpassword" required />
           </div>
         </div>
       </div>

@@ -17,15 +17,15 @@
       </div>
       <div class="form-group col">
         <label>Customer Code</label>
-        <input v-if="this.customer !== null" type="text" class="form-control" placeholder="City" disabled v-model="this.customer.cardcode" />
+        <input v-if="this.customer !== null" type="text" class="form-control form-control-sm" placeholder="City" disabled v-model="this.customer.cardcode" />
       </div>
       <div class="form-group col">
         <label>Create Date</label>
-        <input type="text" class="form-control" placeholder="City" disabled :value="this.currentDate" />
+        <input type="text" class="form-control form-control-sm" placeholder="City" disabled :value="this.currentDate" />
       </div>
       <div class="form-group col">
         <label>Created By</label>
-        <input type="text" class="form-control" placeholder="City" disabled :value="this.$store.state.user.email" />
+        <input type="text" class="form-control form-control-sm" placeholder="City" disabled :value="this.$store.state.user.email" />
       </div>
     </div>
 
@@ -38,8 +38,8 @@
         <thead class="thead-dark">
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Item Code</th>
-            <th scope="col">Item Name</th>
+            <th scope="col">Item No.</th>
+            <th scope="col">Item Description</th>
             <th scope="col">Quantity</th>
             <th scope="col">Price</th>
             <th scope="col">Discount %</th>
@@ -55,7 +55,7 @@
               <v-select label="itemname" @input="(val) => itemSelected(val, i)" @search="(search, loading) => fetchProduct(search, loading, i)" v-model="item.itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
             </td>
             <td>
-              <input type="number" min="1" step="1" class="form-control" :value="item.quantity" @blur="setQuantity(i)" />
+              <input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" />
             </td>
             <td>
               {{ item.price }}
@@ -198,13 +198,13 @@
                         </select>
                       </td>
                       <td>
-                        <select disabled="true" class="form-control" :v-model="payment.bank">
+                        <select disabled="true" class="form-control form-control-sm" :v-model="payment.bank">
                           <option value="null" selected>Select Inflow Bank</option>
                           <option :key="bank.id" :value="bank.name" v-for="bank in banks">{{ bank.code }}</option>
                         </select>
                       </td>
                       <td>
-                        <input type="number" class="form-control" placeholder="Amount Paid" :value="payment.amount" min="0.00" @blur="PaymentTotal(i, $event)" disabled="true" />
+                        <input type="number" class="form-control form-control-sm" placeholder="Amount Paid" :value="payment.amount" min="0.00" @blur="PaymentTotal(i, $event)" disabled="true" />
                       </td>
                       <td style="white-space: nowrap;">
                         <button :id="'pdel' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteRow('prow' + i)">Remove Line</button>
@@ -688,7 +688,7 @@ export default {
       this.order.items = items;
       this.order.payments = payments;
       this.order.doctotal = this.grandTotal;
-      
+            
       window.backend.NewOrder(this.order).then(() => {
         this.$toast.success("Success! Order has been successfully saved.");
         this.$router.push({name: 'orderlist'});

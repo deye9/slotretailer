@@ -69,8 +69,8 @@
         <thead class="thead-dark">
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Item Code</th>
-            <th scope="col">Item Name</th>
+            <th scope="col">Item No.</th>
+            <th scope="col">Item Description</th>
             <th scope="col">Qty</th>
             <th scope="col">Price</th>
             <th scope="col">Discount (%)</th>

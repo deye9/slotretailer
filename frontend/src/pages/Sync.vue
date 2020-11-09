@@ -5,7 +5,7 @@
     <hr />
 
     <span>Please select desired Synchronization log date to view: </span>
-    <select v-model="selected" @change="getlog" class="form-control">
+    <select v-model="selected" @change="getlog" class="form-control form-control-sm">
       <option value="null">Please select desired log date</option>
       <option :key="logdate" v-for="logdate in options">{{ logdate }}</option>
     </select>

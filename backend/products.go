@@ -45,11 +45,12 @@ func GetProducts() (products []Products, err error) {
 	return
 }
 
-// GetSlotProducts returns an array of Products
-func GetSlotProducts() (products []Products, err error) {
+// GetStoreProducts returns an array of Products belonging to the specified Store
+func GetStoreProducts(id int) (products []Products, err error) {
 	var rows *sql.Rows
-	if rows, err = Get(`select * from products order by ID;`); err != nil {
-		CheckError("Error getting Products.", err, false)
+
+	if rows, err = Get(fmt.Sprintf(`SELECT p.* FROM stores s inner join products p on s.name = p.warehouse where s.id = %d order by p.itemcode;`, id)); err != nil {
+		CheckError("Error getting Store Products.", err, false)
 		return nil, err
 	}
 
@@ -57,7 +58,7 @@ func GetSlotProducts() (products []Products, err error) {
 	for rows.Next() {
 		product := Products{}
 		if err = rows.Scan(&product.ID, &product.ItemCode, &product.ItemName, &product.CodeBars, &product.OnHand, &product.MinLevel, &product.Warehouse, &product.SerialNumber, &product.Manufacturer, &product.Price, &product.Vat); err != nil {
-			CheckError("Error Scanning Products.", err, false)
+			CheckError("Error Scanning Store Products.", err, false)
 		} else {
 			products = append(products, product)
 		}

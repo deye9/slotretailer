@@ -12,7 +12,7 @@
             <input
               type="email"
               v-model="email"
-              class="form-control"
+              class="form-control form-control-sm"
               placeholder="Email Address"
               required
               autofocus
@@ -22,7 +22,7 @@
             <input
               type="password"
               v-model="password"
-              class="form-control"
+              class="form-control form-control-sm"
               placeholder="Password"
               required
             />

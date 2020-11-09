@@ -14,17 +14,17 @@
         <div class="form-row">
             <div class="form-group col">
                 <label for="title">Report Title</label>
-                <input id="title" type="text" class="form-control" placeholder="Report Title" required v-model="title"/>
+                <input id="title" type="text" class="form-control form-control-sm" placeholder="Report Title" required v-model="title"/>
             </div>
 
             <div class="form-group col">
                 <label for="creator">Created By</label>
-                <input id="creator" type="text" class="form-control" disabled required v-model="creator"/>
+                <input id="creator" type="text" class="form-control form-control-sm" disabled required v-model="creator"/>
             </div>
 
              <div class="form-group col">
                 <label for="createDate">Created On</label>
-                <input id="createDate" type="text" class="form-control" disabled required v-model="createDate"/>
+                <input id="createDate" type="text" class="form-control form-control-sm" disabled required v-model="createDate"/>
             </div>
         </div>
 
@@ -54,7 +54,7 @@
                         <div class="col-9 text-center">
                             <h3> Generated Query </h3>
                             <br />
-                            <textarea v-model="qry" placeholder="SQL Command" class="form-control" rows="5" max-rows="6"></textarea>
+                            <textarea v-model="qry" placeholder="SQL Command" class="form-control form-control-sm" rows="5" max-rows="6"></textarea>
                         </div>
                     </div>
                 </div>

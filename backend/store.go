@@ -47,3 +47,25 @@ func SaveStore(store map[string]interface{}) (id int64, err error) {
 	}
 	return
 }
+
+// GetStores returns an array of Banks
+func GetStores() (stores []Stores, err error) {
+	var rows *sql.Rows
+
+	if rows, err = Get(`select * from stores order by name;`); err != nil {
+		CheckError("Error getting available Stores.", err, false)
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		store := Stores{}
+		if err = rows.Scan(&store.ID, &store.Name, &store.Code); err != nil {
+			CheckError("Error Scanning stores.", err, false)
+		} else {
+			stores = append(stores, store)
+		}
+	}
+
+	return
+}
