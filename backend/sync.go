@@ -20,9 +20,6 @@ var APIlinks = make(map[string]string)
 // Sync will setup the cadence for sync btw the store and the server.
 func Sync() {
 
-	// Get the store details
-	GetStore()
-
 	// rotateLogs if folder exists else create the sync folder
 	if _, err := os.Stat(BasePath() + "/build/sync"); os.IsNotExist(err) {
 		if err := os.Mkdir(BasePath() + "/build/sync", 0755); err != nil {

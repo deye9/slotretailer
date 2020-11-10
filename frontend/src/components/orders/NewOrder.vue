@@ -334,7 +334,7 @@ export default {
             customer.cardname.toLowerCase() === search.toLowerCase() ||
             customer.cardcode.toLowerCase() === search.toLowerCase()
           );
-        })[0];     
+        })[0];
       }
       loading(false);
       return;

@@ -167,6 +167,9 @@ export default {
         }
       }
 
+      // Keep the store details in vuex
+      this.$store.state.userStore = this.store;
+
       window.backend.SaveStore(this.store).then(() => {
         this.$toast.success("Success! Store details successfully modified.");
       },

@@ -11,6 +11,10 @@ func main() {
 
 	// Global Settings
 	service.Setup()
+
+	// Get the store details
+	service.GetStore()
+
 	go service.Sync()
 
 	js := mewn.String("./frontend/dist/app.js")
@@ -87,7 +91,3 @@ func main() {
 
 	app.Run()
 }
-
-// Proactiveness
-// Does not follow instructions
-// Not taking intatives

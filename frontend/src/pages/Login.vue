@@ -44,6 +44,15 @@ export default {
       password: "",
     };
   },
+    mounted() {
+    window.backend.GetStore().then((store) => {
+      // Keep the store details in vuex
+      this.$store.state.userStore = store;
+    },
+    (err) => {
+      this.$toast.error("Error! " + err);
+    });
+  },
   methods: {
     login() {
       const email = this.$data.email,
@@ -63,6 +72,7 @@ export default {
           this.$store.state.user = result;
           this.$store.state.isLoggedIn = true;
           this.$store.state.isAdmin = result.isadmin;
+
           this.$router.push({ name: "dashboard" });
         } else {
           this.$toast.error("Error! Invalid login Credentials.");

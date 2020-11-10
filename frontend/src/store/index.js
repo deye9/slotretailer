@@ -6,9 +6,10 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
     state: {
         user: {},
+        userStore: {},
         isAdmin: false,
         reportTitle: '',
-        isLoggedIn: false
+        isLoggedIn: false,
     },
     getters: {},
     mutations: {},
