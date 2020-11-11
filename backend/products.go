@@ -68,6 +68,32 @@ func GetStoreProducts(id int) (products []Products, err error) {
 	return
 }
 
+// GetTransfer returns a instance belonging to the Transfer id passed in
+func GetTransfer(id int) (transfer Transfers, err error) {
+	var rows *sql.Rows
+	if rows, err = Get(fmt.Sprintf(`select * from transfers t inner join transfereditems i on t.id = i.transferid where t.id = %d and t.deleted_at is null;`, id)); err != nil {
+		CheckError("Error getting Transfer Request data.", err, false)
+		return Transfers{}, err
+	}
+	defer rows.Close()
+
+	var items []Transfereditems
+	for rows.Next() {
+		item := Transfereditems{}
+
+		if err = rows.Scan(&transfer.ID, &transfer.FromWhs, &transfer.ToWhs, &transfer.Comment, &transfer.Canceled, &transfer.Synced, 
+			&transfer.CreatedBy, &transfer.CreatedAt, &transfer.UpdatedAt, &transfer.DeletedAt,
+			&item.ID, &item.TransferID, &item.ItemCode, &item.ItemName, &item.OnHand, &item.Quantity); err != nil {
+			CheckError("Error Scanning Transfer Request.", err, false)
+		} else {
+			items = append(items, item)
+		}
+	}
+
+	transfer.Items = items
+	return
+}
+
 // GetTransfers returns an array of Transfers
 func GetTransfers() (transfers []Transfers, err error) {
 	var rows *sql.Rows

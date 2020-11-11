@@ -49,7 +49,7 @@
         <label for="docnum">Created On</label>
         <br />
         <span class="btn btn-info btn-sm" disabled v-if="this.user !== null" >
-          {{ this.user.created_at.Time }}
+          {{ this.order.created_at.Time }}
         </span>
       </div>
     </div>

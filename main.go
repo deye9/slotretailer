@@ -68,6 +68,7 @@ func main() {
 	app.Bind(service.GetStoreProducts)
 
 	// Inventory Transfers
+	app.Bind(service.GetTransfer)
 	app.Bind(service.GetTransfers)
 	app.Bind(service.NewTransfer)
 	app.Bind(service.RemoveTransfer)

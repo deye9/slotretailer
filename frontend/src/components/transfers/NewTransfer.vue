@@ -23,7 +23,6 @@
           <option :key="store.name" :value="store.id" v-for="store in stores">{{ store.name }}</option>
         </select>
       </div>
-
       <div class="form-group col">
         <label for="createdBy">Requested by</label>
         <input id="createdBy" type="text" class="form-control form-control-sm" placeholder="Requested By" disabled :value="this.$store.state.user.email" />

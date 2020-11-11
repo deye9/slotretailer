@@ -18,6 +18,10 @@
           <i class="bi bi-pencil-fill">&nbsp;</i>
           Edit
         </a>
+        <a class="btn btn-primary btn-sm mr-2" title="Order Details" @click="detailsInfo(row)">
+          <i class="bi bi-pencil-fill">&nbsp;</i>
+          Details
+        </a>
         <a class="btn btn-danger btn-sm" title="Delete Record" @click="removeRow(row, event);" :v-show="allowDelete">
           <i class="bi bi-trash-fill">&nbsp;</i>
           Delete
@@ -80,6 +84,10 @@ export default {
   methods: {
     formatDate(date) {
       return moment(date).format("DD-MM-YYYY HH:mm:ss");
+    },
+    detailsInfo(row) {
+      const id = row.id;
+      this.$router.push({ name: "transferdetail", params: {id} });
     },
     displayInfo(row) {
       const id = row.id;
