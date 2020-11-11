@@ -13,15 +13,13 @@
     <div class="form-row">
       <div class="form-group col">
         <label for="fromWHS">From Store</label>
-        <select @input="fetchInventory" label="name" ref="fromWHS" class="form-control form-control-sm" placeholder="Kindly select dispatching warehouse">
-          <option value="null">Kindly select dispatching warehouse</option>
+        <select @input="fetchInventory" label="name" id="fromWHS" ref="fromWHS" class="form-control form-control-sm" placeholder="Kindly select dispatching warehouse">
           <option :key="store.name" :value="store.id" v-for="store in stores">{{ store.name }}</option>
         </select>
       </div>
       <div class="form-group col">
         <label for="toWHS">To Store</label>
-        <select @input="fetchInventory" label="name" ref="toWHS" class="form-control form-control-sm" placeholder="Kindly select receiving warehouse">
-          <option value="null">Kindly select receiving warehouse</option>
+        <select @input="fetchInventory" label="name" id="toWHS" ref="toWHS" class="form-control form-control-sm" placeholder="Kindly select receiving warehouse">
           <option :key="store.name" :value="store.id" v-for="store in stores">{{ store.name }}</option>
         </select>
       </div>
@@ -61,7 +59,7 @@
               {{ item.itemcode }}
             </td>
             <td>
-              <select class="form-control form-control-sm">
+              <select class="form-control form-control-sm" @change="productDetails(i, $event)">
                 <option value="null" selected>Select Desired Product</option>
                 <option :key="item.id" :value="item.itemcode" v-for="item in inventory">{{ item.itemname }}</option>
               </select>
@@ -70,18 +68,17 @@
               {{ item.onHand }}
             </td>
             <td>
-              <input type="number" min="1" max="1" step="1" class="form-control form-control-sm" :value="1" />
+              <input :id="'txt' + i" type="number" min="1" max="1" step="1" class="form-control form-control-sm" :v-model="item.quantity" :value="item.quantity" @blur="validateQuantity(i)"/>
             </td>
             <td>
-              <button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteRow('row' + i)">Remove Line</button>
-              <button :id="'add' + i" class="btn btn-primary btn-sm mr-2 float-right" @click="addRow('add' + i)">New Line</button>
+              <button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteRow(i)">Remove Line</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <button type="submit" id="register" class="btn btn-primary btn-sm float-right" @click="inventoryRequest">
+    <button type="submit" id="register" class="btn btn-primary btn-sm float-right" :disabled="isDisabled" @click="inventoryRequest">
       Create Request
     </button>
 
@@ -138,16 +135,14 @@ export default {
   data() {
     return {
       items: [],
-      towhs: '',
       picked: '',
       stores: [],
-      options: [],
-      fromwhs: '',
       comment: '',
+      options: [],
+      transfer: {},
       inventory: [],
-      synced: false,
       isAdmin: false,
-      canceled: false,
+      isDisabled: true,
       created_by: this.$store.state.user.id,
       localStore: this.$store.state.userStore,
     };
@@ -179,11 +174,11 @@ export default {
         })[0];
 
       if (this.picked === "requester") {
-        this.$refs.fromWHS.disabled = true;
-        this.$refs.fromWHS.value = localStore.id;
+        document.getElementById("fromWHS").disabled = true;
+        document.getElementById("fromWHS").value = localStore.id;
       } else if (this.picked === "receiver") {
-        this.$refs.toWHS.disabled = true;
-        this.$refs.toWHS.value = localStore.id;
+        document.getElementById("toWHS").disabled = true;
+        document.getElementById("toWHS").value = localStore.id;
       }
 
       // Hide the modal
@@ -197,11 +192,9 @@ export default {
       this.$toast.info("Info! You can't continue without setting your role.");
       this.$router.push({name: 'transferlist'});
     },
-    addRow(butID) {
-      if (butID !== undefined) {
-        // Remove Button from table cell
-        var myobj = document.getElementById(butID);
-        myobj.remove();
+    addRow(index) {
+      if ((index + 1) < this.items.length) {
+        return;
       }
 
       this.items.push({
@@ -209,6 +202,7 @@ export default {
         quantity: 1,
         itemcode: '',
         itemname: '',
+        transferid: null,
       });
 
       const el = document.getElementById("register");
@@ -216,15 +210,79 @@ export default {
         el.scrollIntoView();
       }
     },
-    deleteRow(rowID) {
-      console.log(rowID);
+    deleteRow(index) {
+      this.$delete(this.items, index);
+      
+      if (this.items.length === 0) {
+        this.addRow(index);
+      }
+    },
+    validateQuantity(index) {
+      this.items[index].quantity = parseInt(document.getElementById("txt" + index).value);
+      if (parseInt(this.items[index].quantity) > parseInt(this.items[index].onHand)) {
+        this.items[index].quantity = parseInt(this.items[index].onHand);
+      }
+    },
+    productDetails(index, event) {
+      let selectedValue = event.target.selectedOptions[0].value;
+
+      if(selectedValue === "null" && this.items.length === 1) {
+        this.$delete(this.items, index);
+        this.addRow();
+        return;
+      } else if(selectedValue === "null") {
+        this.$delete(this.items, index);
+        return;
+      }
+
+      let product = this.inventory.filter((item) => {
+        return (
+          item.itemcode.toLowerCase() === selectedValue.toLowerCase()
+        );
+      })[0];
+
+      this.items[index].quantity = 1;
+      this.items[index].onHand = product.onhand;
+      this.items[index].itemname = product.itemname;
+      this.items[index].itemcode = product.itemcode;
+
+      // Set the max to the max inventory available.
+      document.getElementById("txt" + index).max = product.onhand;
+      this.addRow(index);
     },
     inventoryRequest() {
+      if (this.items.length === 0) {
+        this.$toast.error("Error! You are not permitted to create an empty Inventory Transfer Request.");
+        return;
+      }
 
+      var r = confirm("Are you sure you want to create this Sales Order!");
+      if (r == false) {
+        return;
+      }
+
+      // Remove the last row as this is not needed.
+      this.$delete(this.items, this.items.length - 1);
+      
+      this.transfer.synced = false;
+      this.transfer.canceled = false;
+      this.transfer.items = this.items;
+      this.transfer.comment = this.comment;
+      this.transfer.created_by = this.created_by;
+      this.transfer.towhs = parseInt(document.getElementById("toWHS").value);
+      this.transfer.fromwhs = parseInt(document.getElementById("fromWHS").value);
+
+      window.backend.NewTransfer(this.transfer).then(() => {
+        this.$toast.success("Success! Inventory Transfer has been successfully requested.");
+        this.$router.push({name: 'transferlist'});
+      },
+      (err) => {
+        this.$toast.error("Error! " + err);
+      });
     },
     fetchInventory(event) {
-      let selectedtext = event.path[0].selectedOptions[0].text,
-        selectedValue = parseInt(event.path[0].selectedOptions[0].value);
+      let selectedtext = event.target.selectedOptions[0].text,
+        selectedValue = parseInt(event.target.selectedOptions[0].value);
 
       if (selectedtext === this.localStore.sapkey) {
         this.$toast.error("Error! You cannot select your store. Kindly select another store.");
@@ -232,8 +290,9 @@ export default {
       }
 
       // Get inventory belonging to this store
-      window.backend.GetStoreProducts(selectedValue).then((inventory) => {        
+      window.backend.GetStoreProducts(selectedValue).then((inventory) => {
         this.items = [];
+        this.isDisabled = false;
         this.inventory = inventory;
         this.addRow();
       },

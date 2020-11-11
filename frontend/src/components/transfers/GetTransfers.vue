@@ -10,6 +10,9 @@
     </div>
     
     <v-client-table ref="myTable" id="myTable" :columns="columns" v-model="data" :options="options">
+      <div slot="synced" slot-scope="{row}" style="text-transform: capitalize;">
+        {{row.synced}}
+      </div>
       <div id="actions" slot="actions" slot-scope="{row}">
         <a class="btn btn-primary btn-sm mr-2" title="Edit Record" @click="displayInfo(row)">
           <i class="bi bi-pencil-fill">&nbsp;</i>
@@ -41,40 +44,38 @@ export default {
     this.allowDelete = this.$store.state.isLoggedIn;
   },
   mounted() {
-    // this.$refs.myTable.setLoadingState(true);
-    // window.backend.GetCustomers().then((customers) => {
-    //   if (JSON.stringify(customers) === "{}") {
-    //     this.$toast.info("Error! No Customer was returned.");
-    //     this.$refs.myTable.setLoadingState(false);
-    //     return;
-    //   }
+    this.$refs.myTable.setLoadingState(true);
+    window.backend.GetTransfers().then((transfers) => {
+      if (transfers === null) {
+        this.$toast.info("Error! No Inventorty Transfer has been raised.");
+        this.$refs.myTable.setLoadingState(false);
+        return;
+      }
 
-    //   const exempt = [
-    //       "city",
-    //       "address",
-    //       "cardcode",
-    //       "deleted_at",
-    //       "created_at",
-    //       "updated_at",
-    //       "created_by",
-    //     ],
-    //     keys = Object.keys(customers[0]);
+      const exempt = [
+          "items",
+          "deleted_at",
+          "created_at",
+          "updated_at",
+          "created_by",
+        ],
+        keys = Object.keys(transfers[0]);
 
-    //   keys.forEach((key) => {
-    //     if (!exempt.includes(key)) {
-    //       this.columns.push(key);
-    //     }
-    //   });
-    //   this.columns.push('actions');
+      keys.forEach((key) => {
+        if (!exempt.includes(key)) {
+          this.columns.push(key);
+        }
+      });
+      this.columns.push('actions');
 
-    //   // Set the dataSource
-    //   this.data = customers;
-    //   this.$refs.myTable.setLoadingState(false);
-    // },
-    // (err) => {
-    //   this.$toast.error("Error! " + err);
-    //   this.$refs.myTable.setLoadingState(false);
-    // });
+      // Set the dataSource
+      this.data = transfers;
+      this.$refs.myTable.setLoadingState(false);
+    },
+    (err) => {
+      this.$toast.error("Error! " + err);
+      this.$refs.myTable.setLoadingState(false);
+    });
   },
   methods: {
     formatDate(date) {
@@ -86,11 +87,11 @@ export default {
     },
     removeRow(row, index) {
       index = event.srcElement.parentElement.parentElement.parentNode.rowIndex - 1;
-      window.backend.RemoveCustomer(parseInt(row.id)).then(() => {
+      window.backend.RemoveTransfer(parseInt(row.id)).then(() => {
         // Remove the row from the table
         document.getElementById("myTable").getElementsByTagName('tbody')[0].deleteRow(index);
         
-        this.$toast.success("Success! Customer record has been successfully deleted.");
+        this.$toast.success("Success! Inventory Transfer has been successfully deleted.");
       }, (err) => {
         this.$toast.error("Error! " + err);
       });

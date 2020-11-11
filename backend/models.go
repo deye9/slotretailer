@@ -163,4 +163,29 @@ type Stores struct {
 	Code string `json:"code,omitempty"`
 }
 
+// Transfers struct
+type Transfers struct {
+	ID        int               `json:"id,omitempty"`
+	FromWhs   int               `json:"fromwhs"`
+	ToWhs     int               `json:"towhs"`
+	Comment   string            `json:"comment"`
+	Canceled  bool              `json:"canceled,omitempty"` // 15
+	Synced    bool              `json:"synced"`
+	Items     []Transfereditems `json:"items"`
+	CreatedBy int               `json:"created_by,omitempty"`
+	CreatedAt sql.NullTime      `json:"created_at,omitempty"`
+	UpdatedAt sql.NullTime      `json:"updated_at,omitempty"`
+	DeletedAt sql.NullTime      `json:"deleted_at,omitempty"`
+}
+
+// Transfereditems struct
+type Transfereditems struct {
+	ID         int    `json:"id"`
+	TransferID int    `json:"transferid"`
+	ItemCode   string `json:"itemcode"` // 20
+	ItemName   string `json:"itemname"` // 100
+	Quantity   int    `json:"quantity"`
+	OnHand     int    `json:"onhand"`
+}
+
 // REMEMBER TO MODIFY THE migrations.sql ONCE MODIFIED via an alter statement.

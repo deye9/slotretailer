@@ -149,6 +149,15 @@ CREATE TABLE IF NOT EXISTS transfers(
     deleted_at  TIMESTAMP NULL
 );
 
+CREATE TABLE IF NOT EXISTS transfereditems (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    transferid  INT,
+    itemcode    VARCHAR(255) NOT NULL,
+    itemname    VARCHAR(255) NOT NULL,
+    onHand      INT,
+    quantity    INT
+)
+
 ALTER table orders add column comment text;
 ALTER table orders add column returned boolean DEFAULT false;
 ALTER table store add column logrotation text NOT NULL;

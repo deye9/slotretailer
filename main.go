@@ -67,6 +67,11 @@ func main() {
 	app.Bind(service.ProductDetails)
 	app.Bind(service.GetStoreProducts)
 
+	// Inventory Transfers
+	app.Bind(service.GetTransfers)
+	app.Bind(service.NewTransfer)
+	app.Bind(service.RemoveTransfer)
+
 	// Metadata Collection / Application Utilities
 	app.Bind(service.Login)
 	app.Bind(service.Search)

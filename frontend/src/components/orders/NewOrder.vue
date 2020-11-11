@@ -67,8 +67,7 @@
               {{ item.total }}
             </td>
             <td>
-              <button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteItemRow('row' + i)">Remove Line</button>
-              <button :id="'add' + i" class="btn btn-primary btn-sm mr-2 float-right" @click="addItemRow('add' + i)">New Line</button>
+              <button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteItemRow( i)">Remove Line</button>
             </td>
           </tr>
         </tbody>
@@ -187,7 +186,7 @@
                     <tr v-for="(payment, i) in payments" :key="'prow' + i" :id="'prow' + i">
                       <th scope="row">{{ i + 1 }}</th>
                       <td>
-                        <select class="form-control" @change="paymentMethod" :v-model="payment.method">
+                        <select class="form-control" @change="paymentMethod($event, i)" :v-model="payment.method">
                           <option value="null" selected>Select Payment Method</option>
                           <option>Cash</option>
                           <option>POS</option>
@@ -207,8 +206,7 @@
                         <input type="number" class="form-control form-control-sm" placeholder="Amount Paid" :value="payment.amount" min="0.00" @blur="PaymentTotal(i, $event)" disabled="true" />
                       </td>
                       <td style="white-space: nowrap;">
-                        <button :id="'pdel' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteRow('prow' + i)">Remove Line</button>
-                        <button :id="'padd' + i" class="btn btn-primary btn-sm mr-2 float-right" @click="addRow('padd' + i)">New Line</button>
+                        <button :id="'pdel' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteRow(i)">Remove Line</button>
                       </td>
                     </tr>
                   </tbody>
@@ -339,13 +337,11 @@ export default {
       loading(false);
       return;
     },
-    addItemRow(butID) {
-      if (butID !== undefined) {
-        // Remove Button from table cell
-        var myobj = document.getElementById(butID);
-        myobj.remove();
+    async addItemRow(index) {
+      if ((index + 1) < this.items.length) {
+        return;
       }
-      
+
       this.selecteditem = '';
       this.items.push({
         id: this.items.length + 1,
@@ -362,19 +358,11 @@ export default {
         el.scrollIntoView();
       }
     },
-    deleteItemRow(rowid) {
-      if (rowid !== undefined) {
-        // Get a reference to the row
-        var row = document.getElementById(rowid);
-        
-        // Remove the table row from the table
-        row.parentNode.removeChild(row);
-      }
-
-      // If count of rows in Tbody is 0, then add a default new row.
-      let rowCount = document.getElementById('LineItems').getElementsByTagName("tr").length;
-      if (rowCount <= 0) {
-        this.addItemRow();
+    async deleteItemRow(index) {
+      this.$delete(this.items, index);
+      
+      if (this.items.length === 0) {
+        await this.addItemRow(index);
       }
     },
     async populateRow(rowIndex) {
@@ -402,6 +390,7 @@ export default {
     async itemSelected(val, rowIndex) {
       this.item = val;
       await this.populateRow(rowIndex);
+      await this.addItemRow(rowIndex);
     },
     async fetchProduct(search, loading, rowIndex) {
       loading(true);
@@ -519,7 +508,7 @@ export default {
       this.balanceDue = parseFloat(this.grandTotal - this.amtPaid).toFixed(2);
     },
     // Payment Section
-    paymentMethod(event) {
+    async paymentMethod(event, index) {
       let ctrl = event.target.value,
         amt = event.target.parentElement.parentElement.cells[3].childNodes[0],
         bank = event.target.parentElement.parentElement.cells[2].childNodes[0];
@@ -531,12 +520,12 @@ export default {
         // Display list of banks for selection and allow for value entry.
         bank.disabled = false;
       }
+
+      await this.addRow(index);
     },
-    addRow(butID) {
-      if (butID !== undefined) {
-        // Remove Button from table cell
-        var myobj = document.getElementById(butID);
-        myobj.remove();
+    async addRow(index) {
+      if ((index + 1) < this.payments.length) {
+        return;
       }
       
       this.payments.push({
@@ -551,19 +540,11 @@ export default {
         el.scrollIntoView();
       }
     },
-    deleteRow(rowid) {
-      if (rowid !== undefined) {
-        // Get a reference to the row
-        var row = document.getElementById(rowid);
-        
-        // Remove the table row from the table
-        row.parentNode.removeChild(row);
-      }
-
-      // If count of rows in Tbody is 0, then add a default new row.
-      let rowCount = document.getElementById('paymentLines').getElementsByTagName("tr").length;
-      if (rowCount <= 0) {
-        this.addRow();
+    async deleteRow(index) {
+      this.$delete(this.payments, index);
+      
+      if (this.payments.length === 0) {
+        this.addRow(index);
       }
     },
     PaymentTotal(index, event) {
@@ -640,6 +621,9 @@ export default {
 
       let items = [],
         payments = [];
+
+      this.$delete(this.items, this.items.length - 1);
+      this.$delete(this.payments, this.payments.length - 1);
 
       // Loop through the array and perform all needed calculations
       this.items.forEach(element => {

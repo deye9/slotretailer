@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 )
 
 // ProductDetails returns a instance belonging to the Product id passed in
@@ -65,4 +66,84 @@ func GetStoreProducts(id int) (products []Products, err error) {
 	}
 
 	return
+}
+
+// GetTransfers returns an array of Transfers
+func GetTransfers() (transfers []Transfers, err error) {
+	var rows *sql.Rows
+	if rows, err = Get(`select * from transfers where deleted_at is null order by created_at desc;`); err != nil {
+		CheckError("Error getting Transfers.", err, false)
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		transfer := Transfers{}
+		if err = rows.Scan(&transfer.ID, &transfer.FromWhs, &transfer.ToWhs, &transfer.Comment, &transfer.Canceled, &transfer.Synced, &transfer.CreatedBy, &transfer.CreatedAt, &transfer.UpdatedAt, &transfer.DeletedAt); err != nil {
+			CheckError("Error Scanning Transfer.", err, false)
+		} else {
+			transfers = append(transfers, transfer)
+		}
+	}
+
+	return
+}
+
+// NewTransfer creates a new Transfer in the database
+func NewTransfer(transfer map[string]interface{}) (err error) {
+	master := ""
+	detail := ""
+
+	// Get a new reference to the transfered items and remove it from the map.
+	itemsOrdered := transfer["items"]
+	delete(transfer, "items")
+
+	// Get the master insert query
+	if master, err = MaptoInsert(transfer, "transfers"); err != nil {
+		CheckError("Error Mapping the Transfer to SQL.", err, false)
+		return err
+	}
+
+	master += "SET @last_id := (SELECT LAST_INSERT_ID());"
+
+	// Get the details insert query
+	for _, _value := range itemsOrdered.([]interface{}) {
+		if detail, err = MaptoInsert(_value.(map[string]interface{}), "transfereditems"); err != nil {
+			CheckError("Error Mapping the Transfered Items to SQL.", err, false)
+			return err
+		}
+
+		// Build out the needed queries
+		// 	inventory := ""
+		// inventory += fmt.Sprintf(`UPDATE products SET onhand = onhand - %v WHERE itemcode = "%s";`, _value.(map[string]interface{})["quantity"], _value.(map[string]interface{})["itemcode"])
+		master += strings.Replace(fmt.Sprintf("%v", detail), `""`, "@last_id", -1)
+	}
+
+	// Save the Order and Reduce inventory
+	if err = Modify(master); err != nil {
+		CheckError("Error creating the Transfer.", err, false)
+		return err
+	}
+	return
+}
+
+// UpdateTransfer updates the Transfer details in the database
+func UpdateTransfer(order map[string]interface{}) (id int, err error) {
+	if result, err := MaptoUpdate(order, "transfer", "id"); err == nil {
+		if err = Modify(result); err != nil {
+			CheckError("Error updating the Transfer.", err, false)
+		}
+	}
+
+	return
+}
+
+// RemoveTransfer deletes a Transfer from the database
+func RemoveTransfer(id int) (err error) {
+	if err = Modify(fmt.Sprintf(`update transfers set deleted_at = CURRENT_TIMESTAMP where id = %d;`, id)); err != nil {
+		CheckError("Error removing Transfer.", err, false)
+		return err
+	}
+
+	return nil
 }
