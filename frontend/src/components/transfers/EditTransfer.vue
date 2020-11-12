@@ -2,7 +2,7 @@
   <section>
     <div class="row">
       <div class="col-8">
-        <h3>New Inventory Transfer</h3>
+        <h3>Editing Inventory Transfer "{{this.transfer.id}}".</h3>
       </div>
       <div class="col-4">
         <router-link :to="{name: 'transferlist'}" class="btn btn-info btn-sm float-right">Back</router-link>
@@ -13,27 +13,29 @@
     <div class="form-row">
       <div class="form-group col">
         <label for="fromWHS">From Store</label>
-        <select @input="fetchInventory" label="name" id="fromWHS" ref="fromWHS" class="form-control form-control-sm" placeholder="Kindly select dispatching warehouse">
+        <select @input="fetchInventory" label="name" v-model="this.transfer.fromwhs" id="fromWHS" class="form-control form-control-sm" placeholder="Kindly select dispatching warehouse">
           <option :key="store.name" :value="store.id" v-for="store in stores">{{ store.name }}</option>
         </select>
       </div>
       <div class="form-group col">
         <label for="toWHS">To Store</label>
-        <select @input="fetchInventory" label="name" id="toWHS" ref="toWHS" class="form-control form-control-sm" placeholder="Kindly select receiving warehouse">
+        <select @input="fetchInventory" label="name" v-model="this.transfer.towhs" id="toWHS" class="form-control form-control-sm" placeholder="Kindly select receiving warehouse">
           <option :key="store.name" :value="store.id" v-for="store in stores">{{ store.name }}</option>
         </select>
       </div>
 
       <div class="form-group col">
-        <label for="createdBy">Requested by</label>
-        <input id="createdBy" type="text" class="form-control form-control-sm" placeholder="Requested By" disabled :value="this.$store.state.user.email" />
+        <label>Requested by</label>
+        <br />
+        <input id="createdBy" type="text" class="form-control form-control-sm" placeholder="Requested By" disabled v-if="this.user !== null" :value="this.user.firstname + ' ' + this.user.lastname" />
       </div>
+
     </div>
 
     <div class="form-row">
       <div class="form-group col">
         <label for="comment">Remarks</label>
-        <input id="comment" type="text" class="form-control form-control-sm" placeholder="Comment" v-model="comment" required />
+        <input id="comment" type="text" class="form-control form-control-sm" placeholder="Comment" v-model="this.transfer.comment" required />
       </div>
     </div>
 
@@ -134,6 +136,8 @@ import $ from "jquery";
 export default {
   data() {
     return {
+      user: null,
+
       items: [],
       picked: '',
       stores: [],
@@ -147,21 +151,40 @@ export default {
       localStore: this.$store.state.userStore,
     };
   },
-  async mounted() {
+  mounted() {
+    var pageURL = location.pathname;
+    this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
+
     // Determine the state of the Discount element
     if (this.$store.state.isAdmin)
     {
       this.isAdmin = true;
     }
 
-    // Get all stores
-    window.backend.GetStores().then((stores) => {
-      this.stores = stores;
-    },
-    (err) => {
-      this.$toast.error("Error! " + err);
+    // Load the default values
+    window.backend.GetTransfer(parseInt(this.id)).then((transfer) => {
+      this.transfer = transfer;
+
+      // Get all stores
+      window.backend.GetStores().then((stores) => {
+        this.stores = stores;
+      }, (err) => {
+        this.$toast.error("Error! " + err);
+      });
+    
+      // Get the user who created the order
+      window.backend.GetUser(parseInt(transfer.created_by)).then((user) => {
+        if (JSON.stringify(user) !== "{}") {
+          this.user = user;
+        }
+      }, (err) => {
+        this.$toast.error("Error! " + err);
+      });
+
+    }, (err) => {
+        this.$toast.error("Error! " + err);
     });
-  
+
     // Show the modal
     $('#roleModal').modal('show');
   },
