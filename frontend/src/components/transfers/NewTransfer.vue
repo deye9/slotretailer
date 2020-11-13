@@ -272,7 +272,7 @@ export default {
       this.transfer.fromwhs = parseInt(document.getElementById("fromWHS").value);
 
       window.backend.NewTransfer(this.transfer).then(() => {
-        this.$toast.success("Success! Inventory Transfer has been successfully requested.");
+        this.$toast.success("Success! Inventory Transfer has been successfully registered.");
         this.$router.push({name: 'transferlist'});
       },
       (err) => {

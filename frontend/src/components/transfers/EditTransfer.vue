@@ -23,13 +23,11 @@
           <option :key="store.name" :value="store.id" v-for="store in stores">{{ store.name }}</option>
         </select>
       </div>
-
       <div class="form-group col">
         <label>Requested by</label>
         <br />
         <input id="createdBy" type="text" class="form-control form-control-sm" placeholder="Requested By" disabled v-if="this.user !== null" :value="this.user.firstname + ' ' + this.user.lastname" />
       </div>
-
     </div>
 
     <div class="form-row">
@@ -54,14 +52,14 @@
             <th scope="col"></th>
           </tr>
         </thead>
-        <tbody id="LineItems">
+        <tbody>
           <tr v-for="(item, i) in items" :key="'row' + i" :id="'row' + i">
             <th scope="row">{{ i + 1 }}</th>
             <td>
               {{ item.itemcode }}
             </td>
             <td>
-              <select class="form-control form-control-sm" @change="productDetails(i, $event)">
+              <select v-model="item.itemcode" class="form-control form-control-sm" @change="productDetails(i, $event)">
                 <option value="null" selected>Select Desired Product</option>
                 <option :key="item.id" :value="item.itemcode" v-for="item in inventory">{{ item.itemname }}</option>
               </select>
@@ -80,43 +78,10 @@
       </table>
     </div>
 
-    <button type="submit" id="register" class="btn btn-primary btn-sm float-right" :disabled="isDisabled" @click="inventoryRequest">
-      Create Request
+    <button type="submit" id="Update" class="btn btn-primary btn-sm float-right" @click="inventoryRequest">
+      Update Request
     </button>
 
-    <!-- Modal -->
-    <div class="modal fade" id="roleModal" data-backdrop="static" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header text-center bg-dark text-white">
-            <h5 class="modal-title" id="roleModalLabel">Set Inventory Transfer Role</h5>
-            <button type="button" class="close text-white" @click="dismiss" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="container-fluid">
-              <div class="form-check mb-3">
-                <input class="form-check-input" type="radio" name="RoleRadios" id="reqRadio" value="requester" v-model="picked" />
-                <label class="form-check-label" for="reqRadio">
-                  Requesting Store
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="RoleRadios" id="recRadio" value="receiver" v-model="picked" />
-                <label class="form-check-label" for="recRadio">
-                  Receiving Store
-                </label>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary btn-sm mr-2" @click="setRole">Set Role</button>
-            <button type="button" class="btn btn-secondary btn-sm" @click="dismiss">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </section>
 </template>
 
@@ -131,8 +96,6 @@
 </style>
 
 <script>
-import $ from "jquery";
-
 export default {
   data() {
     return {
@@ -146,7 +109,6 @@ export default {
       transfer: {},
       inventory: [],
       isAdmin: false,
-      isDisabled: true,
       created_by: this.$store.state.user.id,
       localStore: this.$store.state.userStore,
     };
@@ -163,14 +125,49 @@ export default {
 
     // Load the default values
     window.backend.GetTransfer(parseInt(this.id)).then((transfer) => {
+      let items = transfer.items;
       this.transfer = transfer;
 
       // Get all stores
       window.backend.GetStores().then((stores) => {
         this.stores = stores;
+        let defaultStoreID = 0,
+          localStore = this.stores.filter((store) => {
+            return (
+              store.name.toLowerCase() === this.localStore.sapkey.toLowerCase()
+            );
+          })[0];
+
+        if (localStore.id !== this.transfer.fromwhs) {
+          defaultStoreID = this.transfer.fromwhs;
+          document.getElementById("toWHS").disabled = true;
+        } else {
+          defaultStoreID = this.transfer.towhs;
+          document.getElementById("fromWHS").disabled = true;
+        }
+
+        // Get inventory belonging to this store
+        window.backend.GetStoreProducts(defaultStoreID).then((inventory) => {
+        this.inventory = inventory;
+
+        // Write out the items data.
+        items.forEach(item => {
+          this.items.push({
+            id: item.id,
+            onHand: item.onhand,
+            quantity: item.quantity,
+            itemcode: item.itemcode,
+            itemname: item.itemname,
+            transferid: item.transferid,
+          });
+        });
       }, (err) => {
         this.$toast.error("Error! " + err);
       });
+
+    }, (err) => {
+      this.$toast.error("Error! " + err);
+    });
     
       // Get the user who created the order
       window.backend.GetUser(parseInt(transfer.created_by)).then((user) => {
@@ -184,37 +181,8 @@ export default {
     }, (err) => {
         this.$toast.error("Error! " + err);
     });
-
-    // Show the modal
-    $('#roleModal').modal('show');
   },
   methods: {
-    setRole() {
-      let localStore = this.stores.filter((store) => {
-          return (
-            store.name.toLowerCase() === this.localStore.sapkey.toLowerCase()
-          );
-        })[0];
-
-      if (this.picked === "requester") {
-        document.getElementById("fromWHS").disabled = true;
-        document.getElementById("fromWHS").value = localStore.id;
-      } else if (this.picked === "receiver") {
-        document.getElementById("toWHS").disabled = true;
-        document.getElementById("toWHS").value = localStore.id;
-      }
-
-      // Hide the modal
-      $('#roleModal').modal('hide');
-    },
-    dismiss() {
-      // Hide the modal
-      $('#roleModal').modal('hide');
-
-      // Hide the information and redirect to the Transfer Request list.
-      this.$toast.info("Info! You can't continue without setting your role.");
-      this.$router.push({name: 'transferlist'});
-    },
     addRow(index) {
       if ((index + 1) < this.items.length) {
         return;
@@ -228,7 +196,7 @@ export default {
         transferid: null,
       });
 
-      const el = document.getElementById("register");
+      const el = document.getElementById("Update");
       if (el) {
         el.scrollIntoView();
       }
@@ -295,8 +263,8 @@ export default {
       this.transfer.towhs = parseInt(document.getElementById("toWHS").value);
       this.transfer.fromwhs = parseInt(document.getElementById("fromWHS").value);
 
-      window.backend.NewTransfer(this.transfer).then(() => {
-        this.$toast.success("Success! Inventory Transfer has been successfully requested.");
+      window.backend.UpdateTransfer(this.transfer).then(() => {
+        this.$toast.success("Success! Inventory Transfer Requested has been successfully updated.");
         this.$router.push({name: 'transferlist'});
       },
       (err) => {
@@ -315,7 +283,6 @@ export default {
       // Get inventory belonging to this store
       window.backend.GetStoreProducts(selectedValue).then((inventory) => {
         this.items = [];
-        this.isDisabled = false;
         this.inventory = inventory;
         this.addRow();
       },
