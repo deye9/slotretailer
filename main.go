@@ -71,6 +71,7 @@ func main() {
 	app.Bind(service.GetTransfer)
 	app.Bind(service.GetTransfers)
 	app.Bind(service.NewTransfer)
+	app.Bind(service.UpdateTransfer)
 	app.Bind(service.RemoveTransfer)
 
 	// Metadata Collection / Application Utilities

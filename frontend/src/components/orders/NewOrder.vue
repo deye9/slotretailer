@@ -361,7 +361,7 @@ export default {
     async deleteItemRow(index) {
       this.$delete(this.items, index);
       
-      if (this.items.length === 0) {
+      if (this.items.length === 0 || this.items.length === index) {
         await this.addItemRow(index);
       }
     },
@@ -543,7 +543,7 @@ export default {
     async deleteRow(index) {
       this.$delete(this.payments, index);
       
-      if (this.payments.length === 0) {
+      if (this.payments.length === 0 || this.items.length === index) {
         this.addRow(index);
       }
     },

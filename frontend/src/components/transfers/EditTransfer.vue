@@ -148,19 +148,20 @@ export default {
 
         // Get inventory belonging to this store
         window.backend.GetStoreProducts(defaultStoreID).then((inventory) => {
-        this.inventory = inventory;
+          this.inventory = inventory;
 
-        // Write out the items data.
-        items.forEach(item => {
-          this.items.push({
-            id: item.id,
-            onHand: item.onhand,
-            quantity: item.quantity,
-            itemcode: item.itemcode,
-            itemname: item.itemname,
-            transferid: item.transferid,
+          // Write out the items data.
+          items.forEach(item => {
+            this.items.push({
+              id: item.id,
+              onHand: item.onhand,
+              quantity: item.quantity,
+              itemcode: item.itemcode,
+              itemname: item.itemname,
+              transferid: item.transferid,
+            });
           });
-        });
+          this.addRow();
       }, (err) => {
         this.$toast.error("Error! " + err);
       });
@@ -189,11 +190,12 @@ export default {
       }
 
       this.items.push({
+        id: 0,
         onHand: 1,
         quantity: 1,
         itemcode: '',
         itemname: '',
-        transferid: null,
+        transferid: this.items[0].transferid,
       });
 
       const el = document.getElementById("Update");
@@ -204,7 +206,7 @@ export default {
     deleteRow(index) {
       this.$delete(this.items, index);
       
-      if (this.items.length === 0) {
+      if (this.items.length === 0 || this.items.length === index) {
         this.addRow(index);
       }
     },
@@ -255,15 +257,17 @@ export default {
       // Remove the last row as this is not needed.
       this.$delete(this.items, this.items.length - 1);
       
-      this.transfer.synced = false;
-      this.transfer.canceled = false;
-      this.transfer.items = this.items;
-      this.transfer.comment = this.comment;
-      this.transfer.created_by = this.created_by;
-      this.transfer.towhs = parseInt(document.getElementById("toWHS").value);
-      this.transfer.fromwhs = parseInt(document.getElementById("fromWHS").value);
+      let transfer = {};
+      transfer.id = this.id;
+      transfer.synced = false;
+      transfer.canceled = false;
+      transfer.items = this.items;
+      transfer.created_by = this.created_by;
+      transfer.comment = this.transfer.comment;
+      transfer.towhs = parseInt(document.getElementById("toWHS").value);
+      transfer.fromwhs = parseInt(document.getElementById("fromWHS").value);
 
-      window.backend.UpdateTransfer(this.transfer).then(() => {
+      window.backend.UpdateTransfer(transfer).then(() => {
         this.$toast.success("Success! Inventory Transfer Requested has been successfully updated.");
         this.$router.push({name: 'transferlist'});
       },

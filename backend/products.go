@@ -81,7 +81,7 @@ func GetTransfer(id int) (transfer Transfers, err error) {
 	for rows.Next() {
 		item := Transfereditems{}
 
-		if err = rows.Scan(&transfer.ID, &transfer.FromWhs, &transfer.ToWhs, &transfer.Comment, &transfer.Canceled, &transfer.Synced, 
+		if err = rows.Scan(&transfer.ID, &transfer.FromWhs, &transfer.ToWhs, &transfer.Comment, &transfer.Canceled, &transfer.Synced,
 			&transfer.CreatedBy, &transfer.CreatedAt, &transfer.UpdatedAt, &transfer.DeletedAt,
 			&item.ID, &item.TransferID, &item.ItemCode, &item.ItemName, &item.OnHand, &item.Quantity); err != nil {
 			CheckError("Error Scanning Transfer Request.", err, false)
@@ -140,8 +140,6 @@ func NewTransfer(transfer map[string]interface{}) (err error) {
 		}
 
 		// Build out the needed queries
-		// 	inventory := ""
-		// inventory += fmt.Sprintf(`UPDATE products SET onhand = onhand - %v WHERE itemcode = "%s";`, _value.(map[string]interface{})["quantity"], _value.(map[string]interface{})["itemcode"])
 		master += strings.Replace(fmt.Sprintf("%v", detail), `""`, "@last_id", -1)
 	}
 
@@ -154,13 +152,40 @@ func NewTransfer(transfer map[string]interface{}) (err error) {
 }
 
 // UpdateTransfer updates the Transfer details in the database
-func UpdateTransfer(order map[string]interface{}) (id int, err error) {
-	if result, err := MaptoUpdate(order, "transfer", "id"); err == nil {
-		if err = Modify(result); err != nil {
-			CheckError("Error updating the Transfer.", err, false)
-		}
+func UpdateTransfer(transfer map[string]interface{}) (id int, err error) {
+	// Get a new reference to the transfered items and remove it from the map.
+	var result, detail string
+	itemsOrdered := transfer["items"]
+	delete(transfer, "items")
+
+	if result, err = MaptoUpdate(transfer, "transfers", "id"); err != nil {
+		CheckError("Error generating the Update Transfer SQL.", err, false)
+		return 0, err
 	}
 
+	for _, _value := range itemsOrdered.([]interface{}) {
+		item := _value.(map[string]interface{})
+
+		if item["id"] == 0.00 {
+			// Generate the Insert Query
+			if detail, err = MaptoInsert(item, "transfereditems"); err != nil {
+				CheckError("Error Mapping the Transfered Items to an INSERT SQL.", err, false)
+				return 0, err
+			}
+		} else {
+			// Generate the Update Query
+			if detail, err = MaptoUpdate(item, "transfereditems", "id"); err != nil {
+				CheckError("Error Mapping the Transfered Items to a UPDATE SQL.", err, false)
+				return 0, err
+			}
+		}
+		// Build out the needed queries
+		result += strings.Replace(fmt.Sprintf("%v", detail), `updated_at = CURRENT_TIMESTAMP,`, "", -1)
+	}
+
+	if err = Modify(result); err != nil {
+		CheckError("Error updating the Transfer.", err, false)
+	}
 	return
 }
 
