@@ -161,6 +161,7 @@ CREATE TABLE IF NOT EXISTS transfereditems (
 ALTER table orders add column comment text;
 ALTER table orders add column returned boolean DEFAULT false;
 ALTER table store add column logrotation text NOT NULL;
+ALTER table store add column transfers text NULL;
 
 -- CUSTOMERS TRIGGER
 drop trigger if exists customer_insert_audit;

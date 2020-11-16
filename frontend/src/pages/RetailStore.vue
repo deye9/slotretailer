@@ -57,6 +57,10 @@
             <input type="text" class="form-control form-control-sm" placeholder="Banks API" v-model="banks" />
           </div>
           <div class="form-group col">
+            <label for="banks">Transfers API</label>
+            <input type="text" class="form-control form-control-sm" placeholder="Transfers API" v-model="transfers" />
+          </div>
+          <div class="form-group col">
             <label for="sync_interval">Sync Interval in Minutes</label>
             <input min="30" step="1" type="number" class="form-control" placeholder="Sync Interval" v-model="sync_interval" />
           </div>
@@ -101,6 +105,7 @@ export default {
       address: null,
       products: null,
       customers: null,
+      transfers: null,
       created_by: null,
       sync_interval: 5,
       logrotation: null,
@@ -120,6 +125,7 @@ export default {
       this.address = store.address;
       this.products = store.products;
       this.customers = store.customers;
+      this.transfers = store.transfers;
       this.logrotation = store.logrotation;
       this.sync_interval = store.sync_interval;
       this.created_by = this.$store.state.user.id;
@@ -129,8 +135,7 @@ export default {
       } else {
         this.buttontext = "Update Store";
       }
-    },
-    (err) => {
+    }, (err) => {
       this.$toast.error("Error! " + err);
     });
   },
@@ -153,6 +158,7 @@ export default {
         banks: this.banks,
         products: this.products,
         customers: this.customers,
+        transfers: this.transfers,
         updated_at: moment().format(),
         logrotation: this.logrotation,
         sync_interval: this.sync_interval,
@@ -172,8 +178,7 @@ export default {
 
       window.backend.SaveStore(this.store).then(() => {
         this.$toast.success("Success! Store details successfully modified.");
-      },
-      (err) => {
+      }, (err) => {
         this.$toast.error("Error! " + err);
       });
     },

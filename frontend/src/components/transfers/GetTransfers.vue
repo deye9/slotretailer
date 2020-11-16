@@ -10,6 +10,9 @@
     </div>
     
     <v-client-table ref="myTable" id="myTable" :columns="columns" v-model="data" :options="options">
+      <div slot="id" slot-scope="{row}" style="text-transform: capitalize;">
+        {{ 'trans-' + row.id }}
+      </div>
       <div slot="fromwhs" slot-scope="{row}" style="text-transform: capitalize;">
         {{ storeName(row.fromwhs) }}
       </div>

@@ -113,6 +113,7 @@ type Store struct {
 	ProductsAPI  string       `json:"products,omitempty"`
 	CustomersAPI string       `json:"customers,omitempty"`
 	BanksAPI     string       `json:"banks,omitempty"`
+	TransfersAPI string       `json:"transfers,omitempty"`
 	SyncInterval int          `json:"sync_interval,omitempty"`
 	SapKey       string       `json:"sapkey,omitempty"`
 	LogRotation  string       `json:"logrotation,omitempty"`

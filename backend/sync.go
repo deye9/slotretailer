@@ -22,7 +22,7 @@ func Sync() {
 
 	// rotateLogs if folder exists else create the sync folder
 	if _, err := os.Stat(BasePath() + "/build/sync"); os.IsNotExist(err) {
-		if err := os.Mkdir(BasePath() + "/build/sync", 0755); err != nil {
+		if err := os.Mkdir(BasePath()+"/build/sync", 0755); err != nil {
 			CheckError("Error ", errors.New("creating the Sync folder"), false)
 		}
 	} else {
@@ -38,6 +38,7 @@ func Sync() {
 	APIlinks["banks"] = LocalStore.BanksAPI
 	APIlinks["products"] = LocalStore.ProductsAPI
 	APIlinks["customers"] = LocalStore.CustomersAPI
+	APIlinks["transfers"] = LocalStore.TransfersAPI
 
 	duration := LocalStore.SyncInterval
 	if duration == 0 {
@@ -75,9 +76,13 @@ func task(t time.Time) {
 		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
 
 		getAllData(key, link, str)
-
+		sendData()
 		time.Sleep(2 * time.Second)
 	}
+}
+
+func sendData() {
+
 }
 
 func getAllData(key, link, str string) error {
@@ -93,6 +98,8 @@ func getAllData(key, link, str string) error {
 		response = []Customers{}
 	} else if strings.ToLower(key) == "banks" {
 		response = []Banks{}
+	} else if strings.ToLower(key) == "transfers" {
+		response = []Transfers{}
 	}
 
 	if err = json.Unmarshal(data, &response); err != nil {
@@ -259,3 +266,13 @@ func rotateLogs() {
 		}
 	}
 }
+
+// Data to send
+
+// 1. Unsynced Customers
+// 2. Unsynced Orders
+// 3. Unsynced Transfers
+
+// select * from customers where deleted_at is null and synced = false;
+// select * from orders o  inner join ordereditems i on o.id = i.orderid where deleted_at is null and synced = false;
+// select * from transfers t  inner join transfereditems i on t.id = i.transferid where deleted_at is null and synced = false;

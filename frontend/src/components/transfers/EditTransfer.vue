@@ -2,7 +2,7 @@
   <section>
     <div class="row">
       <div class="col-8">
-        <h3>Editing Inventory Transfer "{{this.transfer.id}}".</h3>
+        <h3>Editing Inventory Transfer "Trans-{{this.transfer.id}}".</h3>
       </div>
       <div class="col-4">
         <router-link :to="{name: 'transferlist'}" class="btn btn-info btn-sm float-right">Back</router-link>

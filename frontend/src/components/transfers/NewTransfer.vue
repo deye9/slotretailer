@@ -146,7 +146,7 @@ export default {
       localStore: this.$store.state.userStore,
     };
   },
-  async mounted() {
+  mounted() {
     // Determine the state of the Discount element
     if (this.$store.state.isAdmin)
     {
