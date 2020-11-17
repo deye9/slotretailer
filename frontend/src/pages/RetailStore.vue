@@ -62,7 +62,7 @@
           </div>
           <div class="form-group col">
             <label for="sync_interval">Sync Interval in Minutes</label>
-            <input min="30" step="1" type="number" class="form-control" placeholder="Sync Interval" v-model="sync_interval" />
+            <input min="30" step="1" type="number" class="form-control form-control-sm" placeholder="Sync Interval" v-model="sync_interval" />
           </div>
           <div class="form-group col">
             <label>Log Rotation Details</label>

@@ -23,13 +23,12 @@ CREATE TABLE IF NOT EXISTS banks (
     `code`         VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE stores (
+CREATE TABLE IF NOT EXISTS stores (
   id int NOT NULL AUTO_INCREMENT,
-  name varchar(255) NOT NULL,
+  name varchar(255) NOT NULL UNIQUE,
   code varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-)
+  PRIMARY KEY (`id`)
+);
 
 CREATE TABLE IF NOT EXISTS customers (
     id          INT AUTO_INCREMENT PRIMARY KEY,
@@ -156,7 +155,7 @@ CREATE TABLE IF NOT EXISTS transfereditems (
     itemname    VARCHAR(255) NOT NULL,
     onHand      INT,
     quantity    INT
-)
+);
 
 ALTER table orders add column comment text;
 ALTER table orders add column returned boolean DEFAULT false;

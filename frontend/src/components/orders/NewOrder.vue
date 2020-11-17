@@ -326,10 +326,8 @@ export default {
       if (search.length >= 3) {
         this.customer = this.customers.filter((customer) => {
           return (
-            customer.phone.toLowerCase() === search.toLowerCase() ||
-            customer.phone1.toLowerCase() === search.toLowerCase() ||
-            customer.email.toLowerCase() === search.toLowerCase() ||
-            customer.cardname.toLowerCase() === search.toLowerCase() ||
+            customer.phone.toLowerCase() === search.toLowerCase() || customer.phone1.toLowerCase() === search.toLowerCase() ||
+            customer.email.toLowerCase() === search.toLowerCase() || customer.cardname.toLowerCase() === search.toLowerCase() ||
             customer.cardcode.toLowerCase() === search.toLowerCase()
           );
         })[0];

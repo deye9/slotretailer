@@ -28,6 +28,10 @@
       <div id="actions" slot="actions" slot-scope="{row}">
         <a class="btn btn-primary btn-sm mr-2" title="Edit Record" @click="displayInfo(row)">
           <i class="bi bi-pencil-fill">&nbsp;</i>
+          Accept
+        </a>
+        <a class="btn btn-primary btn-sm mr-2" title="Edit Record" @click="displayInfo(row)">
+          <i class="bi bi-pencil-fill">&nbsp;</i>
           Edit
         </a>
         <a class="btn btn-primary btn-sm mr-2" title="Order Details" @click="detailsInfo(row)">
