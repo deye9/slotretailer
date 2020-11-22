@@ -44,7 +44,7 @@ export default {
       password: "",
     };
   },
-    mounted() {
+  mounted() {
     window.backend.GetStore().then((store) => {
       // Keep the store details in vuex
       this.$store.state.userStore = store;

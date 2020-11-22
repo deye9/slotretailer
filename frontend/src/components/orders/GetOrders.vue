@@ -23,12 +23,12 @@
       <div slot="returned" slot-scope="{row}" style="text-transform: capitalize;">
         {{row.returned}}
       </div>
-      <div id="actions" slot="actions" slot-scope="{row}" :v-show="allowDelete">
-        <a class="btn btn-primary btn-sm mr-2" title="Print Sales Order" @click="printOrder(row)">
+      <div id="actions" slot="actions" slot-scope="{row}">
+        <a class="btn btn-primary btn-sm mr-2" title="Print Sales Order" @click="printOrder(row)" v-show="allowDelete">
           <i class="bi bi-pencil-fill">&nbsp;</i>
           Print
         </a>
-        <a class="btn btn-primary btn-sm mr-2" title="Order Details" @click="displayInfo(row)">
+        <a class="btn btn-primary btn-sm mr-2" title="Order Details" @click="displayInfo(row)" v-show="allowDelete">
           <i class="bi bi-pencil-fill">&nbsp;</i>
           Details
         </a>        
@@ -36,7 +36,7 @@
           <i class="bi bi-pencil-fill">&nbsp;</i>
           Return
         </a>
-        <a class="btn btn-danger btn-sm" title="Delete Sales Order" @click="removeRow(row, event);">
+        <a class="btn btn-danger btn-sm" title="Delete Sales Order" @click="removeRow(row, event);" v-show="allowDelete">
           <i class="bi bi-trash-fill">&nbsp;</i>
           Delete
         </a>
@@ -57,7 +57,7 @@ export default {
     };
   },
   created() {
-    this.allowDelete = this.$store.state.isLoggedIn;
+    this.allowDelete = this.$store.state.isAdmin;
   },
   mounted() {
     this.$refs.myTable.setLoadingState(true);

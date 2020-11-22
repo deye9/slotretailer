@@ -34,7 +34,7 @@
                         Reports
                     </router-link>
                 </li>
-                <li class="nav-item dropdown" v-show="this.$store.state.isLoggedIn">
+                <li class="nav-item dropdown" v-show="this.$store.state.isAdmin">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Administration
                     </a>

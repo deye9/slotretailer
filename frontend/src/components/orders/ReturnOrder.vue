@@ -73,7 +73,7 @@
             <th scope="col">Item Description</th>
             <th scope="col">Qty</th>
             <th scope="col">Price</th>
-            <th scope="col">Discount (%)</th>
+            <th scope="col">Discount ₦</th>
             <th scope="col">Total</th>
           </tr>
         </thead>
@@ -91,9 +91,11 @@
             <td>
               {{ item.quantity }}
             </td>
-            <td>₦{{ item.price }}</td>
             <td>
-              {{ item.discount }}%
+              ₦{{ item.price }}
+            </td>
+            <td>
+              ₦{{ item.discount }}
             </td>
             <td>
               ₦{{ item.total }}
@@ -109,7 +111,7 @@
               ₦{{subTotal}}
             </td>
           </tr>
-          <tr>
+          <tr v-show="canVat">
             <td colspan="6" class="text-right font-weight-bold">7.5% VAT:</td>
             <td class="font-weight-bold bg-primary text-white">
               ₦{{vatAmount}}
@@ -178,6 +180,8 @@
 export default {
   data() {
     return {
+      canVat: false,
+
       order: [],
       user: null,
       comment: '',
@@ -192,24 +196,34 @@ export default {
     var pageURL = location.pathname;
     this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
 
+    // Check if the store is allowed to calculate VAT
+    if (this.$store.state.userStore.vat)
+    {
+      this.canVat = true;
+    }
     window.backend.GetOrder(parseInt(this.id)).then((order) => {
         order.doctotal = `₦${order.doctotal}`;
         this.order = order;
         let runningTotal = 0.0;
 
         this.order.items.forEach(item => {
-          // Loop through the array and perform all needed calculations
-          let numVal1 = parseFloat(item.price),
-            numVal2 = parseFloat(item.discount) / 100,
-            currentTotal = parseFloat(Number(item.quantity) * (numVal1 - (numVal1 * numVal2))).toFixed(2);
-          
+          // Calculate the discount. (quantity * price) - discount value
+          let quantity = item.quantity,
+            price = parseFloat(item.price),
+            discount = parseFloat(item.discount),
+            currentTotal = (quantity * price) - discount;
+
           item.total = currentTotal;
           runningTotal += parseFloat(currentTotal);
 
           // Calculate footer details
           this.subTotal = parseFloat(runningTotal);
-          this.vatAmount = parseFloat((7.5 / 100) * runningTotal).toFixed(2);
-          this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal).toFixed(2);
+          if (this.canVat === true) {
+            this.vatAmount = parseFloat((7.5 / 100) * runningTotal).toFixed(2);
+            this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal).toFixed(2);
+          } else {
+            this.grandTotal = parseFloat(runningTotal).toFixed(2);
+          }
           this.balanceDue = parseFloat(this.grandTotal - this.amtPaid).toFixed(2);
         });
         

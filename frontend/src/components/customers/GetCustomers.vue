@@ -15,7 +15,7 @@
           <i class="bi bi-pencil-fill">&nbsp;</i>
           Edit
         </a>
-        <a class="btn btn-danger btn-sm" title="Delete Record" @click="removeRow(row, event);" :v-show="allowDelete">
+        <a class="btn btn-danger btn-sm" title="Delete Record" @click="removeRow(row, event);" v-show="allowDelete">
           <i class="bi bi-trash-fill">&nbsp;</i>
           Delete
         </a>
@@ -38,7 +38,7 @@ export default {
     };
   },
   created() {
-    this.allowDelete = this.$store.state.isLoggedIn;
+    this.allowDelete = this.$store.state.isAdmin;
   },
   mounted() {
     this.$refs.myTable.setLoadingState(true);

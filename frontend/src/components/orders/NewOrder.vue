@@ -80,7 +80,7 @@
               ₦{{subTotal}}
             </td>
           </tr>
-          <tr>
+          <tr v-show="canVat">
             <td colspan="7" class="text-right font-weight-bold">7.5% VAT:</td>
             <td class="font-weight-bold bg-primary text-white">
               ₦{{vatAmount}}
@@ -197,7 +197,7 @@
                         </select>
                       </td>
                       <td>
-                        <select disabled="true" class="form-control form-control-sm" v-model="payment.bank">
+                        <select disabled="true" class="form-control form-control-sm" v-model="payment.bank" @change="setBank($event, i)">
                           <option value="null" selected>Select Inflow Bank</option>
                           <option :key="bank.id" :value="bank.name" v-for="bank in banks">{{ bank.code }}</option>
                         </select>
@@ -254,6 +254,9 @@ export default {
       email: "",
       password: "",
       
+      canVat: false,
+      isAdmin: false,
+      
       banks: [],
       items: [],
       order: {},
@@ -261,7 +264,6 @@ export default {
       payments: [],
       customers: [],
       inventory: [],
-      isAdmin: false,
       customer: null,
       amtPaid: '0.00',
       isDisabled: true,
@@ -281,6 +283,12 @@ export default {
     if (this.$store.state.isAdmin)
     {
       this.isAdmin = true;
+    }
+
+    // Check if the store is allowed to calculate VAT
+    if (this.$store.state.userStore.vat)
+    {
+      this.canVat = true;
     }
 
     // Get all customers
@@ -346,9 +354,9 @@ export default {
         quantity: 1,
         itemcode: '',
         itemname: '',
-        discount: '0%',
         price: '₦0.00',
         total: '₦0.00',
+        discount: '₦0.00',
       });
 
       const el = document.getElementById("ItemsFooter");
@@ -372,7 +380,7 @@ export default {
       if (this.items[rowIndex].itemcode === "") {
         this.items[rowIndex].quantity = 1;
         this.items[rowIndex].id = rowIndex;
-        this.items[rowIndex].discount = '0%';
+        this.items[rowIndex].discount = '₦0.00';
         this.items[rowIndex].price = `₦${this.item.price}`;
         this.items[rowIndex].itemcode = this.item.itemcode;
         this.items[rowIndex].itemname = this.item.itemname;
@@ -438,7 +446,7 @@ export default {
     },
     async validateInput() {
       // Perform a quick clean up
-      if (event.target.innerText === '0%') {
+      if (event.target.innerText === '₦0.00') {
         event.target.innerText = '';
       }
 
@@ -450,14 +458,14 @@ export default {
     async applyDiscount(rowIndex) {
       // Perform a quick clean up
       if (this.items[rowIndex].price === '₦0.00') {
-        event.target.innerText = '0%';
+        event.target.innerText = '0';
         this.$toast.error("Error! Discount cannot be applied on ₦0.00. \nKindly select a product with a valid Price.");
         return;
       }
 
-      if (event.target.innerText === '' || event.target.innerText < 0 || event.target.innerText > 100) {
-        event.target.innerText = '0%';
-        this.$toast.error("Error! Discount must be between 0% and 100%;");
+      if (event.target.innerText === '' || event.target.innerText < 0 || event.target.innerText > parseFloat(this.items[rowIndex].price.replace("₦", ""))) {
+        event.target.innerText = '₦0.00';
+        this.$toast.error(`Error! Discount must be between ₦1.00 and ${this.items[rowIndex].price}`);
         return;
       }
 
@@ -465,11 +473,6 @@ export default {
       if (this.$store.state.isAdmin)
       {
         this.isAdmin = false;
-      }
-
-      if (event.target.innerText !== '0%') {
-        // Add the percentage Symbol
-        event.target.innerText += "%";
       }
 
       // Store the data into the items array
@@ -490,22 +493,30 @@ export default {
 
       // Loop through the array and perform all needed calculations
       this.items.forEach(element => {
-        // Calculate the % discount.
-        let numVal1 = parseFloat(element.price.replace("₦", "")),
-          numVal2 = parseFloat(element.discount.replace("%", "")) / 100,
-          currentTotal = parseFloat(Number(element.quantity) * (numVal1 - (numVal1 * numVal2))).toFixed(2);
-        
+        // Calculate the discount. (quantity * price) - discount value
+        let quantity = element.quantity,
+          price = parseFloat(element.price.replace("₦", "")),
+          discount = parseFloat(element.discount.replace("₦", "")),
+          currentTotal = (quantity * price) - discount;
+
         element.total = "₦" + currentTotal;
         runningTotal += parseFloat(currentTotal);
       });
       
       // Calculate footer details
       this.subTotal = parseFloat(runningTotal);
-      this.vatAmount = parseFloat((7.5 / 100) * runningTotal).toFixed(2);
-      this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal).toFixed(2);
+      if (this.canVat === true) {
+        this.vatAmount = parseFloat((7.5 / 100) * runningTotal).toFixed(2);
+        this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal).toFixed(2);
+      } else {
+        this.grandTotal = parseFloat(runningTotal).toFixed(2);
+      }
       this.balanceDue = parseFloat(this.grandTotal - this.amtPaid).toFixed(2);
     },
     // Payment Section
+    async setBank(event, index) {
+      this.payments[index].name = event.target.value;
+    },
     async paymentMethod(event, index) {
       let ctrl = event.target.value,
         amt = event.target.parentElement.parentElement.cells[3].childNodes[0],
@@ -583,7 +594,7 @@ export default {
       }
 
       this.payments.forEach(element => {
-        if (element.name === "null" && (element.method.toLowerCase() === "pos" || element.method.toLowerCase() === "bank transfer")) {
+        if (element.name === "" && (element.method.toLowerCase() === "pos" || element.method.toLowerCase() === "bank transfer")) {
           isvalid = false;
         }
       });
@@ -631,7 +642,7 @@ export default {
           itemcode: element.itemcode,
           quantity: element.quantity,
           price: element.price.replace("₦", ""),
-          discount: element.discount.replace("%", ""),
+          discount: element.discount.replace("₦", ""),
         };
 
         // Add the items to the items array
