@@ -59,6 +59,13 @@
         <label>Comments</label>
         <input type="text" class="form-control form-control-sm" disabled v-model="this.order.comment.String" v-if="this.order.comment !== undefined" />
       </div>
+      <div class="form-group col">
+        <label>Discount Approved By</label>
+        <br />
+        <span class="btn btn-info btn-sm" disabled v-if="this.discountby !== null" >
+          {{ this.discountby.firstname + " " + this.discountby.lastname }}
+        </span>
+      </div>
     </div>
 
     <h3>Order Details</h3>
@@ -181,6 +188,7 @@ export default {
       order: [],
       user: null,
       payment: null,
+      discountby: null,
       subTotal: '0.00',
       vatAmount: '0.00',
       grandTotal: '0.00',
@@ -227,8 +235,7 @@ export default {
           if (JSON.stringify(user) !== "{}") {
             this.user = user;
           }
-        },
-        (err) => {
+        }, (err) => {
           this.$toast.error("Error! " + err);
         });
         
@@ -240,8 +247,22 @@ export default {
         (err) => {
           this.$toast.error("Error! " + err);
         });
-      },
-      (err) => {
+
+        if (parseInt(order.discountapprovedby) === 0) {
+          this.discountby = {
+              firstname: "Super",
+              lastname: "Admin",
+            };
+        } else {
+          window.backend.GetUser(parseInt(order.discountapprovedby)).then((user) => {
+            if (JSON.stringify(user) !== "{}") {
+              this.discountby = user;
+            }
+          }, (err) => {
+            this.$toast.error("Error! " + err);
+          });
+        }
+      }, (err) => {
         this.$toast.error("Error! " + err);
       });
   }

@@ -253,6 +253,7 @@ export default {
       // Login
       email: "",
       password: "",
+      discountby: 0,
       
       canVat: false,
       isAdmin: false,
@@ -428,6 +429,8 @@ export default {
           this.email = "";
           this.password = "";
           this.isAdmin = true;
+          this.discountby = result.id;
+
           // Hide the modal
           $('#adminModal').modal('hide');
         } else {
@@ -458,25 +461,25 @@ export default {
     async applyDiscount(rowIndex) {
       // Perform a quick clean up
       if (this.items[rowIndex].price === '₦0.00') {
-        event.target.innerText = '0';
+        event.target.innerText = '₦0.00';
         this.$toast.error("Error! Discount cannot be applied on ₦0.00. \nKindly select a product with a valid Price.");
         return;
       }
 
-      if (event.target.innerText === '' || event.target.innerText < 0 || event.target.innerText > parseFloat(this.items[rowIndex].price.replace("₦", ""))) {
+      if (event.target.innerText === '' || event.target.innerText < 0 || event.target.innerText > parseFloat(this.items[rowIndex].total.replace("₦", ""))) {
         event.target.innerText = '₦0.00';
         this.$toast.error(`Error! Discount must be between ₦1.00 and ${this.items[rowIndex].price}`);
         return;
       }
 
       // Reset the Discount element to its inital state.
-      if (this.$store.state.isAdmin)
+      if (!this.$store.state.isAdmin)
       {
         this.isAdmin = false;
       }
 
       // Store the data into the items array
-      this.items[rowIndex].discount = event.target.innerText;
+      this.items[rowIndex].discount = '₦' + event.target.innerText;
 
       // Calculate the totals [invoice subtotal, grand total, vat]
       await this.totals();
@@ -681,7 +684,8 @@ export default {
       this.order.items = items;
       this.order.payments = payments;
       this.order.doctotal = this.grandTotal;
-            
+      this.order.discountapprovedby = parseInt(this.discountby);
+      
       window.backend.NewOrder(this.order).then(() => {
         this.$toast.success("Success! Order has been successfully saved.");
         this.$router.push({name: 'orderlist'});
@@ -694,7 +698,3 @@ export default {
   },
 };
 </script>
-
-500.75GB
-total is 13.58
-Should remain 485GB

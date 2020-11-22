@@ -58,6 +58,7 @@ type Orders struct {
 	Payments  []Payments     `json:"payments"`
 	Comment   sql.NullString `json:"comment,omitempty"`
 	Returned  bool           `json:"returned"`
+	DiscountApprovedBy int	 `json:"discountapprovedby"`
 	CreatedBy int            `json:"created_by,omitempty"`
 	CreatedAt sql.NullTime   `json:"created_at,omitempty"`
 	UpdatedAt sql.NullTime   `json:"updated_at,omitempty"`

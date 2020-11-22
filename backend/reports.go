@@ -16,7 +16,7 @@ func TodaysOrders() (orders []Orders, err error) {
 	defer rows.Close()
 	for rows.Next() {
 		order := Orders{}
-		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum, &order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt, &order.Comment, &order.Returned); err != nil {
+		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum, &order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt, &order.Comment, &order.Returned, &order.DiscountApprovedBy); err != nil {
 			CheckError("Error Scanning Today's Orders.", err, false)
 		} else {
 			orders = append(orders, order)

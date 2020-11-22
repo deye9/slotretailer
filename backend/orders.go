@@ -22,8 +22,9 @@ func GetOrder(id int) (order Orders, err error) {
 		item := OrderedItems{}
 
 		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum,
-			&order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt, &order.Comment, &order.Returned,
-			&item.ID, &item.OrderID, &item.ItemCode, &item.ItemName, &item.Price, &item.Quantity, &item.Discount); err != nil {
+			&order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt, &order.Comment, 
+			&order.Returned, &order.DiscountApprovedBy, &item.ID, &item.OrderID, &item.ItemCode, &item.ItemName, &item.Price, 
+			&item.Quantity, &item.Discount); err != nil {
 			CheckError("Error Scanning Order.", err, false)
 		} else {
 			items = append(items, item)
@@ -45,7 +46,7 @@ func GetOrders() (orders []Orders, err error) {
 	defer rows.Close()
 	for rows.Next() {
 		order := Orders{}
-		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum, &order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt, &order.Comment, &order.Returned); err != nil {
+		if err = rows.Scan(&order.ID, &order.DocEntry, &order.DocNum, &order.Canceled, &order.CardCode, &order.CardName, &order.VatSum, &order.DocTotal, &order.Synced, &order.CreatedBy, &order.CreatedAt, &order.UpdatedAt, &order.DeletedAt, &order.Comment, &order.Returned, &order.DiscountApprovedBy); err != nil {
 			CheckError("Error Scanning Orders.", err, false)
 		} else {
 			orders = append(orders, order)

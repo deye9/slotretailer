@@ -59,6 +59,13 @@
         <label>Reason for Return:</label>
         <input type="text" class="form-control" v-model="comment" />
       </div>
+      <div class="form-group col">
+        <label>Discount Approved By</label>
+        <br />
+        <span class="btn btn-info btn-sm" disabled v-if="this.discountby !== null" >
+          {{ this.discountby.firstname + " " + this.discountby.lastname }}
+        </span>
+      </div>
     </div>
 
     <h3>Order Details</h3>
@@ -177,88 +184,103 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      canVat: false,
+  export default {
+    data() {
+      return {
+        canVat: false,
 
-      order: [],
-      user: null,
-      comment: '',
-      payment: null,
-      subTotal: '0.00',
-      vatAmount: '0.00',
-      grandTotal: '0.00',
-      balanceDue: '0.00',
-    };
-  },
-  created() {
-    var pageURL = location.pathname;
-    this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
+        order: [],
+        user: null,
+        comment: '',
+        payment: null,
+        discountby: null,
+        subTotal: '0.00',
+        vatAmount: '0.00',
+        grandTotal: '0.00',
+        balanceDue: '0.00',
+      };
+    },
+    created() {
+      var pageURL = location.pathname;
+      this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
 
-    // Check if the store is allowed to calculate VAT
-    if (this.$store.state.userStore.vat)
-    {
-      this.canVat = true;
-    }
-    window.backend.GetOrder(parseInt(this.id)).then((order) => {
-        order.doctotal = `₦${order.doctotal}`;
-        this.order = order;
-        let runningTotal = 0.0;
-
-        this.order.items.forEach(item => {
-          // Calculate the discount. (quantity * price) - discount value
-          let quantity = item.quantity,
-            price = parseFloat(item.price),
-            discount = parseFloat(item.discount),
-            currentTotal = (quantity * price) - discount;
-
-          item.total = currentTotal;
-          runningTotal += parseFloat(currentTotal);
-
-          // Calculate footer details
-          this.subTotal = parseFloat(runningTotal);
-          if (this.canVat === true) {
-            this.vatAmount = parseFloat((7.5 / 100) * runningTotal).toFixed(2);
-            this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal).toFixed(2);
-          } else {
-            this.grandTotal = parseFloat(runningTotal).toFixed(2);
-          }
-          this.balanceDue = parseFloat(this.grandTotal - this.amtPaid).toFixed(2);
-        });
-        
-        window.backend.GetUser(parseInt(order.created_by)).then((user) => {
-          if (JSON.stringify(user) !== "{}") {
-            this.user = user;
-          }
-        },
-        (err) => {
-          this.$toast.error("Error! " + err);
-        });
-        
-        window.backend.PaymentOnOrder(parseInt(this.id)).then((payment) => {
-          if (JSON.stringify(payment) !== "{}") {
-            this.payment = payment;
-          }
-        },
-        (err) => {
-          this.$toast.error("Error! " + err);
-        });
-      },
-      (err) => {
-        this.$toast.error("Error! " + err);
-      });
-  },
-  methods: {
-    CreateReturn() {
-      window.backend.CreateReturn(parseInt(this.id), this.comment).then(() => {
-        this.$toast.success("Success! Sales Order Return Document has been successfully saved.");
-        this.$router.push({name: 'orderlist'});
-      },
-      (err) => {
-        this.$toast.error("Error! " + err);
+      // Check if the store is allowed to calculate VAT
+      if (this.$store.state.userStore.vat)
+      {
+        this.canVat = true;
       }
-    )}
-  }
-};
+
+      window.backend.GetOrder(parseInt(this.id)).then((order) => {
+          order.doctotal = `₦${order.doctotal}`;
+          this.order = order;
+          let runningTotal = 0.0;
+
+          this.order.items.forEach(item => {
+            // Calculate the discount. (quantity * price) - discount value
+            let quantity = item.quantity,
+              price = parseFloat(item.price),
+              discount = parseFloat(item.discount),
+              currentTotal = (quantity * price) - discount;
+
+            item.total = currentTotal;
+            runningTotal += parseFloat(currentTotal);
+
+            // Calculate footer details
+            this.subTotal = parseFloat(runningTotal);
+            if (this.canVat === true) {
+              this.vatAmount = parseFloat((7.5 / 100) * runningTotal).toFixed(2);
+              this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal).toFixed(2);
+            } else {
+              this.grandTotal = parseFloat(runningTotal).toFixed(2);
+            }
+            this.balanceDue = parseFloat(this.grandTotal - this.amtPaid).toFixed(2);
+          });
+          
+          window.backend.GetUser(parseInt(order.created_by)).then((user) => {
+            if (JSON.stringify(user) !== "{}") {
+              this.user = user;
+            }
+          },
+          (err) => {
+            this.$toast.error("Error! " + err);
+          });
+          
+          window.backend.PaymentOnOrder(parseInt(this.id)).then((payment) => {
+            if (JSON.stringify(payment) !== "{}") {
+              this.payment = payment;
+            }
+          }, (err) => {
+            this.$toast.error("Error! " + err);
+          });
+
+          if (parseInt(order.discountapprovedby) === 0) {
+            this.discountby = {
+              firstname: "Super",
+              lastname: "Admin",
+            };
+          } else {
+            window.backend.GetUser(parseInt(order.discountapprovedby)).then((user) => {
+              if (JSON.stringify(user) !== "{}") {
+                this.discountby = user;
+              }
+            }, (err) => {
+              this.$toast.error("Error! " + err);
+            });
+          }
+        }, (err) => {
+          this.$toast.error("Error! " + err);
+        });
+    },
+    methods: {
+      CreateReturn() {
+        window.backend.CreateReturn(parseInt(this.id), this.comment).then(() => {
+          this.$toast.success("Success! Sales Order Return Document has been successfully saved.");
+          this.$router.push({name: 'orderlist'});
+        },
+        (err) => {
+          this.$toast.error("Error! " + err);
+        }
+      )}
+    }
+  };
 </script>

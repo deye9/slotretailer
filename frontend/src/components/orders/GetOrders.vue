@@ -78,6 +78,7 @@ export default {
           "updated_at",
           "created_by",
           "created_at",
+          "discountapprovedby",
         ],
         keys = Object.keys(orders[0]);
 
@@ -116,8 +117,7 @@ export default {
         document.getElementById("myTable").getElementsByTagName('tbody')[0].deleteRow(index);
         
         this.$toast.success("Success! Order has been successfully deleted.");
-      },
-      (err) => {
+      }, (err) => {
         this.$toast.error("Error! " + err);
       });
     },
