@@ -141,12 +141,12 @@
 
                 <div class="form-group">
                   <label for="inputEmail">Email address</label>
-                  <input type="email" v-model="email" class="form-control" placeholder="Email address" required autofocus />
+                  <input type="email" v-model="email" class="form-control form-control-sm" placeholder="Email address" required autofocus />
                 </div>
 
                 <div class="form-group">
                   <label for="inputPassword">Password</label>
-                  <input type="password" v-model="password" class="form-control" placeholder="Password" required />
+                  <input type="password" v-model="password" class="form-control form-control-sm" placeholder="Password" required />
                 </div>
               </div>
             </form>
@@ -186,7 +186,7 @@
                     <tr v-for="(payment, i) in payments" :key="'prow' + i" :id="'prow' + i">
                       <th scope="row">{{ i + 1 }}</th>
                       <td>
-                        <select class="form-control" @change="paymentMethod($event, i)" v-model="payment.method">
+                        <select class="form-control form-control-sm" @change="paymentMethod($event, i)" v-model="payment.method">
                           <option value="null" selected>Select Payment Method</option>
                           <option>Cash</option>
                           <option>POS</option>
