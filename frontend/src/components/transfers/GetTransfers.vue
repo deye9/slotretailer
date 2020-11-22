@@ -8,42 +8,60 @@
         <router-link :to="{ name: 'newtransfer' }" class="btn btn-info btn-sm float-right">New Transfer Request</router-link>
       </div>
     </div>
-    
-    <v-client-table ref="myTable" id="myTable" :columns="columns" v-model="data" :options="options">
-      <div slot="id" slot-scope="{row}" style="text-transform: capitalize;">
-        {{ 'trans-' + row.id }}
+
+    <ul class="nav nav-tabs">
+      <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="incoming-tab" data-toggle="tab" href="#incoming" role="tab" aria-controls="incoming" aria-selected="true">Incoming Transfers</a>
+      </li>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" id="outgoing-tab" data-toggle="tab" href="#outgoing" role="tab" aria-controls="outgoing" aria-selected="false">Outgoing Transfers</a>
+      </li>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" id="rejected-tab" data-toggle="tab" href="#rejected" role="tab" aria-controls="rejected" aria-selected="false">Rejected Transfers</a>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="transfersTab">
+      <div class="tab-pane fade show active mt-4" id="incoming" role="tabpanel" aria-labelledby="incoming-tab">
+        <v-client-table ref="myTable" id="myTable" :columns="columns" v-model="data" :options="options">
+          <div slot="id" slot-scope="{row}" style="text-transform: capitalize;">
+            {{ 'trans-' + row.id }}
+          </div>
+          <div slot="fromwhs" slot-scope="{row}" style="text-transform: capitalize;">
+            {{ storeName(row.fromwhs) }}
+          </div>
+          <div slot="towhs" slot-scope="{row}" style="text-transform: capitalize;">
+            {{ storeName(row.towhs) }}
+          </div>
+          <div slot="created_at" slot-scope="{row}" style="text-transform: capitalize;">
+            {{ formatDate(row.created_at) }}
+          </div>
+          <div slot="synced" slot-scope="{row}" style="text-transform: capitalize;">
+            {{ row.synced }}
+          </div>
+          <div id="actions" slot="actions" slot-scope="{row}">
+            <a class="btn btn-primary btn-sm mr-2" title="Edit Record" @click="displayInfo(row)">
+              <i class="bi bi-pencil-fill">&nbsp;</i>
+              Accept
+            </a>
+            <a class="btn btn-primary btn-sm mr-2" title="Edit Record" @click="displayInfo(row)">
+              <i class="bi bi-pencil-fill">&nbsp;</i>
+              Edit
+            </a>
+            <a class="btn btn-primary btn-sm mr-2" title="Order Details" @click="detailsInfo(row)">
+              <i class="bi bi-pencil-fill">&nbsp;</i>
+              Details
+            </a>
+            <a class="btn btn-danger btn-sm" title="Delete Record" @click="removeRow(row, event);" :v-show="allowDelete">
+              <i class="bi bi-trash-fill">&nbsp;</i>
+              Delete
+            </a>
+          </div>
+        </v-client-table>
       </div>
-      <div slot="fromwhs" slot-scope="{row}" style="text-transform: capitalize;">
-        {{ storeName(row.fromwhs) }}
-      </div>
-      <div slot="towhs" slot-scope="{row}" style="text-transform: capitalize;">
-        {{ storeName(row.towhs) }}
-      </div>
-      <div slot="created_at" slot-scope="{row}" style="text-transform: capitalize;">
-        {{ formatDate(row.created_at) }}
-      </div>
-      <div slot="synced" slot-scope="{row}" style="text-transform: capitalize;">
-        {{ row.synced }}
-      </div>
-      <div id="actions" slot="actions" slot-scope="{row}">
-        <a class="btn btn-primary btn-sm mr-2" title="Edit Record" @click="displayInfo(row)">
-          <i class="bi bi-pencil-fill">&nbsp;</i>
-          Accept
-        </a>
-        <a class="btn btn-primary btn-sm mr-2" title="Edit Record" @click="displayInfo(row)">
-          <i class="bi bi-pencil-fill">&nbsp;</i>
-          Edit
-        </a>
-        <a class="btn btn-primary btn-sm mr-2" title="Order Details" @click="detailsInfo(row)">
-          <i class="bi bi-pencil-fill">&nbsp;</i>
-          Details
-        </a>
-        <a class="btn btn-danger btn-sm" title="Delete Record" @click="removeRow(row, event);" :v-show="allowDelete">
-          <i class="bi bi-trash-fill">&nbsp;</i>
-          Delete
-        </a>
-      </div>
-    </v-client-table>
+      <div class="tab-pane fade mt-4" id="outgoing" role="tabpanel" aria-labelledby="outgoing-tab">...</div>
+      <div class="tab-pane fade mt-4" id="rejected" role="tabpanel" aria-labelledby="rejected-tab">...</div>
+    </div>
   </section>
 </template>
 

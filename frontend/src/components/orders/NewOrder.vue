@@ -42,7 +42,7 @@
             <th scope="col">Item Description</th>
             <th scope="col">Quantity</th>
             <th scope="col">Price</th>
-            <th scope="col">Discount %</th>
+            <th scope="col">Discount ₦</th>
             <th scope="col">Total</th>
             <th scope="col"></th>
           </tr>
@@ -186,7 +186,7 @@
                     <tr v-for="(payment, i) in payments" :key="'prow' + i" :id="'prow' + i">
                       <th scope="row">{{ i + 1 }}</th>
                       <td>
-                        <select class="form-control" @change="paymentMethod($event, i)" :v-model="payment.method">
+                        <select class="form-control" @change="paymentMethod($event, i)" v-model="payment.method">
                           <option value="null" selected>Select Payment Method</option>
                           <option>Cash</option>
                           <option>POS</option>
@@ -197,7 +197,7 @@
                         </select>
                       </td>
                       <td>
-                        <select disabled="true" class="form-control form-control-sm" :v-model="payment.bank">
+                        <select disabled="true" class="form-control form-control-sm" v-model="payment.bank">
                           <option value="null" selected>Select Inflow Bank</option>
                           <option :key="bank.id" :value="bank.name" v-for="bank in banks">{{ bank.code }}</option>
                         </select>
@@ -683,3 +683,7 @@ export default {
   },
 };
 </script>
+
+500.75GB
+total is 13.58
+Should remain 485GB

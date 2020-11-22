@@ -117,6 +117,7 @@ type Store struct {
 	SyncInterval int          `json:"sync_interval,omitempty"`
 	SapKey       string       `json:"sapkey,omitempty"`
 	LogRotation  string       `json:"logrotation,omitempty"`
+	AllowVAT     bool         `json:"vat"`
 	CreatedBy    int          `json:"created_by,omitempty"`
 	CreatedAt    sql.NullTime `json:"created_at,omitempty"`
 	UpdatedAt    sql.NullTime `json:"updated_at,omitempty"`

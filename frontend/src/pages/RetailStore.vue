@@ -33,61 +33,93 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="form-row">
+      <div class="form-group col">
+        <label for="sync_interval">Sync Interval in Minutes</label>
+        <input min="30" step="1" type="number" class="form-control form-control-sm" placeholder="Sync Interval" v-model="sync_interval" />
+      </div>
+
+      <div class="form-group col">
+        <label>Log Rotation Details</label>
+        <select v-model="logrotation" class="form-control form-control-sm">
+          <option value="null">Please select Log Rotation Frequency</option>
+          <option value="Daily">Daily</option>
+          <option value="Weekly">Weekly</option>
+          <option value="Bi-weekly">Bi-weekly</option>
+          <option value="Monthly">Monthly</option>
+          <option value="Quarterly">Quarterly</option>
+          <option value="Yearly">Yearly</option>
+        </select>
+      </div>
+
+      <div class="form-group col">
+        <label for="vatCheck">
+          Allow VAT
+        </label>
+        <div class="input-group">
+          <div id="radioBtn" class="btn-group">
+            <a class="btn btn-primary btn-sm notActive" data-toggle="canVat" data-title="Y" @click="allowVAT('Y')">YES</a>
+            <a class="btn btn-primary btn-sm notActive" data-toggle="canVat" data-title="N" @click="allowVAT('N')">NO</a>
+          </div>
+            <input type="hidden" name="canVat" id="canVat">
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-2">
       <div class="card-header">API Endpoints:</div>
+
       <div class="card-body">
+      
         <div class="form-row">
           <div class="form-group col">
             <label for="orders">Orders API</label>
             <input type="text" class="form-control form-control-sm" placeholder="Orders API" v-model="orders" />
           </div>
+
           <div class="form-group col">
             <label for="products">Products API</label>
             <input type="text" class="form-control form-control-sm" placeholder="Products API" v-model="products" />
-          </div>
-          <div class="form-group col">
-            <label for="customers">Customers API</label>
-            <input type="text" class="form-control form-control-sm" placeholder="Customers API" v-model="customers" />
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group col">
+            <label for="customers">Customers API</label>
+            <input type="text" class="form-control form-control-sm" placeholder="Customers API" v-model="customers" />
+          </div>
+
+          <div class="form-group col">
             <label for="banks">Banks API</label>
             <input type="text" class="form-control form-control-sm" placeholder="Banks API" v-model="banks" />
-          </div>
+          </div>   
+        </div>
+
+        <div class="form-row">
           <div class="form-group col">
             <label for="banks">Transfers API</label>
             <input type="text" class="form-control form-control-sm" placeholder="Transfers API" v-model="transfers" />
           </div>
-          <div class="form-group col">
-            <label for="sync_interval">Sync Interval in Minutes</label>
-            <input min="30" step="1" type="number" class="form-control form-control-sm" placeholder="Sync Interval" v-model="sync_interval" />
-          </div>
-          <div class="form-group col">
-            <label>Log Rotation Details</label>
-            <select v-model="logrotation" class="form-control form-control-sm">
-              <option value="null">Please select Log Rotation Frequency</option>
-              <option value="Daily">Daily</option>
-              <option value="Weekly">Weekly</option>
-              <option value="Bi-weekly">Bi-weekly</option>
-              <option value="Monthly">Monthly</option>
-              <option value="Quarterly">Quarterly</option>
-              <option value="Yearly">Yearly</option>
-            </select>
-          </div>
         </div>
+        
       </div>
     </div>
 
-    <br />
-    <button type="submit" class="btn btn-primary btn-sm float-right" @click="StoreDetails">
+    <button type="submit" class="btn btn-primary btn-sm float-right" @click="storeDetails">
       {{ buttontext }}
     </button>    
   </section>
 </template>
 
+<style scoped>
+  #radioBtn .notActive{
+      color: #3276b1;
+      background-color: #fff;
+  }
+</style>
+
 <script>
+import $ from "jquery";
 import moment from "moment";
 
 export default {
@@ -95,6 +127,7 @@ export default {
     return {
       id: 0,
       store: {},
+      vat: false,
       city: null,
       name: null,
       banks: null,
@@ -135,12 +168,27 @@ export default {
       } else {
         this.buttontext = "Update Store";
       }
+
+      let vatCheck = store.vat === true ? 'Y' : 'N';
+      this.allowVAT(vatCheck);
     }, (err) => {
       this.$toast.error("Error! " + err);
     });
   },
   methods: {
-    StoreDetails() {
+    allowVAT(sel) {
+      var tog = 'canVat';
+      $('#'+tog).prop('value', sel);
+      $('a[data-toggle="'+tog+'"]').not('[data-title="'+sel+'"]').removeClass('active').addClass('notActive');
+      $('a[data-toggle="'+tog+'"][data-title="'+sel+'"]').removeClass('notActive').addClass('active');
+
+      if (sel === 'Y') {
+        this.vat = true;
+      } else { 
+        this.vat = false;
+      }
+    },
+    storeDetails() {
       if (this.logrotation === null) {
         this.$toast.error("Error! Invalid value set for log Rotation.");
         return;
@@ -148,14 +196,15 @@ export default {
 
       this.store = {
         id: this.id,
+        vat: this.vat,
         city: this.city,
         name: this.name,
         phone: this.phone,
+        banks: this.banks,
         email: this.email,
         sapkey: this.sapkey,
         orders: this.orders,
         address: this.address,
-        banks: this.banks,
         products: this.products,
         customers: this.customers,
         transfers: this.transfers,
