@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,6 +17,7 @@ import (
 
 // APIlinks is a collection of all needed API links
 var APIlinks = make(map[string]string)
+var apikeys = [...]string{"customers"} //, "orders", "transfers"}
 
 // Sync will setup the cadence for sync btw the store and the server.
 func Sync() {
@@ -43,7 +45,7 @@ func Sync() {
 
 	duration := LocalStore.SyncInterval
 	if duration == 0 {
-		duration = 5
+		duration = 10
 	}
 
 	tick := time.NewTicker(time.Minute * time.Duration(duration))
@@ -72,18 +74,125 @@ func task(t time.Time) {
 	str = strings.ReplaceAll(str, ":", "")
 	str = strings.Split(str, " ")[0]
 
-	for key, link := range APIlinks {
-		// Write the sync start details to the File System via a Goroutine.
-		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
+	sendData()
 
-		getAllData(key, link, str)
-		sendData()
-		time.Sleep(2 * time.Second)
-	}
+	// for key, link := range APIlinks {
+	// 	// Write the sync start details to the File System via a Goroutine.
+	// 	go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
+
+	// 	// Append the StoreID to the link
+	// 	link += "?storeID=" + LocalStore.SapKey
+	// 	getAllData(key, link, str)
+	// 	time.Sleep(2 * time.Second)
+	// }
 }
 
-func sendData() {
+// sendData for Customers, Orders and Inventory Transfers
+func sendData() (err error) {
+	for _, value := range apikeys {
+		SQLquery := ""
+		key := value
+		url := APIlinks[value]
 
+		switch value {
+		case "customers":
+			SQLquery = "select id, cardname, address, phone, phone1, city, email from customers where synced = false;"
+
+		case "orders":
+			SQLquery = "select id, cardname, address, phone, phone1, city, email from customers where synced = false;"
+
+		case "transfers":
+			SQLquery = "select id, cardname, address, phone, phone1, city, email from customers where synced = false;"
+		}
+
+		var rows *sql.Rows
+		var columns []string
+
+		if rows, err = Get(SQLquery); err != nil {
+			CheckError("Error Getting customer data for Endpoint: ", errors.New(SQLquery), false)
+			return
+		}
+
+		if columns, err = rows.Columns(); err != nil {
+			CheckError("Error getting Row columns from Report.", err, false)
+			return
+		}
+
+		defer rows.Close()
+		ConvertToJSON(rows, columns, url, key)
+	}
+	return nil
+}
+
+// ConvertToJSON converts the database response to JSON.
+func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error) {
+	id := ""
+	var allMaps []map[string]interface{}
+	for rows.Next() {
+		// Dynamic Result rows scanning.
+		values := make([]interface{}, len(columns))
+		pointers := make([]interface{}, len(columns))
+
+		for i := range values {
+			pointers[i] = &values[i]
+		}
+		err = rows.Scan(pointers...)
+
+		resultMap := make(map[string]interface{})
+		for i, val := range values {
+			if strings.ToLower(columns[i]) == "id" {
+				id += fmt.Sprintf("%s, ", val)
+			}
+			resultMap[columns[i]] = fmt.Sprintf("%s", val)
+		}
+
+		// for each database row / record, a map with the column names and row values is added to the allMaps slice
+		allMaps = append(allMaps, resultMap)
+	}
+
+	// Marshal the map into a JSON string.
+	empData, err := json.Marshal(allMaps)
+	if err != nil {
+		CheckError("Error Marshalling the map into a JSON string.", err, false)
+		return
+	}
+
+	jsonStr := string(empData)
+	// Remove the last ", " from the ID string and generate the update command
+	cmd := "UPDATE " + key + " SET synced = true WHERE id IN (" + strings.TrimRight(id, ", ") + ");"
+	_, _, _ = httppost(url, jsonStr, cmd)
+	
+	// status, data, err := httppost(url, jsonStr, cmd)
+
+	// fmt.Println("Status is: ", status)
+	// fmt.Println("Response is: ", string(data))
+	// fmt.Println("Error is: ", err)
+	return
+}
+
+// httppost to post the data to the server
+func httppost(url, payload, successcommand string) (status string, data []byte, err error) {
+	method := "POST"
+	requestBody := strings.NewReader(payload)
+
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, requestBody)
+	if err != nil {
+		CheckError("Error POSTING data to URL: "+url, err, false)
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	res, err := client.Do(req)
+	defer res.Body.Close()
+
+	status = res.Status
+	data, err = ioutil.ReadAll(res.Body)
+
+	if res.Status == "200" {
+		Modify(successcommand)
+	}
+
+	return
 }
 
 func getAllData(key, link, str string) error {
@@ -139,29 +248,6 @@ func httpget(url string) (data []byte, err error) {
 	return
 	// // print `data` as a string
 	// fmt.Printf("%s\n", data)
-}
-
-func httppost(url, payload string) (data []byte, err error) {
-	// Set the requestBody payload
-	var res *http.Response
-	requestBody := strings.NewReader(payload)
-
-	// post the data to the server
-	if res, err = http.Post(url, "application/json; charset=UTF-8", requestBody); err != nil {
-		CheckError("Error POSTING data to URL: "+url, err, false)
-		return
-	}
-
-	// read response data
-	data, _ = ioutil.ReadAll(res.Body)
-
-	// close response body
-	res.Body.Close()
-
-	return
-	// // print request `Content-Type` header
-	// requestContentType := res.Request.Header.Get("Content-Type")
-	// fmt.Println("Request content-type:", requestContentType)
 }
 
 // GetLogs returns a list of all available log files.
