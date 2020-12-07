@@ -100,8 +100,13 @@
             <label for="banks">Transfers API</label>
             <input type="text" class="form-control form-control-sm" placeholder="Transfers API" v-model="transfers" />
           </div>
+
+          <div class="form-group col">
+            <label for="banks">Warehouses API</label>
+            <input type="text" class="form-control form-control-sm" placeholder="Warehouses API" v-model="warehouses" />
+          </div>
         </div>
-        
+
       </div>
     </div>
 
@@ -139,6 +144,7 @@ export default {
       products: null,
       customers: null,
       transfers: null,
+      warehouses: null,
       created_by: null,
       sync_interval: 5,
       logrotation: null,
@@ -159,6 +165,7 @@ export default {
       this.products = store.products;
       this.customers = store.customers;
       this.transfers = store.transfers;
+      this.warehouses = store.warehouses;
       this.logrotation = store.logrotation;
       this.sync_interval = store.sync_interval;
       this.created_by = this.$store.state.user.id;
@@ -208,6 +215,7 @@ export default {
         products: this.products,
         customers: this.customers,
         transfers: this.transfers,
+        warehouses: this.warehouses,
         updated_at: moment().format(),
         logrotation: this.logrotation,
         sync_interval: this.sync_interval,

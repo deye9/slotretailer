@@ -45,24 +45,24 @@ type Customers struct {
 
 // Orders struct
 type Orders struct {
-	ID        int            `json:"id,omitempty"`
-	DocEntry  int            `json:"docentry"`
-	DocNum    int            `json:"docnum"`
-	Canceled  bool           `json:"canceled"`
-	CardCode  string         `json:"cardcode,omitempty"` // 15
-	CardName  string         `json:"cardname,omitempty"` // 100
-	VatSum    float32        `json:"vatsum,omitempty"`
-	DocTotal  float32        `json:"doctotal,omitempty"`
-	Synced    bool           `json:"synced"`
-	Items     []OrderedItems `json:"items"`
-	Payments  []Payments     `json:"payments"`
-	Comment   sql.NullString `json:"comment,omitempty"`
-	Returned  bool           `json:"returned"`
-	DiscountApprovedBy int	 `json:"discountapprovedby"`
-	CreatedBy int            `json:"created_by,omitempty"`
-	CreatedAt sql.NullTime   `json:"created_at,omitempty"`
-	UpdatedAt sql.NullTime   `json:"updated_at,omitempty"`
-	DeletedAt sql.NullTime   `json:"deleted_at,omitempty"`
+	ID                 int            `json:"id,omitempty"`
+	DocEntry           int            `json:"docentry"`
+	DocNum             int            `json:"docnum"`
+	Canceled           bool           `json:"canceled"`
+	CardCode           string         `json:"cardcode,omitempty"` // 15
+	CardName           string         `json:"cardname,omitempty"` // 100
+	VatSum             float32        `json:"vatsum,omitempty"`
+	DocTotal           float32        `json:"doctotal,omitempty"`
+	Synced             bool           `json:"synced"`
+	Items              []OrderedItems `json:"items"`
+	Payments           []Payments     `json:"payments"`
+	Comment            sql.NullString `json:"comment,omitempty"`
+	Returned           bool           `json:"returned"`
+	DiscountApprovedBy int            `json:"discountapprovedby"`
+	CreatedBy          int            `json:"created_by,omitempty"`
+	CreatedAt          sql.NullTime   `json:"created_at,omitempty"`
+	UpdatedAt          sql.NullTime   `json:"updated_at,omitempty"`
+	DeletedAt          sql.NullTime   `json:"deleted_at,omitempty"`
 }
 
 // OrderedItems struct
@@ -104,25 +104,26 @@ type Users struct {
 
 // Store struct
 type Store struct {
-	ID           int          `json:"id,omitempty"`
-	Name         string       `json:"name,omitempty"`    // 100
-	Address      string       `json:"address,omitempty"` // 100
-	Phone        string       `json:"phone,omitempty"`   // 20
-	City         string       `json:"city,omitempty"`    // 100
-	Email        string       `json:"email,omitempty"`   // 100
-	OrdersAPI    string       `json:"orders,omitempty"`
-	ProductsAPI  string       `json:"products,omitempty"`
-	CustomersAPI string       `json:"customers,omitempty"`
-	BanksAPI     string       `json:"banks,omitempty"`
-	TransfersAPI string       `json:"transfers,omitempty"`
-	SyncInterval int          `json:"sync_interval,omitempty"`
-	SapKey       string       `json:"sapkey,omitempty"`
-	LogRotation  string       `json:"logrotation,omitempty"`
-	AllowVAT     bool         `json:"vat"`
-	CreatedBy    int          `json:"created_by,omitempty"`
-	CreatedAt    sql.NullTime `json:"created_at,omitempty"`
-	UpdatedAt    sql.NullTime `json:"updated_at,omitempty"`
-	DeletedAt    sql.NullTime `json:"deleted_at,omitempty"`
+	ID            int          `json:"id,omitempty"`
+	Name          string       `json:"name,omitempty"`    // 100
+	Address       string       `json:"address,omitempty"` // 100
+	Phone         string       `json:"phone,omitempty"`   // 20
+	City          string       `json:"city,omitempty"`    // 100
+	Email         string       `json:"email,omitempty"`   // 100
+	OrdersAPI     string       `json:"orders,omitempty"`
+	ProductsAPI   string       `json:"products,omitempty"`
+	CustomersAPI  string       `json:"customers,omitempty"`
+	BanksAPI      string       `json:"banks,omitempty"`
+	TransfersAPI  string       `json:"transfers,omitempty"`
+	SyncInterval  int          `json:"sync_interval,omitempty"`
+	SapKey        string       `json:"sapkey,omitempty"`
+	LogRotation   string       `json:"logrotation,omitempty"`
+	AllowVAT      bool         `json:"vat"`
+	WarehousesAPI string       ` json:"warehouses,omitempty"`
+	CreatedBy     int          `json:"created_by,omitempty"`
+	CreatedAt     sql.NullTime `json:"created_at,omitempty"`
+	UpdatedAt     sql.NullTime `json:"updated_at,omitempty"`
+	DeletedAt     sql.NullTime `json:"deleted_at,omitempty"`
 }
 
 // SearchResult struct

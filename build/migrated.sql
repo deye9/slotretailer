@@ -163,6 +163,7 @@ ALTER table store add column logrotation text NOT NULL;
 ALTER table store add column transfers text NULL;
 ALTER table store add column vat boolean DEFAULT false;
 ALTER table orders add column discountapprovedby int DEFAULT 0;
+ALTER table store add column warehouses VARCHAR(255) NOT NULL,
 
 -- CUSTOMERS TRIGGER
 drop trigger if exists customer_insert_audit;

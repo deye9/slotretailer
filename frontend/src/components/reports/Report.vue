@@ -1,5 +1,5 @@
 <template>
-    <section>
+    <section class="div2PDF">
         <div class="flex-xl-nowrap2 mb-2">
             <div class="row">
                 <div class="col-12">
@@ -10,7 +10,7 @@
                                     <img id="img" src="../../assets/images/slot.png" />
                                     <br />
                                     <h3>{{ this.title }}</h3>
-                                    <button class="btn btn-primary btn-sm float-right" @click="generateReport">Download Report</button>
+                                    <button id="downloadBtn" class="btn btn-primary btn-sm float-right" @click="generateReport">Download Report</button>
                                 </div>
                             </div>   
                         </div>
@@ -80,35 +80,34 @@ export default {
         generateReport() {
             let title = this.title,
                 top_left_margin = 15,
-                HTML_Width = $("#myTable").width(),
+                HTML_Width = $(".div2PDF").width(),
                 canvas_image_width = HTML_Width,
-                HTML_Height = $("#myTable").height(),
+                HTML_Height = $(".div2PDF").height(),
                 canvas_image_height = HTML_Height,
-                imgSrc = document.getElementById("img").src,
+                // imgSrc = document.getElementById("img").src,
                 PDF_Width = HTML_Width + (top_left_margin * 2),
                 PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2),
                 totalPDFPages = Math.ceil(HTML_Height / PDF_Height) - 1;
 
-            html2canvas($('.VueTables__table')[0]).then(function(canvas) {
+                document.getElementById("downloadBtn").style.visibility = 'hidden';
+                document.getElementsByClassName('VueTables__search')[0].style.visibility = 'hidden';
+
+            html2canvas($('.div2PDF')[0]).then(function(canvas) {
                 canvas.getContext('2d');
                 
                 var imgData = canvas.toDataURL("image/jpeg", 1.0);
                 var pdf = new jsPDF('p', 'pt',  [PDF_Width, PDF_Height]);
-
-                pdf.setFontSize(20);
-                pdf.setTextColor(40);
-                pdf.addImage(imgSrc, 'PNG', PDF_Width / 2, 40, 10, 10);
-                pdf.text(title, PDF_Width / 2, 50, null, null, 'center');
-                pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin + 100, canvas_image_width, canvas_image_height);
+                pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
                 
-                for (var i = 1; i <= totalPDFPages; i++) { 
+                for (var i = 1; i <= totalPDFPages; i++) {
                     pdf.addPage(PDF_Width, PDF_Height);
-                    pdf.addImage(imgSrc, 'PNG', PDF_Width / 2, 40, 10, 10);
-                    pdf.text(title, PDF_Width / 2, 50, null, null, 'center');
                     pdf.addImage(imgData, 'JPG', top_left_margin, - (PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
                 }
                 
                 pdf.save(`${title}pdf`);
+
+                document.getElementById("downloadBtn").style.visibility = 'visible';
+                document.getElementsByClassName('VueTables__search')[0].style.visibility = 'visible';
             });
         }
     }

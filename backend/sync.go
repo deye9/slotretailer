@@ -34,8 +34,9 @@ func Sync() {
 		return
 	}
 
-	// APIlinks["orders"] = LocalStore.OrdersAPI
+	APIlinks["orders"] = LocalStore.OrdersAPI
 	APIlinks["banks"] = LocalStore.BanksAPI
+	APIlinks["stores"] = LocalStore.WarehousesAPI
 	APIlinks["products"] = LocalStore.ProductsAPI
 	APIlinks["customers"] = LocalStore.CustomersAPI
 	APIlinks["transfers"] = LocalStore.TransfersAPI
