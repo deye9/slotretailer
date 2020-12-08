@@ -163,7 +163,20 @@ ALTER table store add column logrotation text NOT NULL;
 ALTER table store add column transfers text NULL;
 ALTER table store add column vat boolean DEFAULT false;
 ALTER table orders add column discountapprovedby int DEFAULT 0;
-ALTER table store add column warehouses VARCHAR(255) NOT NULL,
+ALTER table store add column warehouses VARCHAR(255) NOT NULL;
+ALTER TABLE products MODIFY serialnumber TEXT NOT NULL;
+ALTER TABLE products RENAME column serialnumber to serialnumbers; 
+
+-- Default Reports
+REPLACE INTO reports (id, title, query, created_by) VALUES (1, "Todays Orders", "select id as order_id, docnum `Document Number`, canceled `Is Cancelled`, CardCode, CardName,  vatsum `VAT %`, concat('₦', format(doctotal, 2)) `Document Total`, case when Synced <> 0 then \"Yes\" else \"No\" END `Synced`, case when returned <> 0 then \"Yes\" else \"No\" END `Returned`, ifnull( (select concat(firstname, '  ', lastname) from users where users.id = o.discountapprovedby), 'Super Admin') `approved_by` from orders o where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
+REPLACE INTO reports (id, title, query, created_by) VALUES (2, "Week's Top Seller", "select i.id, i.orderid, i.itemcode, i.itemname, sum(i.price) price, sum(i.quantity) quantity, sum(i.discount) discount from ordereditems i inner join orders o on o.id = i.orderid WHERE cast(created_at as date) BETWEEN cast(DATE_ADD(CURDATE(), INTERVAL(1 - DAYOFWEEK(CURDATE())) DAY) as date) AND cast(DATE_ADD(CURDATE(), INTERVAL(7 - DAYOFWEEK(CURDATE())) DAY) as date) AND deleted_At is null GROUP BY i.id, i.orderid, i.itemcode, i.itemname;", 1);
+REPLACE INTO reports (id, title, query, created_by) VALUES (3, "Todays Top Sellers", "select i.* from orders o inner join ordereditems i on o.id = i.orderid where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
+REPLACE INTO reports (id, title, query, created_by) VALUES (4, "Store Inventory Level", "select p.* from store s inner join products p on s.sapkey = p.warehouse;", 1);
+REPLACE INTO reports (id, title, query, created_by) VALUES (5, "Global Inventory Level", "select * from products p;", 1);
+INSERT INTO store (`id`,`name`,`address`,`phone`,`city`,`email`,`orders`,`products`,`customers`,`banks`,`sync_interval`,`sapkey`,`created_by`,`created_at`,`updated_at`,`deleted_at`,`logrotation`,`transfers`,`vat`,`warehouses`) VALUES (1,'New Store','Enter Store Address','080','Lagos','ikejastore@slot.com','http://197.255.32.34:5000/Orders','http://197.255.32.34:5000/Products','http://197.255.32.34:5000/Customers','http://197.255.32.34:5000/Banks',30,'2BMEDICA',1,'2020-12-08 21:46:36',NULL,NULL,'1','http://197.255.32.34:5000/Transfers',0,'http://197.255.32.34:5000/Warehouses');
+REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) VALUES ('super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true);
+
+-- REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');
 
 -- CUSTOMERS TRIGGER
 drop trigger if exists customer_insert_audit;
@@ -441,10 +454,6 @@ END $$
 
 DELIMITER ;
 
-REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) 
-SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true
-WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');
-
 DROP procedure IF EXISTS `searchDB`;
 
 DELIMITER $$
@@ -486,10 +495,3 @@ DEALLOCATE PREPARE statement;
 END$$
 
 DELIMITER ;
-
--- Default Reports
-REPLACE INTO reports (id, title, query, created_by) VALUES (1, "Todays Orders", "select id as order_id, docnum `Document Number`, canceled `Is Cancelled`, CardCode, CardName,  vatsum `VAT %`, concat('₦', format(doctotal, 2)) `Document Total`, case when Synced <> 0 then "Yes" else "No" END `Synced`, case when returned <> 0 then "Yes" else "No" END `Returned`, ifnull( (select concat(firstname, '  ', lastname) from users where users.id = o.discountapprovedby), 'Super Admin') `approved_by` from orders o where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
-REPLACE INTO reports (id, title, query, created_by) VALUES (2, "Week's Top Seller", "select i.id, i.orderid, i.itemcode, i.itemname, sum(i.price) price, sum(i.quantity) quantity, sum(i.discount) discount from ordereditems i inner join orders o on o.id = i.orderid WHERE cast(created_at as date) BETWEEN cast(DATE_ADD(CURDATE(), INTERVAL(1 - DAYOFWEEK(CURDATE())) DAY) as date) AND cast(DATE_ADD(CURDATE(), INTERVAL(7 - DAYOFWEEK(CURDATE())) DAY) as date) AND deleted_At is null GROUP BY i.id, i.orderid, i.itemcode, i.itemname;", 1);
-REPLACE INTO reports (id, title, query, created_by) VALUES (3, "Todays Top Sellers", "select i.* from orders o inner join ordereditems i on o.id = i.orderid where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
-REPLACE INTO reports (id, title, query, created_by) VALUES (4, "Store Inventory Level", "select p.* from store s inner join products p on s.sapkey = p.warehouse;", 1);
-REPLACE INTO reports (id, title, query, created_by) VALUES (5, "Global Inventory Level", "select * from products p;", 1);

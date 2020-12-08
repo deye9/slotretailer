@@ -42,7 +42,7 @@ export default {
           "minlevel",
           "codebars",
           "manufacturer",
-          "serialnumber",
+          "serialnumbers",
         ],
         keys = Object.keys(products[0]);
 

@@ -27,8 +27,8 @@
         <input type="text" class="form-control form-control-sm" disabled v-model="this.product.codebars" />
       </div>
       <div class="form-group col">
-        <label>Serial Number</label>
-        <input type="text" class="form-control form-control-sm" disabled v-model="this.product.serialnumber" />
+        <label>Serial Numbers</label>
+        <input type="text" class="form-control form-control-sm" disabled v-model="this.product.serialnumbers" />
       </div>
     </div>
 

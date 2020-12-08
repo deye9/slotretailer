@@ -407,7 +407,7 @@ export default {
             item.itemcode.toLowerCase() === search.toLowerCase() ||
             item.itemname.toLowerCase() === search.toLowerCase() ||
             item.codebars.toLowerCase() === search.toLowerCase() ||
-            item.serialnumber.toLowerCase() === search.toLowerCase()
+            item.serialnumbers.toLowerCase() === search.toLowerCase()
           );
         })[0];
         await this.populateRow(rowIndex);

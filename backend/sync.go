@@ -36,12 +36,12 @@ func Sync() {
 		return
 	}
 
-	APIlinks["orders"] = LocalStore.OrdersAPI
-	APIlinks["banks"] = LocalStore.BanksAPI
-	APIlinks["stores"] = LocalStore.WarehousesAPI
-	APIlinks["products"] = LocalStore.ProductsAPI
-	APIlinks["customers"] = LocalStore.CustomersAPI
-	APIlinks["transfers"] = LocalStore.TransfersAPI
+	// APIlinks["orders"] = LocalStore.OrdersAPI
+	APIlinks["banks"] = LocalStore.BanksAPI       // Ready
+	APIlinks["stores"] = LocalStore.WarehousesAPI // Ready
+	APIlinks["products"] = LocalStore.ProductsAPI	// Ready
+	APIlinks["customers"] = LocalStore.CustomersAPI // POST ready and GET ready. How to get customers for other stores / across board.
+	// APIlinks["transfers"] = LocalStore.TransfersAPI // Get for other products on a need to basis.
 
 	duration := LocalStore.SyncInterval
 	if duration == 0 {
@@ -76,15 +76,15 @@ func task(t time.Time) {
 
 	sendData()
 
-	// for key, link := range APIlinks {
-	// 	// Write the sync start details to the File System via a Goroutine.
-	// 	go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
+	for key, link := range APIlinks {
+		// Write the sync start details to the File System via a Goroutine.
+		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
 
-	// 	// Append the StoreID to the link
-	// 	link += "?storeID=" + LocalStore.SapKey
-	// 	getAllData(key, link, str)
-	// 	time.Sleep(2 * time.Second)
-	// }
+		// Append the StoreID to the link
+		link += "?storeID=" + LocalStore.SapKey
+		getAllData(key, link, str)
+		time.Sleep(2 * time.Second)
+	}
 }
 
 // sendData for Customers, Orders and Inventory Transfers
@@ -96,7 +96,7 @@ func sendData() (err error) {
 
 		switch value {
 		case "customers":
-			SQLquery = "select id, cardname, address, phone, phone1, city, email from customers where synced = false;"
+			SQLquery = "select id, cardname, address, phone, phone1, city, email, synced from customers where synced = false;"
 
 		case "orders":
 			SQLquery = "select id, cardname, address, phone, phone1, city, email from customers where synced = false;"
@@ -143,7 +143,18 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 			if strings.ToLower(columns[i]) == "id" {
 				id += fmt.Sprintf("%s, ", val)
 			}
-			resultMap[columns[i]] = fmt.Sprintf("%s", val)
+
+			if strings.ToLower(columns[i]) == "synced" {
+				resultMap[columns[i]] = true
+				// switch fmt.Sprintf("%s", val) {
+				// case "0":
+				// 	resultMap[columns[i]] = false
+				// case "1":
+				// 	resultMap[columns[i]] = true
+				// }
+			} else {
+				resultMap[columns[i]] = fmt.Sprintf("%s", val)
+			}
 		}
 
 		// for each database row / record, a map with the column names and row values is added to the allMaps slice
@@ -158,12 +169,12 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 	}
 
 	jsonStr := string(empData)
+
 	// Remove the last ", " from the ID string and generate the update command
 	cmd := "UPDATE " + key + " SET synced = true WHERE id IN (" + strings.TrimRight(id, ", ") + ");"
 	_, _, _ = httppost(url, jsonStr, cmd)
-	
-	// status, data, err := httppost(url, jsonStr, cmd)
 
+	// status, data, err := httppost(url, jsonStr, cmd)
 	// fmt.Println("Status is: ", status)
 	// fmt.Println("Response is: ", string(data))
 	// fmt.Println("Error is: ", err)
@@ -188,7 +199,7 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 	status = res.Status
 	data, err = ioutil.ReadAll(res.Body)
 
-	if res.Status == "200" {
+	if res.Status == "200 OK" {
 		Modify(successcommand)
 	}
 
@@ -216,8 +227,8 @@ func getAllData(key, link, str string) error {
 		CheckError("Error unmarshalling data.", err, false)
 		return err
 	}
-	cmd = structToInsertUpdate(response, key)
 
+	cmd = structToInsertUpdate(response, key)
 	if err = Modify(cmd); err != nil {
 		CheckError("Error saving HTTPGET result. ", err, false)
 		return err

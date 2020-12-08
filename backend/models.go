@@ -6,17 +6,17 @@ import (
 
 // Products struct
 type Products struct {
-	ID           string  `json:"id,omitempty"`
-	ItemCode     string  `json:"itemcode,omitempty"` // 20
-	ItemName     string  `json:"itemname,omitempty"` // 100
-	CodeBars     string  `json:"codebars,omitempty"` // 254
-	OnHand       int     `json:"onhand,omitempty"`
-	MinLevel     int     `json:"minlevel,omitempty"`
-	Warehouse    string  `json:"warehouse,omitempty"`    // 8
-	SerialNumber string  `json:"serialnumber,omitempty"` // 17
-	Manufacturer string  `json:"manufacturer,omitempty"` //
-	Price        float32 `json:"price,omitempty"`
-	Vat          float32 `json:"vat,omitempty"`
+	ID           string   `json:"id,omitempty"`
+	ItemCode     string   `json:"itemcode,omitempty"` // 20
+	ItemName     string   `json:"itemname,omitempty"` // 100
+	CodeBars     string   `json:"codebars,omitempty"` // 254
+	OnHand       int      `json:"onhand,omitempty"`
+	MinLevel     int      `json:"minlevel,omitempty"`
+	Warehouse    string   `json:"warehouse,omitempty"`     // 8
+	SerialNumber []string `json:"serialnumbers,omitempty"` // 17
+	Manufacturer string   `json:"manufacturer,omitempty"`  //
+	Price        float32  `json:"price,omitempty"`
+	Vat          float32  `json:"vat,omitempty"`
 }
 
 // Banks struct
@@ -119,7 +119,7 @@ type Store struct {
 	SapKey        string       `json:"sapkey,omitempty"`
 	LogRotation   string       `json:"logrotation,omitempty"`
 	AllowVAT      bool         `json:"vat"`
-	WarehousesAPI string       ` json:"warehouses,omitempty"`
+	WarehousesAPI string       `json:"warehouses,omitempty"`
 	CreatedBy     int          `json:"created_by,omitempty"`
 	CreatedAt     sql.NullTime `json:"created_at,omitempty"`
 	UpdatedAt     sql.NullTime `json:"updated_at,omitempty"`
