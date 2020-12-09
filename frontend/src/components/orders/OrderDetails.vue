@@ -69,8 +69,7 @@
     </div>
 
     <h3>Order Details</h3>
-    <hr />
-    
+    <hr />    
     <div class="table-responsive-sm">
       <table class="table table-bordered table-hover table-striped table-sm">
         <thead class="thead-dark">
@@ -78,7 +77,8 @@
             <th scope="col">#</th>
             <th scope="col">Item No.</th>
             <th scope="col">Item Description</th>
-            <th scope="col">Qty</th>
+            <th scope="col">Serial Number</th>
+            <th scope="col">Quantity</th>
             <th scope="col">Price</th>
             <th scope="col">Discount ₦</th>
             <th scope="col">Total</th>
@@ -96,40 +96,43 @@
               {{ item.itemname }}
             </td>
             <td>
+              {{ item.serialnumber }}
+            </td>
+            <td>
               {{ item.quantity }}
             </td>
             <td>
-              ₦{{ item.price }}
+              {{ item.price.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
             </td>
             <td>
-              ₦{{ item.discount }}
+              {{ item.discount.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
             </td>
             <td>
-              ₦{{ item.total }}
+              {{ item.total.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
             </td>
           </tr>
         </tbody>
         <tfoot id="ItemsFooter">
           <tr>
-            <td colspan="6" class="text-right font-weight-bold">
+            <td colspan="7" class="text-right font-weight-bold">
               Subtotal:
             </td>
             <td class="font-weight-bold bg-primary text-white">
-              ₦{{subTotal}}
+              {{ subTotal.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
             </td>
           </tr>
           <tr v-show="canVat">
-            <td colspan="6" class="text-right font-weight-bold">7.5% VAT:</td>
+            <td colspan="7" class="text-right font-weight-bold">7.5% VAT:</td>
             <td class="font-weight-bold bg-primary text-white">
-              ₦{{vatAmount}}
+              {{ vatAmount.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
             </td>
           </tr>
           <tr>
-            <td colspan="6" class="text-right font-weight-bold">
+            <td colspan="7" class="text-right font-weight-bold">
               Grand Total:
             </td>
             <td class="font-weight-bold bg-primary text-white">
-              ₦{{grandTotal}}
+              {{ grandTotal.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
             </td>
           </tr>
         </tfoot>
@@ -164,14 +167,14 @@
               {{ payment.canceled }}
             </td>
             <td>
-              ₦{{ payment.amount }}
+              {{ payment.amount.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
             </td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
             <td colspan="4" class="text-right font-weight-bold">Amount Paid</td>
-            <td class="font-weight-bold bg-primary text-white">₦{{grandTotal}}</td>
+            <td class="font-weight-bold bg-primary text-white">{{ grandTotal.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}</td>
           </tr>
         </tfoot>
       </table>
@@ -206,7 +209,7 @@ export default {
     }
 
     window.backend.GetOrder(parseInt(this.id)).then((order) => {
-        order.doctotal = `₦${order.doctotal}`;
+        order.doctotal = order.doctotal.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' });
         this.order = order;
         let runningTotal = 0.0;
 
@@ -223,12 +226,12 @@ export default {
           // Calculate footer details
           this.subTotal = parseFloat(runningTotal);
           if (this.canVat === true) {
-            this.vatAmount = parseFloat((7.5 / 100) * runningTotal).toFixed(2);
-            this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal).toFixed(2);
+            this.vatAmount = parseFloat((7.5 / 100) * runningTotal);
+            this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal);
           } else {
-            this.grandTotal = parseFloat(runningTotal).toFixed(2);
+            this.grandTotal = parseFloat(runningTotal);
           }
-          this.balanceDue = parseFloat(this.grandTotal - this.amtPaid).toFixed(2);
+          this.balanceDue = parseFloat(this.grandTotal - this.amtPaid);
         });
         
         window.backend.GetUser(parseInt(order.created_by)).then((user) => {

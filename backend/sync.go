@@ -17,7 +17,7 @@ import (
 
 // APIlinks is a collection of all needed API links
 var APIlinks = make(map[string]string)
-var apikeys = [...]string{"customers"} //, "orders", "transfers"}
+var apikeys = [...]string{"customers", "orders"} //, "transfers"}
 
 // Sync will setup the cadence for sync btw the store and the server.
 func Sync() {
@@ -36,10 +36,10 @@ func Sync() {
 		return
 	}
 
-	// APIlinks["orders"] = LocalStore.OrdersAPI
-	APIlinks["banks"] = LocalStore.BanksAPI       // Ready
-	APIlinks["stores"] = LocalStore.WarehousesAPI // Ready
-	APIlinks["products"] = LocalStore.ProductsAPI	// Ready
+	APIlinks["orders"] = LocalStore.OrdersAPI
+	APIlinks["banks"] = LocalStore.BanksAPI         // Ready
+	APIlinks["stores"] = LocalStore.WarehousesAPI   // Ready
+	APIlinks["products"] = LocalStore.ProductsAPI   // Ready
 	APIlinks["customers"] = LocalStore.CustomersAPI // POST ready and GET ready. How to get customers for other stores / across board.
 	// APIlinks["transfers"] = LocalStore.TransfersAPI // Get for other products on a need to basis.
 
@@ -76,15 +76,15 @@ func task(t time.Time) {
 
 	sendData()
 
-	for key, link := range APIlinks {
-		// Write the sync start details to the File System via a Goroutine.
-		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
+	// for key, link := range APIlinks {
+	// 	// Write the sync start details to the File System via a Goroutine.
+	// 	go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
 
-		// Append the StoreID to the link
-		link += "?storeID=" + LocalStore.SapKey
-		getAllData(key, link, str)
-		time.Sleep(2 * time.Second)
-	}
+	// 	// Append the StoreID to the link
+	// 	link += "?storeID=" + LocalStore.SapKey
+	// 	getAllData(key, link, str)
+	// 	time.Sleep(2 * time.Second)
+	// }
 }
 
 // sendData for Customers, Orders and Inventory Transfers
@@ -96,10 +96,10 @@ func sendData() (err error) {
 
 		switch value {
 		case "customers":
-			SQLquery = "select id, cardname, address, phone, phone1, city, email, synced from customers where synced = false;"
+			SQLquery = "select id, cardname, address, phone, phone1, city, email, synced from customers where synced = false and deleted_at is null;"
 
 		case "orders":
-			SQLquery = "select id, cardname, address, phone, phone1, city, email from customers where synced = false;"
+			SQLquery = "call getOrders()"
 
 		case "transfers":
 			SQLquery = "select id, cardname, address, phone, phone1, city, email from customers where synced = false;"
@@ -142,16 +142,19 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 		for i, val := range values {
 			if strings.ToLower(columns[i]) == "id" {
 				id += fmt.Sprintf("%s, ", val)
-			}
-
-			if strings.ToLower(columns[i]) == "synced" {
+			} else if strings.ToLower(columns[i]) == "synced" {
 				resultMap[columns[i]] = true
-				// switch fmt.Sprintf("%s", val) {
-				// case "0":
-				// 	resultMap[columns[i]] = false
-				// case "1":
-				// 	resultMap[columns[i]] = true
-				// }
+			} else if strings.ToLower(columns[i]) == "returned" {
+				switch fmt.Sprintf("%s", val) {
+				case "0":
+					resultMap[columns[i]] = false
+				case "1":
+					resultMap[columns[i]] = true
+				}
+			} else if strings.ToLower(columns[i]) == "items" {
+				resultMap[columns[i]] = interfaceToMap(val, "ordered items")
+			} else if strings.ToLower(columns[i]) == "payments" {
+				resultMap[columns[i]] = interfaceToMap(val, "payment")
 			} else {
 				resultMap[columns[i]] = fmt.Sprintf("%s", val)
 			}
@@ -162,22 +165,26 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 	}
 
 	// Marshal the map into a JSON string.
-	empData, err := json.Marshal(allMaps)
+	payload, err := json.Marshal(allMaps)
 	if err != nil {
 		CheckError("Error Marshalling the map into a JSON string.", err, false)
 		return
 	}
 
-	jsonStr := string(empData)
+	jsonStr := string(payload)
+	if jsonStr != "null" {
+		// Remove the last ", " from the ID string and generate the update command
+		cmd := "UPDATE " + key + " SET synced = true WHERE id IN (" + strings.TrimRight(id, ", ") + ");"
+		_, _, _ = httppost(url, jsonStr, cmd)
+	}
+	return
+}
+func interfaceToMap(val interface{}, message string) (mapped []map[string]interface{}) {
 
-	// Remove the last ", " from the ID string and generate the update command
-	cmd := "UPDATE " + key + " SET synced = true WHERE id IN (" + strings.TrimRight(id, ", ") + ");"
-	_, _, _ = httppost(url, jsonStr, cmd)
-
-	// status, data, err := httppost(url, jsonStr, cmd)
-	// fmt.Println("Status is: ", status)
-	// fmt.Println("Response is: ", string(data))
-	// fmt.Println("Error is: ", err)
+	err := json.Unmarshal([]byte(fmt.Sprintf("%s", val)), &mapped)
+	if err != nil {
+		fmt.Println("Error unmarshalling ", message, " details for sync: ", err)
+	}
 	return
 }
 
@@ -199,7 +206,8 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 	status = res.Status
 	data, err = ioutil.ReadAll(res.Body)
 
-	if res.Status == "200 OK" {
+	fmt.Println(string(data))
+	if status == "200 OK" {
 		Modify(successcommand)
 	}
 

@@ -40,6 +40,7 @@
             <th scope="col">#</th>
             <th scope="col">Item No.</th>
             <th scope="col">Item Description</th>
+            <th scope="col">Serial Number</th>
             <th scope="col">Quantity</th>
             <th scope="col">Price</th>
             <th scope="col">Discount ₦</th>
@@ -52,8 +53,11 @@
             <th scope="row">{{ i + 1 }}</th>
             <td>{{ item.itemcode }}</td>
             <td>
-              <v-select label="itemname" @input="(val) => itemSelected(val, i)" @search="(search, loading) => fetchProduct(search, loading, i)" v-model="item.itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
+              <!-- <v-select label="itemname" @input="(val) => itemSelected(val, i)" @search="(search, loading) => fetchProduct(search, loading, i)" v-model="item.itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select> -->
+              <v-select label="itemname" @input="(val) => itemSelected(val, i)" v-model="item.itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
+              <!-- :filter-by="(option, label, search) => myFilter(option, label, search, i)" -->
             </td>
+            <td>{{ item.serialnumber }}</td>
             <td>
               <input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" />
             </td>
@@ -67,13 +71,13 @@
               {{ item.total }}
             </td>
             <td>
-              <button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteItemRow( i)">Remove Line</button>
+              <button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteItemRow(i)">Remove Line</button>
             </td>
           </tr>
         </tbody>
         <tfoot id="ItemsFooter">
           <tr>
-            <td colspan="7" class="text-right font-weight-bold">
+            <td colspan="8" class="text-right font-weight-bold">
               Subtotal:
             </td>
             <td class="font-weight-bold bg-primary text-white">
@@ -81,13 +85,13 @@
             </td>
           </tr>
           <tr v-show="canVat">
-            <td colspan="7" class="text-right font-weight-bold">7.5% VAT:</td>
+            <td colspan="8" class="text-right font-weight-bold">7.5% VAT:</td>
             <td class="font-weight-bold bg-primary text-white">
               ₦{{vatAmount}}
             </td>
           </tr>
           <tr>
-            <td colspan="7" class="text-right font-weight-bold">
+            <td colspan="8" class="text-right font-weight-bold">
               Amount Paid:
             </td>
             <td class="font-weight-bold bg-primary text-white">
@@ -95,7 +99,7 @@
             </td>
           </tr>
           <tr>
-            <td colspan="7" class="text-right font-weight-bold">
+            <td colspan="8" class="text-right font-weight-bold">
               Grand Total:
             </td>
             <td class="font-weight-bold bg-primary text-white">
@@ -154,6 +158,36 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-primary btn-sm mr-2" @click="adminLogin">Authorize</button>
             <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="serialsModal" data-backdrop="static" tabindex="-1" aria-labelledby="serialsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header text-center bg-dark text-white">
+            <h5 class="modal-title" id="serialsModalLabel">Select Serial Number.</h5>
+            <button type="button" class="close text-white" @click="dismiss" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div v-for="(val, key) in serialnumbers" :key="key" class="col-3">
+                <b>{{key + 1}}</b>. &nbsp;&nbsp;
+                <label class="form-check-label" :for="'btnradio_' + val">
+                <input type="radio" class="btn-check" name="serialnumber" v-model="serial" :id="'btnradio_' + val" :value="val" autocomplete="off">
+                {{val}}
+              </label>
+              </div>
+            </div>
+            <hr />
+            <span>Selected Serial Number: <strong>{{serial}}</strong></span>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary btn-sm mr-2" @click="setSerial">Set Serial Number</button>
+            <button type="button" class="btn btn-secondary btn-sm" @click="dismiss">Close</button>
           </div>
         </div>
       </div>
@@ -262,15 +296,18 @@ export default {
       items: [],
       order: {},
       item: null,
+      serial: null,
       payments: [],
       customers: [],
       inventory: [],
       customer: null,
+      currentIndex: 0,
       amtPaid: '0.00',
       isDisabled: true,
       selecteditem: '',
       ordercolumns: [],
       subTotal: '0.00',
+      serialnumbers: [],
       vatAmount: '0.00',
       grandTotal: '0.00',
       balanceDue: '0.00',
@@ -300,8 +337,7 @@ export default {
           customer.cardcode = `R-${customer.id}`;
         }
       });
-    },
-    (err) => {
+    }, (err) => {
       this.$toast.error("Error! " + err);
     });
 
@@ -309,8 +345,7 @@ export default {
     window.backend.GetProducts().then((inventory) => {
       this.inventory = inventory;
       this.addItemRow();
-    },
-    (err) => {
+    }, (err) => {
       this.$toast.error("Error! " + err);
     });
 
@@ -357,6 +392,7 @@ export default {
         itemname: '',
         price: '₦0.00',
         total: '₦0.00',
+        serialnumber: '',
         discount: '₦0.00',
       });
 
@@ -372,23 +408,47 @@ export default {
         await this.addItemRow(index);
       }
     },
+    async setSerial() {
+      if (this.serial === null || this.serial === " ") {
+        this.$toast.error("Error! Product Serial Number is required in order to proceed.");
+        return;
+      }
+
+      this.items[this.currentIndex].serialnumber = this.serial; 
+      $('#serialsModal').modal('hide');
+    },
+    dismiss() {
+      if (this.serial === null || this.serial === " ") {
+        this.$toast.error("Error! Product Serial Number is required in order to proceed.");
+        return;
+      }
+    },
     async populateRow(rowIndex) {
       if (this.item === undefined) {
         return;
       }
+      this.currentIndex = rowIndex;
 
       // Set the table data
       if (this.items[rowIndex].itemcode === "") {
         this.items[rowIndex].quantity = 1;
         this.items[rowIndex].id = rowIndex;
         this.items[rowIndex].discount = '₦0.00';
-        this.items[rowIndex].price = `₦${this.item.price}`;
         this.items[rowIndex].itemcode = this.item.itemcode;
         this.items[rowIndex].itemname = this.item.itemname;
+        this.items[rowIndex].price = `₦${parseFloat(this.item.price).toFixed(2)}`;
       } else {
-        this.items[rowIndex].price = `₦${this.item.price}`;
         this.items[rowIndex].itemcode = this.item.itemcode;
         this.items[rowIndex].itemname = this.item.itemname;
+        this.items[rowIndex].price = `₦${parseFloat(this.item.price).toFixed(2)}`;
+      }
+
+      if (this.item.serialnumbers !== "[]") {
+        // Prompt for serial number of item.
+        this.serialnumbers = this.item.serialnumbers.substring(1, this.item.serialnumbers.length-1).split(" ");
+        $('#serialsModal').modal('show');
+      } else {
+        this.items[rowIndex].serialnumber = ""; 
       }
 
       // Calculate the totals [invoice subtotal, grand total, vat]
@@ -399,22 +459,41 @@ export default {
       await this.populateRow(rowIndex);
       await this.addItemRow(rowIndex);
     },
-    async fetchProduct(search, loading, rowIndex) {
-      loading(true);
-      if (search.length >= 3) {  
-        this.item = await this.inventory.filter((item) => {
+    async myFilter(option, label, search, rowIndex) {
+      this.item = await this.inventory.filter((item) => {
           return (
-            item.itemcode.toLowerCase() === search.toLowerCase() ||
-            item.itemname.toLowerCase() === search.toLowerCase() ||
-            item.codebars.toLowerCase() === search.toLowerCase() ||
-            item.serialnumbers.toLowerCase() === search.toLowerCase()
+            item.itemcode.toLowerCase().indexOf(search.toLowerCase()) !== -1 ||
+            item.itemname.toLowerCase().indexOf(search.toLowerCase()) !== -1 ||
+            item.serialnumbers.toLowerCase().indexOf(search.toLowerCase()) !== -1
           );
         })[0];
+
         await this.populateRow(rowIndex);
-      }
-      loading(false);
-      return;
+        await this.addItemRow(rowIndex);
     },
+    // async fetchProduct(search, loading, rowIndex) {
+    //   loading(true);
+    //   if (search.length >= 3) {  
+    //     // this.item = await this.inventory.filter((item) => {
+    //     //   return (
+    //     //     item.itemcode.toLowerCase() === search.toLowerCase() ||
+    //     //     item.itemname.toLowerCase() === search.toLowerCase() ||
+    //     //     item.codebars.toLowerCase() === search.toLowerCase() ||
+    //     //     item.serialnumbers.toLowerCase() === search.toLowerCase()
+    //     //   );
+    //     // })[0];
+    //     this.item = await this.inventory.filter((item) => {
+    //       return (
+    //         item.itemcode.toLowerCase().indexOf(search.toLowerCase()) !== -1 ||
+    //         item.itemname.toLowerCase().indexOf(search.toLowerCase()) !== -1 ||
+    //         item.serialnumbers.toLowerCase().indexOf(search.toLowerCase()) !== -1
+    //       );
+    //     })[0];
+    //     await this.populateRow(rowIndex);
+    //   }
+    //   loading(false);
+    //   return;
+    // },
     async adminLogin() {
       const email = this.email,
         password = this.password;
@@ -452,13 +531,24 @@ export default {
       if (event.target.innerText === '₦0.00') {
         event.target.innerText = '';
       }
-
-      // Reject all keypress characters that are not numeric
-      if (isNaN(String.fromCharCode(event.which)) || event.which == '13') {
+      
+      // Allow for only one decimal point "." and interger characters
+      if (event.which == '110' || event.which == '46') {
+        if (event.target.innerText.includes(".")) {
+          event.preventDefault();
+        }
+      } else if (isNaN(String.fromCharCode(event.which)) || event.which == '13' || event.which == '32') {
+        // Reject all keypress characters that are not numeric
         event.preventDefault();
       }
     },
     async applyDiscount(rowIndex) {
+      if (this.items.serialnumbers !== "[]" && this.items[rowIndex].serialnumber === "") {
+        this.$toast.error("Error! Product Serial Number is required in order to proceed.");
+        $('#serialsModal').modal('show');
+        return;
+      }
+
       // Perform a quick clean up
       if (this.items[rowIndex].price === '₦0.00') {
         event.target.innerText = '₦0.00';
@@ -479,7 +569,7 @@ export default {
       }
 
       // Store the data into the items array
-      this.items[rowIndex].discount = '₦' + event.target.innerText;
+      this.items[rowIndex].discount = '₦' + parseFloat(event.target.innerText.replace("₦", "")).toFixed(2);
 
       // Calculate the totals [invoice subtotal, grand total, vat]
       await this.totals();
@@ -507,7 +597,7 @@ export default {
       });
       
       // Calculate footer details
-      this.subTotal = parseFloat(runningTotal);
+      this.subTotal = parseFloat(runningTotal).toFixed(2);
       if (this.canVat === true) {
         this.vatAmount = parseFloat((7.5 / 100) * runningTotal).toFixed(2);
         this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal).toFixed(2);
@@ -608,7 +698,7 @@ export default {
       }
 
       this.isDisabled = false;
-      $('#paymentModal').modal('hide')
+      $('#paymentModal').modal('hide');
     },
     SaveOrder() {
       if (this.customer === null) {
@@ -644,6 +734,7 @@ export default {
           itemname: element.itemname,
           itemcode: element.itemcode,
           quantity: element.quantity,
+          serialnumber: element.serialnumber,
           price: element.price.replace("₦", ""),
           discount: element.discount.replace("₦", ""),
         };
@@ -689,8 +780,7 @@ export default {
       window.backend.NewOrder(this.order).then(() => {
         this.$toast.success("Success! Order has been successfully saved.");
         this.$router.push({name: 'orderlist'});
-      },
-      (err) => {
+      }, (err) => {
         this.$toast.error("Error! " + err);
       });
     },

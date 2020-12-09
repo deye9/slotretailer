@@ -166,6 +166,7 @@ ALTER table orders add column discountapprovedby int DEFAULT 0;
 ALTER table store add column warehouses VARCHAR(255) NOT NULL;
 ALTER TABLE products MODIFY serialnumber TEXT NOT NULL;
 ALTER TABLE products RENAME column serialnumber to serialnumbers; 
+ALTER table ordereditems add column serialnumber VARCHAR(255) NOT NULL;
 
 -- Default Reports
 REPLACE INTO reports (id, title, query, created_by) VALUES (1, "Todays Orders", "select id as order_id, docnum `Document Number`, canceled `Is Cancelled`, CardCode, CardName,  vatsum `VAT %`, concat('₦', format(doctotal, 2)) `Document Total`, case when Synced <> 0 then \"Yes\" else \"No\" END `Synced`, case when returned <> 0 then \"Yes\" else \"No\" END `Returned`, ifnull( (select concat(firstname, '  ', lastname) from users where users.id = o.discountapprovedby), 'Super Admin') `approved_by` from orders o where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
@@ -177,6 +178,63 @@ INSERT INTO store (`id`,`name`,`address`,`phone`,`city`,`email`,`orders`,`produc
 REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) VALUES ('super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true);
 
 -- REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');
+
+-- Get Orders Stored Procedure
+USE `retail`;
+DROP procedure IF EXISTS `getOrders`;
+
+USE `retail`;
+DROP procedure IF EXISTS `retail`.`getOrders`;
+
+DELIMITER $$
+USE `retail`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getOrders`()
+BEGIN
+	declare orderID integer;
+	declare finished integer default 0;
+    
+    declare order_cursor cursor for
+        select id from orders where synced = false and canceled = false;
+
+	/* declare not found handler*/
+	declare continue handler
+	for not found set finished = 1;
+
+	 open order_cursor;
+
+	get_details : LOOP
+     fetch order_cursor into orderID;
+
+      if finished = 1 THEN
+      leave get_details;
+      end if;
+
+     /* Get order alongside ordereditems and payments */
+     select id, DATE_FORMAT(created_at, '%Y-%m-%d') docdate, docnum,
+			case when cardcode like 'R-%' then cardcode else 0 end customer_id, 
+            case when cardcode like 'R-%' then 0 else cardcode end cardcode, 
+            cardname, doctotal,  comment, returned, synced,
+            (select JSON_ARRAYAGG(JSON_OBJECT(
+			 'itemcode', itemcode, 
+			 'itemname', itemname, 
+			 'quantity', quantity, 
+			 'price', price, 
+			 'discount', discount, 
+			'warehouse', (select sapkey from store) ,
+			'serialnumber', serialnumber))  
+			from ordereditems where orderid = orderID) items,
+            (select JSON_ARRAYAGG(JSON_OBJECT(
+			 'amount', amount, 
+			 'paymenttype', paymenttype,
+			 'paymentdetails', paymentdetails)) 
+			 from payments where orderid = orderID) payments 
+             from orders where id = orderID;
+
+     END LOOP get_details;
+close order_cursor;
+END$$
+
+DELIMITER ;
 
 -- CUSTOMERS TRIGGER
 drop trigger if exists customer_insert_audit;

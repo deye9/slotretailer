@@ -200,8 +200,10 @@ func structToInsertUpdate(value interface{}, tableName string) string {
 				_Value[val] = "2038-01-19 03:14:07"
 			}
 
-			if strings.ToLower(val) == "serialNumbers" {
-
+			if strings.ToLower(val) == "synced" {
+				update += fmt.Sprintf(`%s = "%v", `, val, true)
+				cmdValues = append(cmdValues, fmt.Sprintf(`"%v", `, true))
+				continue
 			}
 
 			update += fmt.Sprintf(`%s = "%v", `, val, _Value[val])

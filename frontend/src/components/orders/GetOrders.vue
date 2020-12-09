@@ -15,7 +15,7 @@
         {{row.canceled}}
       </div>
       <div slot="doctotal" slot-scope="{row}">
-        ₦{{row.doctotal}}
+        {{ row.doctotal.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
       </div>
       <div slot="synced" slot-scope="{row}" style="text-transform: capitalize;">
         {{row.synced}}

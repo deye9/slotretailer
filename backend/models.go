@@ -6,17 +6,17 @@ import (
 
 // Products struct
 type Products struct {
-	ID           string   `json:"id,omitempty"`
-	ItemCode     string   `json:"itemcode,omitempty"` // 20
-	ItemName     string   `json:"itemname,omitempty"` // 100
-	CodeBars     string   `json:"codebars,omitempty"` // 254
-	OnHand       int      `json:"onhand,omitempty"`
-	MinLevel     int      `json:"minlevel,omitempty"`
-	Warehouse    string   `json:"warehouse,omitempty"`     // 8
-	SerialNumber []string `json:"serialnumbers,omitempty"` // 17
-	Manufacturer string   `json:"manufacturer,omitempty"`  //
-	Price        float32  `json:"price,omitempty"`
-	Vat          float32  `json:"vat,omitempty"`
+	ID           string          `json:"id,omitempty"`
+	ItemCode     string          `json:"itemcode,omitempty"` // 20
+	ItemName     string          `json:"itemname,omitempty"` // 100
+	CodeBars     string          `json:"codebars,omitempty"` // 254
+	OnHand       int             `json:"onhand,omitempty"`
+	MinLevel     int             `json:"minlevel,omitempty"`
+	Warehouse    string          `json:"warehouse,omitempty"`     // 8
+	SerialNumber string          `json:"serialnumbers,omitempty"` // 17
+	Manufacturer string          `json:"manufacturer,omitempty"`  //
+	Price        float32         `json:"price,omitempty"`
+	Vat          sql.NullFloat64 `json:"vat,omitempty"`
 }
 
 // Banks struct
@@ -67,13 +67,14 @@ type Orders struct {
 
 // OrderedItems struct
 type OrderedItems struct {
-	ID       int     `json:"id"`
-	OrderID  int     `json:"orderid"`
-	ItemCode string  `json:"itemcode"` // 20
-	ItemName string  `json:"itemname"` // 100
-	Price    float32 `json:"price"`
-	Quantity int     `json:"quantity"`
-	Discount float32 `json:"discount"`
+	ID           int     `json:"id"`
+	OrderID      int     `json:"orderid"`
+	ItemCode     string  `json:"itemcode"` // 20
+	ItemName     string  `json:"itemname"` // 100
+	Price        float32 `json:"price"`
+	Quantity     int     `json:"quantity"`
+	Discount     float32 `json:"discount"`
+	SerialNumber string  `json:"serialnumber"`
 }
 
 // Payments Struct
