@@ -35,6 +35,7 @@
         <a class="btn btn-primary btn-sm mr-2" title="Return Order" @click="returns(row)">
           <i class="bi bi-pencil-fill">&nbsp;</i>
           Return
+          <!-- Allow return if the difference btw the created_date and today is less than 7 days -->
         </a>
         <a class="btn btn-danger btn-sm" title="Delete Sales Order" @click="removeRow(row, event);" v-show="allowDelete">
           <i class="bi bi-trash-fill">&nbsp;</i>

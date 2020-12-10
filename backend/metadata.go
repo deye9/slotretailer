@@ -7,21 +7,43 @@ import (
 )
 
 // GetBanks returns an array of Banks
-func GetBanks() (banks []Banks, err error) {
+func GetBanks() (banks []CreditCards, err error) {
 	var rows *sql.Rows
 
-	if rows, err = Get(`select * from banks order by name;`); err != nil {
+	if rows, err = Get(`select * from creditcards order by name;`); err != nil {
 		CheckError("Error getting Banks.", err, false)
 		return nil, err
 	}
 
 	defer rows.Close()
 	for rows.Next() {
-		bank := Banks{}
+		bank := CreditCards{}
 		if err = rows.Scan(&bank.ID, &bank.Code, &bank.Name); err != nil {
 			CheckError("Error Scanning Banks.", err, false)
 		} else {
 			banks = append(banks, bank)
+		}
+	}
+
+	return
+}
+
+// GetPriceList returns an array of PriceList
+func GetPriceList() (pricelists []PriceList, err error) {
+	var rows *sql.Rows
+
+	if rows, err = Get(`select * from pricelist order by name;`); err != nil {
+		CheckError("Error getting Price List.", err, false)
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		pricelist := PriceList{}
+		if err = rows.Scan(&pricelist.ID, &pricelist.Code, &pricelist.Name); err != nil {
+			CheckError("Error Scanning Price List.", err, false)
+		} else {
+			pricelists = append(pricelists, pricelist)
 		}
 	}
 

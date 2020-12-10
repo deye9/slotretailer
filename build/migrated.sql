@@ -18,9 +18,15 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 CREATE TABLE IF NOT EXISTS banks (
-    `id`           INT AUTO_INCREMENT PRIMARY KEY,
-    `name`         VARCHAR(255) NOT NULL UNIQUE,
-    `code`         VARCHAR(255) NOT NULL
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    name         VARCHAR(255) NOT NULL UNIQUE,
+    code         VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pricelist (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    name         VARCHAR(255) NOT NULL UNIQUE,
+    code         VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS stores (
@@ -167,6 +173,10 @@ ALTER table store add column warehouses VARCHAR(255) NOT NULL;
 ALTER TABLE products MODIFY serialnumber TEXT NOT NULL;
 ALTER TABLE products RENAME column serialnumber to serialnumbers; 
 ALTER table ordereditems add column serialnumber VARCHAR(255) NOT NULL;
+ALTER table store rename column banks to creditcard;
+ALTER table store add column pricelist VARCHAR(255) NOT NULL;
+ALTER table store add column productpricelist VARCHAR(255) NOT NULL;
+ALTER TABLE banks RENAME TO creditcards;
 
 -- Default Reports
 REPLACE INTO reports (id, title, query, created_by) VALUES (1, "Todays Orders", "select id as order_id, docnum `Document Number`, canceled `Is Cancelled`, CardCode, CardName,  vatsum `VAT %`, concat('₦', format(doctotal, 2)) `Document Total`, case when Synced <> 0 then \"Yes\" else \"No\" END `Synced`, case when returned <> 0 then \"Yes\" else \"No\" END `Returned`, ifnull( (select concat(firstname, '  ', lastname) from users where users.id = o.discountapprovedby), 'Super Admin') `approved_by` from orders o where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
@@ -174,7 +184,7 @@ REPLACE INTO reports (id, title, query, created_by) VALUES (2, "Week's Top Selle
 REPLACE INTO reports (id, title, query, created_by) VALUES (3, "Todays Top Sellers", "select i.* from orders o inner join ordereditems i on o.id = i.orderid where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
 REPLACE INTO reports (id, title, query, created_by) VALUES (4, "Store Inventory Level", "select p.* from store s inner join products p on s.sapkey = p.warehouse;", 1);
 REPLACE INTO reports (id, title, query, created_by) VALUES (5, "Global Inventory Level", "select * from products p;", 1);
-INSERT INTO store (`id`,`name`,`address`,`phone`,`city`,`email`,`orders`,`products`,`customers`,`banks`,`sync_interval`,`sapkey`,`created_by`,`created_at`,`updated_at`,`deleted_at`,`logrotation`,`transfers`,`vat`,`warehouses`) VALUES (1,'New Store','Enter Store Address','080','Lagos','ikejastore@slot.com','http://197.255.32.34:5000/Orders','http://197.255.32.34:5000/Products','http://197.255.32.34:5000/Customers','http://197.255.32.34:5000/Banks',30,'2BMEDICA',1,'2020-12-08 21:46:36',NULL,NULL,'1','http://197.255.32.34:5000/Transfers',0,'http://197.255.32.34:5000/Warehouses');
+INSERT INTO store (`id`,`name`,`address`,`phone`,`city`,`email`,`orders`,`products`,`customers`,`creditcard`,`sync_interval`,`sapkey`,`created_by`,`created_at`,`updated_at`,`deleted_at`,`logrotation`,`transfers`,`vat`,`warehouses`, `pricelist`) VALUES (1,'New Store','Enter Store Address','080','Lagos','ikejastore@slot.com','http://197.255.32.34:5000/Orders','http://197.255.32.34:5000/Products','http://197.255.32.34:5000/Customers','http://197.255.32.34:5000/CreditCards',30,'2BMEDICA',1,'2020-12-08 21:46:36',NULL,NULL,'1','http://197.255.32.34:5000/Transfers',0,'http://197.255.32.34:5000/Warehouses', 'http://197.255.32.34:5000/pricelist');
 REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) VALUES ('super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true);
 
 -- REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');
@@ -211,8 +221,8 @@ BEGIN
 
      /* Get order alongside ordereditems and payments */
      select id, DATE_FORMAT(created_at, '%Y-%m-%d') docdate, docnum,
-			case when cardcode like 'R-%' then cardcode else 0 end customer_id, 
-            case when cardcode like 'R-%' then 0 else cardcode end cardcode, 
+			case when cardcode like 'R-%' then replace(cardcode, 'R-', '') else 0 end customer_id, 
+            case when cardcode like 'R-%' then 0 else replace(cardcode, 'R-', '') end cardcode,
             cardname, doctotal,  comment, returned, synced,
             (select JSON_ARRAYAGG(JSON_OBJECT(
 			 'itemcode', itemcode, 

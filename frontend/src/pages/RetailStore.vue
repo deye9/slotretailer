@@ -53,6 +53,13 @@
       </div>
 
       <div class="form-group col">
+        <label>Set Store Price List</label>
+        <select class="form-control form-control-sm" v-model="productpricelist" >
+          <option :key="price.id" :value="price.name" v-for="price in pricelistArray">{{ price.code }}</option>
+        </select>
+      </div>
+
+      <div class="form-group col">
         <label for="vatCheck">
           Allow VAT
         </label>
@@ -64,6 +71,7 @@
             <input type="hidden" name="canVat" id="canVat">
         </div>
       </div>
+
     </div>
 
     <div class="card mb-2">
@@ -90,8 +98,8 @@
           </div>
 
           <div class="form-group col">
-            <label for="banks">Banks API</label>
-            <input type="text" class="form-control form-control-sm" placeholder="Banks API" v-model="banks" />
+            <label for="banks">Credit Cards API</label>
+            <input type="text" class="form-control form-control-sm" placeholder="Banks API" v-model="creditcard" />
           </div>   
         </div>
 
@@ -107,6 +115,12 @@
           </div>
         </div>
 
+        <div class="form-row">
+          <div class="form-group col">
+            <label>Price List API</label>
+            <input type="text" class="form-control form-control-sm" placeholder="Price List API" v-model="pricelist" />
+          </div>
+        </div>
       </div>
     </div>
 
@@ -135,7 +149,6 @@ export default {
       vat: false,
       city: null,
       name: null,
-      banks: null,
       phone: null,
       email: null,
       orders: null,
@@ -144,31 +157,45 @@ export default {
       products: null,
       customers: null,
       transfers: null,
+      pricelist: null,
       warehouses: null,
+      creditcard: null,
       created_by: null,
       sync_interval: 5,
       logrotation: null,
+      pricelistArray: [],
+      productpricelist: null,
       buttontext: "Register Store",
     };
   },
   mounted() {
+    // Get all Product Price List
+    window.backend.GetPriceList().then((pricelistArray) => {
+      this.pricelistArray = pricelistArray;
+    }, (err) => {
+      this.$toast.error("Error! " + err);
+    });
+
+    // Get store details
     window.backend.GetStore().then((store) => {
       this.id = store.id;
       this.city = store.city;
       this.name = store.name;
-      this.banks = store.banks;
       this.phone = store.phone;
       this.email = store.email;
       this.sapkey = store.sapkey;
       this.orders = store.orders;
       this.address = store.address;
       this.products = store.products;
+      this.pricelist = store.pricelist;
       this.customers = store.customers;
       this.transfers = store.transfers;
       this.warehouses = store.warehouses;
+      this.creditcard = store.creditcard;
       this.logrotation = store.logrotation;
       this.sync_interval = store.sync_interval;
       this.created_by = this.$store.state.user.id;
+      this.productpricelist = store.productpricelist;
 
       if (this.id === 0) {
         this.buttontext = "Register Store";
@@ -207,19 +234,21 @@ export default {
         city: this.city,
         name: this.name,
         phone: this.phone,
-        banks: this.banks,
         email: this.email,
         sapkey: this.sapkey,
         orders: this.orders,
         address: this.address,
         products: this.products,
+        pricelist: this.pricelist,
         customers: this.customers,
         transfers: this.transfers,
         warehouses: this.warehouses,
+        creditcard: this.creditcard,
         updated_at: moment().format(),
         logrotation: this.logrotation,
         sync_interval: this.sync_interval,
         created_by: this.$store.state.user.id,
+        productpricelist: this.productpricelist,
       };
 
       // Validate the payload.

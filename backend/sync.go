@@ -31,16 +31,17 @@ func Sync() {
 		go rotateLogs()
 	}
 
-	if LocalStore.BanksAPI == "" || LocalStore.ProductsAPI == "" || LocalStore.CustomersAPI == "" {
+	if LocalStore.CreditCardAPI == "" || LocalStore.ProductsAPI == "" || LocalStore.CustomersAPI == "" {
 		CheckError("LocalStore endpoint missing.", errors.New("Missing endpoint from application"), false)
 		return
 	}
 
 	APIlinks["orders"] = LocalStore.OrdersAPI
-	APIlinks["banks"] = LocalStore.BanksAPI         // Ready
-	APIlinks["stores"] = LocalStore.WarehousesAPI   // Ready
-	APIlinks["products"] = LocalStore.ProductsAPI   // Ready
-	APIlinks["customers"] = LocalStore.CustomersAPI // POST ready and GET ready. How to get customers for other stores / across board.
+	APIlinks["stores"] = LocalStore.WarehousesAPI      // Ready
+	APIlinks["products"] = LocalStore.ProductsAPI      // Ready
+	APIlinks["customers"] = LocalStore.CustomersAPI    // POST ready and GET ready. How to get customers for other stores / across board.
+	APIlinks["pricelist"] = LocalStore.PricelistAPI    // Ready
+	APIlinks["creditcards"] = LocalStore.CreditCardAPI // Ready
 	// APIlinks["transfers"] = LocalStore.TransfersAPI // Get for other products on a need to basis.
 
 	duration := LocalStore.SyncInterval
@@ -76,15 +77,20 @@ func task(t time.Time) {
 
 	sendData()
 
-	// for key, link := range APIlinks {
-	// 	// Write the sync start details to the File System via a Goroutine.
-	// 	go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
+	for key, link := range APIlinks {
+		// Write the sync start details to the File System via a Goroutine.
+		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
 
-	// 	// Append the StoreID to the link
-	// 	link += "?storeID=" + LocalStore.SapKey
-	// 	getAllData(key, link, str)
-	// 	time.Sleep(2 * time.Second)
-	// }
+		// Append the StoreID to the link
+		link += "?storeID=" + LocalStore.SapKey
+
+		if key == "products" {
+			link += "&pricelist=" + LocalStore.ProductPriceList
+		}
+		
+		getAllData(key, link, str)
+		time.Sleep(2 * time.Second)
+	}
 }
 
 // sendData for Customers, Orders and Inventory Transfers
@@ -179,6 +185,7 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 	}
 	return
 }
+
 func interfaceToMap(val interface{}, message string) (mapped []map[string]interface{}) {
 
 	err := json.Unmarshal([]byte(fmt.Sprintf("%s", val)), &mapped)
@@ -225,8 +232,10 @@ func getAllData(key, link, str string) error {
 		response = []Products{}
 	} else if strings.ToLower(key) == "customers" {
 		response = []Customers{}
-	} else if strings.ToLower(key) == "banks" {
-		response = []Banks{}
+	} else if strings.ToLower(key) == "pricelist" {
+		response = []PriceList{}
+	} else if strings.ToLower(key) == "creditcards" {
+		response = []CreditCards{}
 	} else if strings.ToLower(key) == "transfers" {
 		response = []Transfers{}
 	}

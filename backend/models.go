@@ -19,8 +19,15 @@ type Products struct {
 	Vat          sql.NullFloat64 `json:"vat,omitempty"`
 }
 
-// Banks struct
-type Banks struct {
+// CreditCards struct
+type CreditCards struct {
+	ID   string `json:"id,omitempty"`
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
+
+// PriceList struct
+type PriceList struct {
 	ID   string `json:"id,omitempty"`
 	Code string `json:"code"`
 	Name string `json:"name"`
@@ -105,26 +112,28 @@ type Users struct {
 
 // Store struct
 type Store struct {
-	ID            int          `json:"id,omitempty"`
-	Name          string       `json:"name,omitempty"`    // 100
-	Address       string       `json:"address,omitempty"` // 100
-	Phone         string       `json:"phone,omitempty"`   // 20
-	City          string       `json:"city,omitempty"`    // 100
-	Email         string       `json:"email,omitempty"`   // 100
-	OrdersAPI     string       `json:"orders,omitempty"`
-	ProductsAPI   string       `json:"products,omitempty"`
-	CustomersAPI  string       `json:"customers,omitempty"`
-	BanksAPI      string       `json:"banks,omitempty"`
-	TransfersAPI  string       `json:"transfers,omitempty"`
-	SyncInterval  int          `json:"sync_interval,omitempty"`
-	SapKey        string       `json:"sapkey,omitempty"`
-	LogRotation   string       `json:"logrotation,omitempty"`
-	AllowVAT      bool         `json:"vat"`
-	WarehousesAPI string       `json:"warehouses,omitempty"`
-	CreatedBy     int          `json:"created_by,omitempty"`
-	CreatedAt     sql.NullTime `json:"created_at,omitempty"`
-	UpdatedAt     sql.NullTime `json:"updated_at,omitempty"`
-	DeletedAt     sql.NullTime `json:"deleted_at,omitempty"`
+	ID               int          `json:"id,omitempty"`
+	Name             string       `json:"name,omitempty"`    // 100
+	Address          string       `json:"address,omitempty"` // 100
+	Phone            string       `json:"phone,omitempty"`   // 20
+	City             string       `json:"city,omitempty"`    // 100
+	Email            string       `json:"email,omitempty"`   // 100
+	OrdersAPI        string       `json:"orders,omitempty"`
+	ProductsAPI      string       `json:"products,omitempty"`
+	CustomersAPI     string       `json:"customers,omitempty"`
+	CreditCardAPI    string       `json:"creditcard,omitempty"`
+	TransfersAPI     string       `json:"transfers,omitempty"`
+	SyncInterval     int          `json:"sync_interval,omitempty"`
+	SapKey           string       `json:"sapkey,omitempty"`
+	LogRotation      string       `json:"logrotation,omitempty"`
+	AllowVAT         bool         `json:"vat"`
+	WarehousesAPI    string       `json:"warehouses,omitempty"`
+	PricelistAPI     string       `json:"pricelist,omitempty"`
+	ProductPriceList string       `json:"productpricelist,omitempty"`
+	CreatedBy        int          `json:"created_by,omitempty"`
+	CreatedAt        sql.NullTime `json:"created_at,omitempty"`
+	UpdatedAt        sql.NullTime `json:"updated_at,omitempty"`
+	DeletedAt        sql.NullTime `json:"deleted_at,omitempty"`
 }
 
 // SearchResult struct

@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// 1. 7 days return policy
+
 // ProductDetails returns a instance belonging to the Product id passed in
 func ProductDetails(id int) (product Products, err error) {
 	var rows *sql.Rows

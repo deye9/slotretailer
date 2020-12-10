@@ -17,7 +17,7 @@ func GetStore() (store Store, err error) {
 
 	defer rows.Close()
 	for rows.Next() {
-		if err = rows.Scan(&store.ID, &store.Name, &store.Address, &store.Phone, &store.City, &store.Email, &store.OrdersAPI, &store.ProductsAPI, &store.CustomersAPI, &store.BanksAPI, &store.SyncInterval, &store.SapKey, &store.CreatedBy, &store.CreatedAt, &store.UpdatedAt, &store.DeletedAt, &store.LogRotation, &store.TransfersAPI, &store.AllowVAT, &store.WarehousesAPI); err != nil {
+		if err = rows.Scan(&store.ID, &store.Name, &store.Address, &store.Phone, &store.City, &store.Email, &store.OrdersAPI, &store.ProductsAPI, &store.CustomersAPI, &store.CreditCardAPI, &store.SyncInterval, &store.SapKey, &store.CreatedBy, &store.CreatedAt, &store.UpdatedAt, &store.DeletedAt, &store.LogRotation, &store.TransfersAPI, &store.AllowVAT, &store.WarehousesAPI, &store.PricelistAPI, &store.ProductPriceList); err != nil {
 			CheckError("Error Scanning store.", err, false)
 		} else {
 			LocalStore = store
@@ -48,7 +48,7 @@ func SaveStore(store map[string]interface{}) (id int64, err error) {
 	return
 }
 
-// GetStores returns an array of Banks
+// GetStores returns an array of Stores
 func GetStores() (stores []Stores, err error) {
 	var rows *sql.Rows
 
