@@ -50,6 +50,28 @@ func GetPriceList() (pricelists []PriceList, err error) {
 	return
 }
 
+// GetCashAccounts returns an array of Cash Accounts
+func GetCashAccounts() (cashaccounts []CashAccounts, err error) {
+	var rows *sql.Rows
+
+	if rows, err = Get(`select * from CashAccounts order by name;`); err != nil {
+		CheckError("Error getting Cash Accounts.", err, false)
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		cashaccount := CashAccounts{}
+		if err = rows.Scan(&cashaccount.ID, &cashaccount.Code, &cashaccount.Name); err != nil {
+			CheckError("Error Scanning Cash Accounts.", err, false)
+		} else {
+			cashaccounts = append(cashaccounts, cashaccount)
+		}
+	}
+
+	return
+}
+
 // PaymentOnOrder returns the payment on the order
 func PaymentOnOrder(orderID int) (payments []Payments, err error) {
 	var rows *sql.Rows

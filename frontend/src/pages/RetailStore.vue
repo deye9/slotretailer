@@ -53,13 +53,6 @@
       </div>
 
       <div class="form-group col">
-        <label>Set Store Price List</label>
-        <select class="form-control form-control-sm" v-model="productpricelist" >
-          <option :key="price.id" :value="price.name" v-for="price in pricelistArray">{{ price.code }}</option>
-        </select>
-      </div>
-
-      <div class="form-group col">
         <label for="vatCheck">
           Allow VAT
         </label>
@@ -72,6 +65,22 @@
         </div>
       </div>
 
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label>Set Store Price List</label>
+        <select class="form-control form-control-sm" v-model="productpricelist" >
+          <option :key="price.id" :value="price.name" v-for="price in pricelistArray">{{ price.code }}</option>
+        </select>
+      </div>
+
+      <div class="form-group col">
+        <label>Set Store Cash Account</label>
+        <select class="form-control form-control-sm" v-model="storecashaccount" >
+          <option :key="acct.id" :value="acct.name" v-for="acct in cashaccounts">{{ acct.code }}</option>
+        </select>
+      </div>
     </div>
 
     <div class="card mb-2">
@@ -120,6 +129,11 @@
             <label>Price List API</label>
             <input type="text" class="form-control form-control-sm" placeholder="Price List API" v-model="pricelist" />
           </div>
+
+          <div class="form-group col">
+            <label>Cash Account API</label>
+            <input type="text" class="form-control form-control-sm" placeholder="Cash Account API" v-model="cashaccount" />
+          </div>
         </div>
       </div>
     </div>
@@ -158,13 +172,16 @@ export default {
       customers: null,
       transfers: null,
       pricelist: null,
+      cashaccount: null,
       warehouses: null,
       creditcard: null,
       created_by: null,
       sync_interval: 5,
       logrotation: null,
+      cashaccounts: [],
       pricelistArray: [],
       productpricelist: null,
+      storecashaccount: null,
       buttontext: "Register Store",
     };
   },
@@ -172,6 +189,13 @@ export default {
     // Get all Product Price List
     window.backend.GetPriceList().then((pricelistArray) => {
       this.pricelistArray = pricelistArray;
+    }, (err) => {
+      this.$toast.error("Error! " + err);
+    });
+
+    // Get all Cash Accounts
+    window.backend.GetCashAccounts().then((cashaccounts) => {
+      this.cashaccounts = cashaccounts;
     }, (err) => {
       this.$toast.error("Error! " + err);
     });
@@ -193,9 +217,11 @@ export default {
       this.warehouses = store.warehouses;
       this.creditcard = store.creditcard;
       this.logrotation = store.logrotation;
+      this.cashaccount = store.cashaccount;
       this.sync_interval = store.sync_interval;
       this.created_by = this.$store.state.user.id;
       this.productpricelist = store.productpricelist;
+      this.storecashaccount = store.storecashaccount;
 
       if (this.id === 0) {
         this.buttontext = "Register Store";
@@ -246,9 +272,11 @@ export default {
         creditcard: this.creditcard,
         updated_at: moment().format(),
         logrotation: this.logrotation,
+        cashaccount: this.cashaccount,
         sync_interval: this.sync_interval,
         created_by: this.$store.state.user.id,
         productpricelist: this.productpricelist,
+        storecashaccount: this.storecashaccount,
       };
 
       // Validate the payload.

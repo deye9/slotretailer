@@ -26,6 +26,13 @@ type CreditCards struct {
 	Name string `json:"name"`
 }
 
+// CashAccounts struct
+type CashAccounts struct {
+	ID   string `json:"id,omitempty"`
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
+
 // PriceList struct
 type PriceList struct {
 	ID   string `json:"id,omitempty"`
@@ -130,6 +137,8 @@ type Store struct {
 	WarehousesAPI    string       `json:"warehouses,omitempty"`
 	PricelistAPI     string       `json:"pricelist,omitempty"`
 	ProductPriceList string       `json:"productpricelist,omitempty"`
+	CashAccountAPI   string       `json:"cashaccount,omitempty"`
+	StoreCashAccount string       `json:"storecashaccount,omitempty"`
 	CreatedBy        int          `json:"created_by,omitempty"`
 	CreatedAt        sql.NullTime `json:"created_at,omitempty"`
 	UpdatedAt        sql.NullTime `json:"updated_at,omitempty"`

@@ -62,6 +62,7 @@ export default {
   },
   mounted() {
     this.$refs.myTable.setLoadingState(true);
+
     window.backend.GetOrders().then((orders) => {
       if (JSON.stringify(orders) === "{}" || orders === null) {
         this.$refs.myTable.setLoadingState(false);
@@ -93,8 +94,7 @@ export default {
       // Set the dataSource
       this.data = orders;
       this.$refs.myTable.setLoadingState(false);
-    },
-    (err) => {
+    }, (err) => {
       this.$toast.error("Error! " + err);
       this.$refs.myTable.setLoadingState(false);
     });

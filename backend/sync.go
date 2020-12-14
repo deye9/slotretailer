@@ -36,13 +36,14 @@ func Sync() {
 		return
 	}
 
-	APIlinks["orders"] = LocalStore.OrdersAPI
-	APIlinks["stores"] = LocalStore.WarehousesAPI      // Ready
-	APIlinks["products"] = LocalStore.ProductsAPI      // Ready
-	APIlinks["customers"] = LocalStore.CustomersAPI    // POST ready and GET ready. How to get customers for other stores / across board.
-	APIlinks["pricelist"] = LocalStore.PricelistAPI    // Ready
-	APIlinks["creditcards"] = LocalStore.CreditCardAPI // Ready
-	// APIlinks["transfers"] = LocalStore.TransfersAPI // Get for other products on a need to basis.
+	APIlinks["orders"] = LocalStore.OrdersAPI            // WIP
+	APIlinks["stores"] = LocalStore.WarehousesAPI        // Ready
+	APIlinks["products"] = LocalStore.ProductsAPI        // Ready
+	APIlinks["customers"] = LocalStore.CustomersAPI      // POST ready and GET ready. How to get customers for other stores / across board.
+	APIlinks["pricelist"] = LocalStore.PricelistAPI      // Ready
+	APIlinks["creditcards"] = LocalStore.CreditCardAPI   // Ready
+	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI // Ready
+	// // APIlinks["transfers"] = LocalStore.TransfersAPI // Get for other products on a need to basis.
 
 	duration := LocalStore.SyncInterval
 	if duration == 0 {
@@ -87,7 +88,7 @@ func task(t time.Time) {
 		if key == "products" {
 			link += "&pricelist=" + LocalStore.ProductPriceList
 		}
-		
+
 		getAllData(key, link, str)
 		time.Sleep(2 * time.Second)
 	}
@@ -96,13 +97,18 @@ func task(t time.Time) {
 // sendData for Customers, Orders and Inventory Transfers
 func sendData() (err error) {
 	for _, value := range apikeys {
+
 		SQLquery := ""
 		key := value
 		url := APIlinks[value]
 
+		if url == "" {
+			continue
+		}
+
 		switch value {
 		case "customers":
-			SQLquery = "select id, cardname, address, phone, phone1, city, email, synced from customers where synced = false and deleted_at is null;"
+			SQLquery = "select id, cardname, address, phone, phone1, city, email, synced, created_by from customers where synced = false and deleted_at is null;"
 
 		case "orders":
 			SQLquery = "call getOrders()"
@@ -148,6 +154,7 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 		for i, val := range values {
 			if strings.ToLower(columns[i]) == "id" {
 				id += fmt.Sprintf("%s, ", val)
+				resultMap[columns[i]] = fmt.Sprintf("%s", val)
 			} else if strings.ToLower(columns[i]) == "synced" {
 				resultMap[columns[i]] = true
 			} else if strings.ToLower(columns[i]) == "returned" {
@@ -198,6 +205,7 @@ func interfaceToMap(val interface{}, message string) (mapped []map[string]interf
 // httppost to post the data to the server
 func httppost(url, payload, successcommand string) (status string, data []byte, err error) {
 	method := "POST"
+
 	requestBody := strings.NewReader(payload)
 
 	client := &http.Client{}
@@ -213,8 +221,7 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 	status = res.Status
 	data, err = ioutil.ReadAll(res.Body)
 
-	fmt.Println(string(data))
-	if status == "200 OK" {
+	if status == "204 No Content" {
 		Modify(successcommand)
 	}
 
@@ -236,6 +243,8 @@ func getAllData(key, link, str string) error {
 		response = []PriceList{}
 	} else if strings.ToLower(key) == "creditcards" {
 		response = []CreditCards{}
+	} else if strings.ToLower(key) == "cashaccounts" {
+		response = []CashAccounts{}
 	} else if strings.ToLower(key) == "transfers" {
 		response = []Transfers{}
 	}
@@ -245,9 +254,15 @@ func getAllData(key, link, str string) error {
 		return err
 	}
 
+	if len(response.([]interface{})) <= 0 {
+		// Write the sync start details to the File System via a Goroutine.
+		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" finished at "+time.Now().String()+"\n"))
+		return nil
+	}
+
 	cmd = structToInsertUpdate(response, key)
 	if err = Modify(cmd); err != nil {
-		CheckError("Error saving HTTPGET result. ", err, false)
+		CheckError("Error saving HTTPGET for "+key+" result. "+cmd+" \n", err, false)
 		return err
 	}
 
@@ -302,28 +317,6 @@ func GetLog(id string) (fileContent string, err error) {
 	}
 
 	return string(fileInfo), nil
-}
-
-func sapAuthenticate() {
-	url := "https://197.255.32.34:50000/b1s/v1/Login"
-	method := "POST"
-
-	payload := strings.NewReader("{\n    \"CompanyDB\": \"SlotTESTDB\",\n    \"UserName\": \"Tech1\",\n    \"Password\": \"P@ss0123\"\n}")
-
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, payload)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Cookie", "B1SESSION=66f5ed8a-0bb5-11eb-8000-00155d0abe08; ROUTEID=.node7")
-
-	res, err := client.Do(req)
-	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-
-	fmt.Println(string(body))
 }
 
 // rotateLogs rotates the sync logs based on the configured Frequency
@@ -381,13 +374,3 @@ func rotateLogs() {
 		}
 	}
 }
-
-// Data to send
-
-// 1. Unsynced Customers
-// 2. Unsynced Orders
-// 3. Unsynced Transfers
-
-// select * from customers where deleted_at is null and synced = false;
-// select * from orders o  inner join ordereditems i on o.id = i.orderid where deleted_at is null and synced = false;
-// select * from transfers t  inner join transfereditems i on t.id = i.transferid where deleted_at is null and synced = false;
