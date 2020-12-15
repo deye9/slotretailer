@@ -193,9 +193,11 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 	jsonStr := string(payload)
 
 	if jsonStr != "null" {
-		// Remove the last ", " from the ID string and generate the update command
-		cmd := "UPDATE " + key + " SET synced = true WHERE id IN (" + strings.TrimRight(id, ", ") + ");"
-		_, _, _ = httppost(url, jsonStr, cmd)
+		fmt.Println("Payload is: ", jsonStr)
+
+		// // Remove the last ", " from the ID string and generate the update command
+		// cmd := "UPDATE " + key + " SET synced = true WHERE id IN (" + strings.TrimRight(id, ", ") + ");"
+		// _, _, _ = httppost(url, jsonStr, cmd)
 	}
 	return
 }
@@ -212,7 +214,6 @@ func interfaceToMap(val interface{}, message string) (mapped []map[string]interf
 // httppost to post the data to the server
 func httppost(url, payload, successcommand string) (status string, data []byte, err error) {
 	method := "POST"
-	fmt.Println("Payload is: ", payload)
 	requestBody := strings.NewReader(payload)
 
 	client := &http.Client{}
@@ -228,7 +229,7 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 	status = res.Status
 	data, err = ioutil.ReadAll(res.Body)
 
-	if status == "204 No Content" {
+	if status == "200 OK" {
 		Modify(successcommand)
 	}
 

@@ -15,7 +15,7 @@ func main() {
 	// Get the store details
 	service.GetStore()
 
-	// go service.Sync()
+	go service.Sync()
 
 	js := mewn.String("./frontend/dist/app.js")
 	css := mewn.String("./frontend/dist/app.css")

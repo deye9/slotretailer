@@ -31,28 +31,6 @@
       <div class="card-body">
         <div class="form-row">
           <div class="form-group col">
-            <label for="city">City</label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
-              placeholder="City"
-              v-model="city"
-              required
-            />
-          </div>
-          <div class="form-group col">
-            <label for="address">Contact Address</label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
-              placeholder="Contact Address"
-              v-model="address"
-              required
-            />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group col">
             <label for="phone1">
               Phone Number 1
               <span style="color: red">*</span>
@@ -68,6 +46,19 @@
               required
             />
           </div>
+
+          <div class="form-group col">
+            <label for="address">Contact Address</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="Contact Address"
+              v-model="address"
+              required
+            />
+          </div>
+        </div>
+        <div class="form-row">
           <div class="form-group col">
             <label for="phone2">Phone Number 2</label>
             <input
@@ -78,6 +69,16 @@
               placeholder="Phone Number"
               v-model="phone1"
               @blur="handleBlur"
+              required
+            />
+          </div>
+          <div class="form-group col">
+            <label for="city">City</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="City"
+              v-model="city"
               required
             />
           </div>
@@ -110,6 +111,7 @@ export default {
   },
   methods: {
     handleBlur() {
+      alert(111);
       if (this.phone.charAt(0) === "0") {
         this.phone = this.phone.replace("0", "+234");
       }
@@ -133,8 +135,7 @@ export default {
           this.created_by = this.$store.state.user.id;
           document.getElementById("register").disabled = true;
         }
-      },
-      (err) => {
+      }, (err) => {
         this.$toast.error("Error! " + err);
       });
     },

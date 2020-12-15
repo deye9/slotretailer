@@ -446,7 +446,7 @@ export default {
         this.serialnumbers = this.item.serialnumbers.substring(1, this.item.serialnumbers.length-1).split(" ");
         $('#serialsModal').modal('show');
       } else {
-        this.items[rowIndex].serialnumber = ""; 
+        this.items[rowIndex].serialnumber = "";
       }
 
       // Calculate the totals [invoice subtotal, grand total, vat]
@@ -727,12 +727,19 @@ export default {
 
       // Loop through the array and perform all needed calculations
       this.items.forEach(element => {
+        let serial = "";
+        if (element.serialnumber === "") {
+          serial = "null";
+        } else {
+          serial = element.serialnumber;
+        }
+
         let orderItem = {
           orderid: null,
+          serialnumber: serial,
           itemname: element.itemname,
           itemcode: element.itemcode,
           quantity: element.quantity,
-          serialnumber: element.serialnumber,
           price: element.price.replace("₦", ""),
           discount: element.discount.replace("₦", ""),
         };

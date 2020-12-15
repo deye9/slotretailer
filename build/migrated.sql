@@ -208,48 +208,24 @@ DELIMITER $$
 USE `retail`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getOrders`()
 BEGIN
-	declare orderID integer;
-	declare finished integer default 0;
-    
-    declare order_cursor cursor for
-        select id from orders where synced = false and canceled = false;
-
-	/* declare not found handler*/
-	declare continue handler
-	for not found set finished = 1;
-
-	 open order_cursor;
-
-	get_details : LOOP
-     fetch order_cursor into orderID;
-
-      if finished = 1 THEN
-      leave get_details;
-      end if;
-
-     /* Get order alongside ordereditems and payments */
-     select id, DATE_FORMAT(created_at, '%Y-%m-%d') docdate, docnum,
-			case when cardcode like 'R-%' then replace(cardcode, 'R-', '') else 0 end customer_id, 
-            case when cardcode like 'R-%' then 0 else replace(cardcode, 'R-', '') end cardcode,
-            cardname, doctotal,  comment, returned, synced,
-            (select JSON_ARRAYAGG(JSON_OBJECT(
-			 'itemcode', itemcode, 
-			 'itemname', itemname, 
-			 'quantity', quantity, 
-			 'price', price, 
-			 'discount', discount, 
-			'warehouse', (select sapkey from store) ,
-			'serialnumber', serialnumber))  
-			from ordereditems where orderid = orderID) items,
-            (select JSON_ARRAYAGG(JSON_OBJECT(
-			 'amount', amount, 
-			 'paymenttype', paymenttype,
-			 'paymentdetails', case when lower(paymenttype) = 'cash' then (select storecashaccount from store) else paymentdetails end))
-			 from payments where orderid = orderID) payments 
-             from orders where id = orderID;
-
-     END LOOP get_details;
-close order_cursor;
+	select id, id customer_id, DATE_FORMAT(created_at, '%Y-%m-%d') docdate, docnum,
+    case when cardcode like 'R-%' then replace(cardcode, 'R-', '') else cardcode end cardcode, 
+    cardname, doctotal,  comment, returned, synced, created_by,
+    (select JSON_ARRAYAGG(JSON_OBJECT(
+        'itemcode', itemcode, 
+        'itemname', itemname, 
+        'quantity', quantity, 
+        'price', price, 
+        'discount', discount, 
+    'warehouse', (select sapkey from store) ,
+    'serialnumber', serialnumber))  
+    from ordereditems where orderid = o.id) items,
+    (select JSON_ARRAYAGG(JSON_OBJECT(
+        'amount', amount, 
+        'paymenttype', paymenttype,
+        'paymentdetails', case when lower(paymenttype) = 'cash' then (select storecashaccount from store) else paymentdetails end )) 
+        from payments where orderid = o.id) payments 
+        from orders o where id in (select id from orders where synced = false and canceled = false);
 END$$
 
 DELIMITER ;
