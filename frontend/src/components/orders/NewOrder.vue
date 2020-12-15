@@ -53,9 +53,7 @@
             <th scope="row">{{ i + 1 }}</th>
             <td>{{ item.itemcode }}</td>
             <td>
-              <!-- <v-select label="itemname" @input="(val) => itemSelected(val, i)" @search="(search, loading) => fetchProduct(search, loading, i)" v-model="item.itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select> -->
               <v-select label="itemname" @input="(val) => itemSelected(val, i)" v-model="item.itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
-              <!-- :filter-by="(option, label, search) => myFilter(option, label, search, i)" -->
             </td>
             <td>{{ item.serialnumber }}</td>
             <td>

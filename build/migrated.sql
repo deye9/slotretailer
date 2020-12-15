@@ -244,7 +244,7 @@ BEGIN
             (select JSON_ARRAYAGG(JSON_OBJECT(
 			 'amount', amount, 
 			 'paymenttype', paymenttype,
-			 'paymentdetails', paymentdetails)) 
+			 'paymentdetails', case when lower(paymenttype) = 'cash' then (select storecashaccount from store) else paymentdetails end))
 			 from payments where orderid = orderID) payments 
              from orders where id = orderID;
 

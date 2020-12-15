@@ -43,7 +43,7 @@ func Sync() {
 	APIlinks["pricelist"] = LocalStore.PricelistAPI      // Ready
 	APIlinks["creditcards"] = LocalStore.CreditCardAPI   // Ready
 	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI // Ready
-	// // APIlinks["transfers"] = LocalStore.TransfersAPI // Get for other products on a need to basis.
+	// APIlinks["transfers"] = LocalStore.TransfersAPI // Get for other products on a need to basis.
 
 	duration := LocalStore.SyncInterval
 	if duration == 0 {
@@ -168,6 +168,12 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 				resultMap[columns[i]] = interfaceToMap(val, "ordered items")
 			} else if strings.ToLower(columns[i]) == "payments" {
 				resultMap[columns[i]] = interfaceToMap(val, "payment")
+			} else if strings.ToLower(columns[i]) == "comment" {
+				if val == nil {
+					resultMap[columns[i]] = ""
+				} else {
+					resultMap[columns[i]] = fmt.Sprintf("%s", val)
+				}
 			} else {
 				resultMap[columns[i]] = fmt.Sprintf("%s", val)
 			}
@@ -185,6 +191,7 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 	}
 
 	jsonStr := string(payload)
+
 	if jsonStr != "null" {
 		// Remove the last ", " from the ID string and generate the update command
 		cmd := "UPDATE " + key + " SET synced = true WHERE id IN (" + strings.TrimRight(id, ", ") + ");"
@@ -205,7 +212,7 @@ func interfaceToMap(val interface{}, message string) (mapped []map[string]interf
 // httppost to post the data to the server
 func httppost(url, payload, successcommand string) (status string, data []byte, err error) {
 	method := "POST"
-
+	fmt.Println("Payload is: ", payload)
 	requestBody := strings.NewReader(payload)
 
 	client := &http.Client{}
@@ -262,7 +269,7 @@ func getAllData(key, link, str string) error {
 
 	cmd = structToInsertUpdate(response, key)
 	if err = Modify(cmd); err != nil {
-		CheckError("Error saving HTTPGET for "+key+" result. "+cmd+" \n", err, false)
+		CheckError("Error saving HTTPGET for "+key+" result.", err, false)
 		return err
 	}
 
