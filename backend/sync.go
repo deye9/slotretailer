@@ -36,13 +36,15 @@ func Sync() {
 		return
 	}
 
-	APIlinks["orders"] = LocalStore.OrdersAPI            // WIP
-	APIlinks["stores"] = LocalStore.WarehousesAPI        // Ready
-	APIlinks["products"] = LocalStore.ProductsAPI        // Ready
-	APIlinks["customers"] = LocalStore.CustomersAPI      // POST ready and GET ready. How to get customers for other stores / across board.
-	APIlinks["pricelist"] = LocalStore.PricelistAPI      // Ready
-	APIlinks["creditcards"] = LocalStore.CreditCardAPI   // Ready
-	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI // Ready
+	APIlinks["orders"] = LocalStore.OrdersAPI             // WIP
+	APIlinks["stores"] = LocalStore.WarehousesAPI         // Ready
+	APIlinks["cheques"] = LocalStore.ChequesAPI           // Ready
+	APIlinks["products"] = LocalStore.ProductsAPI         // Ready
+	APIlinks["customers"] = LocalStore.CustomersAPI       // POST ready and GET ready. How to get customers for other stores / across board.
+	APIlinks["pricelist"] = LocalStore.PricelistAPI       // Ready
+	APIlinks["creditcards"] = LocalStore.CreditCardAPI    // Ready
+	APIlinks["banktransfer"] = LocalStore.BankTransferAPI // Ready
+	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI  // Ready
 	// APIlinks["transfers"] = LocalStore.TransfersAPI // Get for other products on a need to basis.
 
 	duration := LocalStore.SyncInterval
@@ -193,11 +195,9 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 	jsonStr := string(payload)
 
 	if jsonStr != "null" {
-		fmt.Println("Payload is: ", jsonStr)
-
-		// // Remove the last ", " from the ID string and generate the update command
-		// cmd := "UPDATE " + key + " SET synced = true WHERE id IN (" + strings.TrimRight(id, ", ") + ");"
-		// _, _, _ = httppost(url, jsonStr, cmd)
+		// Remove the last ", " from the ID string and generate the update command
+		cmd := "UPDATE " + key + " SET synced = true WHERE id IN (" + strings.TrimRight(id, ", ") + ");"
+		_, _, _ = httppost(url, jsonStr, cmd)
 	}
 	return
 }
@@ -243,6 +243,10 @@ func getAllData(key, link, str string) error {
 
 	if strings.ToLower(key) == "orders" {
 		response = []Orders{}
+	} else if strings.ToLower(key) == "cheques" {
+		response = []Cheques{}
+	} else if strings.ToLower(key) == "banktransfer" {
+		response = []BankTransfer{}
 	} else if strings.ToLower(key) == "products" {
 		response = []Products{}
 	} else if strings.ToLower(key) == "customers" {

@@ -14,7 +14,6 @@ func main() {
 
 	// Get the store details
 	service.GetStore()
-
 	go service.Sync()
 
 	js := mewn.String("./frontend/dist/app.js")
@@ -77,7 +76,7 @@ func main() {
 	// Metadata Collection / Application Utilities
 	app.Bind(service.Login)
 	app.Bind(service.Search)
-	app.Bind(service.GetBanks)
+	app.Bind(service.GetPaymentDetails)
 	app.Bind(service.GetPriceList)
 	app.Bind(service.GetAuditLog)
 	app.Bind(service.GetAuditLogs)

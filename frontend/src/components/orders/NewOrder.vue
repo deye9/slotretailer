@@ -209,7 +209,7 @@
                     <tr>
                       <th scope="col">#</th>
                       <th scope="col">Payment Method</th>
-                      <th scope="col">Bank Used</th>
+                      <th scope="col">Payment Details</th>
                       <th scope="col">Amount Paid</th>
                       <th></th>
                     </tr>
@@ -222,16 +222,19 @@
                           <option value="null" selected>Select Payment Method</option>
                           <option>Cash</option>
                           <option>POS</option>
-                          <option>Matrix</option>
-                          <option>EasyBuy</option>
-                          <option>Credpal</option>
+                          <option>Cheque</option>
                           <option>Bank Transfer</option>
                         </select>
                       </td>
                       <td>
-                        <select disabled="true" class="form-control form-control-sm" v-model="payment.bank" @change="setBank($event, i)">
-                          <option value="null" selected>Select Inflow Bank</option>
-                          <option :key="bank.id" :value="bank.name" v-for="bank in banks">{{ bank.code }}</option>
+                        <select disabled="true" :id="'pdet' + i" class="form-control form-control-sm" v-model="payment.bank" @change="setDetail($event, i)">
+                          <option value="null" selected>Select Inflow Details</option>
+                          <optgroup :key="'k_' + name" :id="'k_' + name" v-for="(group, name) in paymentDetails" :label="name">
+                            <option :key="option.id" v-for="option in group" :value="option.code">
+                              {{ option.name }}
+                            </option>
+                          </optgroup>
+                          <!-- <option :key="detail.id" :value="detail.code" v-for="detail in details">{{ detail.name }}</option> -->
                         </select>
                       </td>
                       <td>
@@ -290,7 +293,6 @@ export default {
       canVat: false,
       isAdmin: false,
       
-      banks: [],
       items: [],
       order: {},
       item: null,
@@ -310,6 +312,7 @@ export default {
       grandTotal: '0.00',
       balanceDue: '0.00',
       paymentcolumns: [],
+      paymentDetails: {},
       currentDate: moment().format("Do of MMMM YYYY"),
       dateColumns:['created_at','updated_at', 'deleted_at'],
     };
@@ -347,12 +350,14 @@ export default {
       this.$toast.error("Error! " + err);
     });
 
-    // Get all banks
-    window.backend.GetBanks().then((banks) => {
-      this.banks = banks;
+    // Get all Payment Details
+    window.backend.GetPaymentDetails().then((PaymentDetails) => {
+      this.paymentDetails = {};
+      this.paymentDetails["pos"] = PaymentDetails[0]["pos"];
+      this.paymentDetails["cheque"] = PaymentDetails[0]["cheque"];
+      this.paymentDetails["banktransfer"] = PaymentDetails[0]["banktransfer"];
       this.addRow();
-    },
-    (err) => {
+    }, (err) => {
       this.$toast.error("Error! " + err);
     });
   },
@@ -605,7 +610,7 @@ export default {
       this.balanceDue = parseFloat(this.grandTotal - this.amtPaid).toFixed(2);
     },
     // Payment Section
-    async setBank(event, index) {
+    async setDetail(event, index) {
       this.payments[index].name = event.target.value;
     },
     async paymentMethod(event, index) {
@@ -616,9 +621,39 @@ export default {
       bank.disabled = true;
       amt.disabled = false;
 
-      if (ctrl.toLowerCase() === "pos" || ctrl.toLowerCase() === "bank transfer") {
-        // Display list of banks for selection and allow for value entry.
-        bank.disabled = false;
+      // console.log(PaymentDetails[0].cheques)
+      // cheques
+      // creditcards
+      // banktransfer
+
+      //////details
+
+      bank.disabled = false;
+      switch (ctrl.toLowerCase()) {
+        case "pos":
+          $(`#${bank.id} optgroup#k_pos`).removeAttr('disabled');
+          $(`#${bank.id} optgroup#k_cheque`).attr('disabled','disabled');
+          $(`#${bank.id} optgroup#k_banktransfer`).attr('disabled','disabled');
+          break;
+
+        case "bank transfer":
+          $(`#${bank.id} optgroup#k_pos`).attr('disabled','disabled');
+          $(`#${bank.id} optgroup#k_cheque`).attr('disabled','disabled');
+          $(`#${bank.id} optgroup#k_banktransfer`).removeAttr('disabled');
+          break;
+
+        case "cheque":
+          $(`#${bank.id} optgroup#k_cheque`).removeAttr('disabled');
+          $(`#${bank.id} optgroup#k_pos`).attr('disabled','disabled');
+          $(`#${bank.id} optgroup#k_banktransfer`).attr('disabled','disabled');
+          break;
+      
+        default:
+          bank.disabled = true;
+          $(`#${bank.id} optgroup#k_pos`).attr('disabled','disabled');
+          $(`#${bank.id} optgroup#k_cheque`).attr('disabled','disabled');
+          $(`#${bank.id} optgroup#k_banktransfer`).attr('disabled','disabled');
+          break;
       }
 
       await this.addRow(index);

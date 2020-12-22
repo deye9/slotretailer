@@ -33,6 +33,20 @@ type CashAccounts struct {
 	Name string `json:"name"`
 }
 
+// Cheques struct
+type Cheques struct {
+	ID   string `json:"id,omitempty"`
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
+
+// BankTransfer struct
+type BankTransfer struct {
+	ID   string `json:"id,omitempty"`
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
+
 // PriceList struct
 type PriceList struct {
 	ID   string `json:"id,omitempty"`
@@ -139,6 +153,8 @@ type Store struct {
 	ProductPriceList string       `json:"productpricelist,omitempty"`
 	CashAccountAPI   string       `json:"cashaccount,omitempty"`
 	StoreCashAccount string       `json:"storecashaccount,omitempty"`
+	BankTransferAPI  string       `json:"banktransfer,omitempty"`
+	ChequesAPI       string       `json:"cheques,omitempty"`
 	CreatedBy        int          `json:"created_by,omitempty"`
 	CreatedAt        sql.NullTime `json:"created_at,omitempty"`
 	UpdatedAt        sql.NullTime `json:"updated_at,omitempty"`

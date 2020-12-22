@@ -2,12 +2,81 @@ package service
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 )
 
-// GetBanks returns an array of Banks
-func GetBanks() (banks []CreditCards, err error) {
+// GetPaymentDetails returns the data for all accepted Payments
+func GetPaymentDetails() (details []map[string]interface{}, err error) {
+	var rows *sql.Rows
+	m := make(map[string]interface{})
+
+	if rows, err = Get(`select * from cheques order by name; 
+						select * from creditcards order by name;
+						select * from banktransfer order by name;`); err != nil {
+		CheckError("Error getting Payment Details.", err, false)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		if data, err := ConvertToMAP(rows); err == nil {
+			m["cheque"] = data
+		}
+	}
+
+	for rows.NextResultSet() {
+		for rows.Next() {
+			if data, err := ConvertToMAP(rows); err == nil {
+				if v := m["pos"]; v == nil {
+					m["pos"] = data
+				} else {
+					m["banktransfer"] = data
+				}
+			}
+		}
+	}
+
+	details = append(details, m)
+	return
+}
+
+// ConvertToMAP converts the database response to JSON.
+func ConvertToMAP(rows *sql.Rows) (allMaps []map[string]interface{}, err error) {
+	var columns []string
+
+	if columns, err = rows.Columns(); err != nil {
+		return nil, errors.New("An Error executing at method {ConvertToMAP} while getting row columns for passed in rows")
+	}
+
+	// Ensure we only get the column information one time!
+	values := make([]interface{}, len(columns))
+	pointers := make([]interface{}, len(columns))
+	for i := range values {
+		pointers[i] = &values[i]
+	}
+
+	for rows.Next() {
+		// Dynamic Result rows scanning.
+		err = rows.Scan(pointers...)
+
+		resultMap := make(map[string]interface{})
+		for i, val := range values {
+			if strings.ToLower(columns[i]) != "password" && strings.ToLower(columns[i]) != "created_at" && strings.ToLower(columns[i]) != "updated_at" && strings.ToLower(columns[i]) != "deleted_at" {
+				resultMap[columns[i]] = fmt.Sprintf("%s", val)
+			}
+		}
+
+		// for each database row / record, a map with the column names and row values is added to the allMaps slice
+		allMaps = append(allMaps, resultMap)
+	}
+	return
+}
+
+// GetCreditcards returns an array of Banks
+func GetCreditcards() (banks []CreditCards, err error) {
 	var rows *sql.Rows
 
 	if rows, err = Get(`select * from creditcards order by name;`); err != nil {
@@ -76,7 +145,13 @@ func GetCashAccounts() (cashaccounts []CashAccounts, err error) {
 func PaymentOnOrder(orderID int) (payments []Payments, err error) {
 	var rows *sql.Rows
 
-	if rows, err = Get(fmt.Sprintf(`select * from payments where orderid = %d;`, orderID)); err != nil {
+	if rows, err = Get(fmt.Sprintf(`select id, orderid, docentry, docnum, canceled, paymenttype,
+		case lower(paymenttype) 
+			when 'cash' then 'Cash' 
+			when 'pos' then (select name from creditcards where code = paymentdetails) 
+			when 'cheque' then  (select name from cheques where code = paymentdetails) 
+			when 'bank transfer' then  (select name from banktransfer where code = paymentdetails) end paymentdetails, 
+			amount from payments where orderid = %d;`, orderID)); err != nil {
 		CheckError("Error getting Payments data.", err, false)
 		return nil, err
 	}

@@ -147,7 +147,7 @@
           <tr>
             <th scope="col">#</th>
             <th scope="col">Payment Method</th>
-            <th scope="col">Bank Used</th>
+            <th scope="col">Payment Details</th>
             <th scope="col">Canceled</th>
             <th scope="col">Amount Paid</th>
           </tr>

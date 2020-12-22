@@ -23,6 +23,18 @@ CREATE TABLE IF NOT EXISTS banks (
     code         VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS cheques (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    name         VARCHAR(255) NOT NULL UNIQUE,
+    code         VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS banktransfer (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    name         VARCHAR(255) NOT NULL UNIQUE,
+    code         VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS pricelist (
     id           INT AUTO_INCREMENT PRIMARY KEY,
     name         VARCHAR(255) NOT NULL UNIQUE,
@@ -185,6 +197,8 @@ ALTER table store add column productpricelist VARCHAR(255) NOT NULL;
 ALTER TABLE banks RENAME TO creditcards;
 ALTER table store add column cashaccount VARCHAR(255) NOT NULL;
 ALTER table store add column storecashaccount VARCHAR(255) NOT NULL;
+ALTER table store add column banktransfer VARCHAR(255) NOT NULL;
+ALTER table store add column cheques VARCHAR(255) NOT NULL;
 
 -- Default Reports
 REPLACE INTO reports (id, title, query, created_by) VALUES (1, "Todays Orders", "select id as order_id, docnum `Document Number`, canceled `Is Cancelled`, CardCode, CardName,  vatsum `VAT %`, concat('₦', format(doctotal, 2)) `Document Total`, case when Synced <> 0 then \"Yes\" else \"No\" END `Synced`, case when returned <> 0 then \"Yes\" else \"No\" END `Returned`, ifnull( (select concat(firstname, '  ', lastname) from users where users.id = o.discountapprovedby), 'Super Admin') `approved_by` from orders o where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
@@ -225,7 +239,7 @@ BEGIN
         'paymenttype', paymenttype,
         'paymentdetails', case when lower(paymenttype) = 'cash' then (select storecashaccount from store) else paymentdetails end )) 
         from payments where orderid = o.id) payments 
-        from orders o where id in (select id from orders where synced = false and canceled = false);
+        from orders o where id in (select id from orders where synced = false and canceled = false and deleted_at is null);
 END$$
 
 DELIMITER ;

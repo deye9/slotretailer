@@ -98,18 +98,38 @@
             <label for="products">Products API</label>
             <input type="text" class="form-control form-control-sm" placeholder="Products API" v-model="products" />
           </div>
-        </div>
 
-        <div class="form-row">
           <div class="form-group col">
             <label for="customers">Customers API</label>
             <input type="text" class="form-control form-control-sm" placeholder="Customers API" v-model="customers" />
           </div>
 
           <div class="form-group col">
-            <label for="banks">Credit Cards API</label>
+            <label>Price List API</label>
+            <input type="text" class="form-control form-control-sm" placeholder="Price List API" v-model="pricelist" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col">
+            <label>Cash Account API</label>
+            <input type="text" class="form-control form-control-sm" placeholder="Cash Account API" v-model="cashaccount" />
+          </div>
+
+          <div class="form-group col">
+            <label>Credit Cards API</label>
             <input type="text" class="form-control form-control-sm" placeholder="Banks API" v-model="creditcard" />
-          </div>   
+          </div>
+
+          <div class="form-group col">
+            <label>Bank Transfer API</label>
+            <input type="text" class="form-control form-control-sm" placeholder="Bank Transfer API" v-model="banktransfer" />
+          </div>
+
+          <div class="form-group col">
+            <label>Cheques API</label>
+            <input type="text" class="form-control form-control-sm" placeholder="Cheques API" v-model="cheques" />
+          </div>
         </div>
 
         <div class="form-row">
@@ -121,18 +141,6 @@
           <div class="form-group col">
             <label for="banks">Warehouses API</label>
             <input type="text" class="form-control form-control-sm" placeholder="Warehouses API" v-model="warehouses" />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group col">
-            <label>Price List API</label>
-            <input type="text" class="form-control form-control-sm" placeholder="Price List API" v-model="pricelist" />
-          </div>
-
-          <div class="form-group col">
-            <label>Cash Account API</label>
-            <input type="text" class="form-control form-control-sm" placeholder="Cash Account API" v-model="cashaccount" />
           </div>
         </div>
       </div>
@@ -167,6 +175,7 @@ export default {
       email: null,
       orders: null,
       sapkey: null,
+      cheques: null,
       address: null,
       products: null,
       customers: null,
@@ -178,6 +187,7 @@ export default {
       created_by: null,
       sync_interval: 5,
       logrotation: null,
+      banktransfer: null,
       cashaccounts: [],
       pricelistArray: [],
       productpricelist: null,
@@ -210,6 +220,7 @@ export default {
       this.sapkey = store.sapkey;
       this.orders = store.orders;
       this.address = store.address;
+      this.cheques = store.cheques;
       this.products = store.products;
       this.pricelist = store.pricelist;
       this.customers = store.customers;
@@ -218,6 +229,7 @@ export default {
       this.creditcard = store.creditcard;
       this.logrotation = store.logrotation;
       this.cashaccount = store.cashaccount;
+      this.banktransfer = store.banktransfer;
       this.sync_interval = store.sync_interval;
       this.created_by = this.$store.state.user.id;
       this.productpricelist = store.productpricelist;
@@ -264,6 +276,7 @@ export default {
         sapkey: this.sapkey,
         orders: this.orders,
         address: this.address,
+        cheques: this.cheques,
         products: this.products,
         pricelist: this.pricelist,
         customers: this.customers,
@@ -273,6 +286,7 @@ export default {
         updated_at: moment().format(),
         logrotation: this.logrotation,
         cashaccount: this.cashaccount,
+        banktransfer: this.banktransfer,
         sync_interval: this.sync_interval,
         created_by: this.$store.state.user.id,
         productpricelist: this.productpricelist,

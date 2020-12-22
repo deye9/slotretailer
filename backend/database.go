@@ -293,20 +293,3 @@ func Modify(modificationQuery string) (err error) {
 	tx.Commit()
 	return
 }
-
-// // structToReplace converts a struct to a sqllite3 replace statement
-// func structToReplace_old(value interface{}, tableName string) string {
-// 	var cmdkey string
-// 	var cmdvalue string
-
-// 	// Print struct with field names and values.
-// 	v := reflect.ValueOf(value)
-// 	t := v.Type()
-// 	for i := 0; i < t.NumField(); i++ {
-// 		name := t.Field(i).Name
-// 		cmdkey += fmt.Sprintf("%s, ", name)
-// 		cmdvalue += fmt.Sprintf("'%v', ", v.FieldByName(name).Interface())
-// 	}
-
-// 	return "REPLACE INTO " + tableName + " (" + strings.TrimSuffix(cmdkey, ", ") + ") VALUES (" + strings.TrimSuffix(cmdvalue, ", ") + ");\n"
-// }
