@@ -618,17 +618,9 @@ export default {
         amt = event.target.parentElement.parentElement.cells[3].childNodes[0],
         bank = event.target.parentElement.parentElement.cells[2].childNodes[0];
 
-      bank.disabled = true;
-      amt.disabled = false;
-
-      // console.log(PaymentDetails[0].cheques)
-      // cheques
-      // creditcards
-      // banktransfer
-
-      //////details
-
       bank.disabled = false;
+      amt.disabled = false;
+      
       switch (ctrl.toLowerCase()) {
         case "pos":
           $(`#${bank.id} optgroup#k_pos`).removeAttr('disabled');

@@ -2,7 +2,7 @@
   <section>
     <div class="row">
       <div class="col-8">
-        <h3>Viewing Order {{this.order.id}}</h3>
+        <h3>Create Returns for Order {{this.order.id}}</h3>
       </div>
       <div class="col-4">
         <router-link :to="{name: 'orderlist'}" class="btn btn-info btn-sm float-right">Back</router-link>
