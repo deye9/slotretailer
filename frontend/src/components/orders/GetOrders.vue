@@ -5,7 +5,8 @@
         <h3>Sales Order</h3>
       </div>
       <div class="col-4">
-        <router-link :to="{name: 'neworder'}" class="btn btn-info btn-sm float-right">New Order</router-link>
+        <router-link :to="{name: 'neworder'}" class="btn btn-info btn-sm mr-2">New Order</router-link>
+        <router-link :to="{name: 'returnorder'}" class="btn btn-info btn-sm mr-2">Returns</router-link>
       </div>
     </div>
     <hr />

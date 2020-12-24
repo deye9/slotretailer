@@ -191,6 +191,17 @@ func structToInsertUpdate(value interface{}, tableName string) string {
 	// Sort the keys
 	sort.Strings(keys)
 
+	// Handle Orders updating
+	if strings.ToLower(tableName) == "orders" {
+		for _, _value := range listSlice {
+			_Value := _value.(map[string]interface{})
+			cmd += fmt.Sprintf(`update orders set docentry = %.0f, docnum = %.0f, cardcode = "%s" where id = %.0f;`,
+				_Value["docEntry"], _Value["docNum"], _Value["cardCode"], _Value["id"])
+		}
+
+		return cmd + "\n"
+	}
+
 	for _, _value := range listSlice {
 		var update string
 		var cmdValues []string

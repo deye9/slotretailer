@@ -85,7 +85,7 @@ func task(t time.Time) {
 		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
 
 		// Append the StoreID to the link
-		link += "?storeID=" + LocalStore.SapKey
+		link += "?storeId=" + LocalStore.SapKey
 
 		if key == "products" {
 			link += "&pricelist=" + LocalStore.ProductPriceList
@@ -107,6 +107,9 @@ func sendData() (err error) {
 		if url == "" {
 			continue
 		}
+
+		// Append the StoreID to the link
+		url += "?storeId=" + LocalStore.SapKey
 
 		switch value {
 		case "customers":
@@ -203,7 +206,6 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 }
 
 func interfaceToMap(val interface{}, message string) (mapped []map[string]interface{}) {
-
 	err := json.Unmarshal([]byte(fmt.Sprintf("%s", val)), &mapped)
 	if err != nil {
 		fmt.Println("Error unmarshalling ", message, " details for sync: ", err)
@@ -219,11 +221,14 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, requestBody)
 	if err != nil {
-		CheckError("Error POSTING data to URL: "+url, err, false)
+		CheckError("Error Parsing data to URL: "+url, err, false)
 	}
 
 	req.Header.Add("Content-Type", "application/json")
 	res, err := client.Do(req)
+	if err != nil {
+		CheckError("Error POSTING data to URL: "+url, err, false)
+	}
 	defer res.Body.Close()
 
 	status = res.Status
@@ -262,7 +267,7 @@ func getAllData(key, link, str string) error {
 	}
 
 	if err = json.Unmarshal(data, &response); err != nil {
-		CheckError("Error unmarshalling data.", err, false)
+		CheckError("Error unmarshalling data for ["+key+"].", err, false)
 		return err
 	}
 
@@ -272,7 +277,15 @@ func getAllData(key, link, str string) error {
 		return nil
 	}
 
-	cmd = structToInsertUpdate(response, key)
+	switch strings.ToLower(key) {
+	case "orders":
+	case "customers":
+	case "transfers":
+	default:
+		cmd = "truncate table " + key + "; "
+	}
+
+	cmd += structToInsertUpdate(response, key)
 	if err = Modify(cmd); err != nil {
 		CheckError("Error saving HTTPGET for "+key+" result.", err, false)
 		return err
@@ -301,8 +314,6 @@ func httpget(url string) (data []byte, err error) {
 	res.Body.Close()
 
 	return
-	// // print `data` as a string
-	// fmt.Printf("%s\n", data)
 }
 
 // GetLogs returns a list of all available log files.

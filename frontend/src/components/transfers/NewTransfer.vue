@@ -232,11 +232,9 @@ export default {
     }
 
     // Get all stores
-    window.backend.GetStores().then(
-      (stores) => {
+    window.backend.GetStores().then((stores) => {
         this.stores = stores;
-      },
-      (err) => {
+      }, (err) => {
         this.$toast.error("Error! " + err);
       }
     );
@@ -279,7 +277,7 @@ export default {
         this.$toast.error("Error! You cannot select your store. Kindly select another store.");
         return;
       }
-
+      console.log(selectedValue);
       // // Get inventory belonging to this store
       // window.backend.GetStoreProducts(selectedValue).then(
       //   (inventory) => {

@@ -18,7 +18,7 @@ func ProductDetails(id int) (product Products, err error) {
 
 	defer rows.Close()
 	for rows.Next() {
-		if err = rows.Scan(&product.ID, &product.ItemCode, &product.ItemName, &product.CodeBars, &product.OnHand, &product.MinLevel, &product.Warehouse, &product.SerialNumber, &product.Manufacturer, &product.Price, &product.Vat); err != nil {
+		if err = rows.Scan(&product.ID, &product.ItemCode, &product.ItemName, &product.CodeBars, &product.OnHand, &product.MinLevel, &product.Warehouse, &product.SerialNumber, &product.Manufacturer, &product.Price, &product.Vat, &product.ItemID); err != nil {
 			CheckError("Error Scanning Product.", err, false)
 		}
 	}
@@ -38,7 +38,7 @@ func GetProducts() (products []Products, err error) {
 	defer rows.Close()
 	for rows.Next() {
 		product := Products{}
-		if err = rows.Scan(&product.ID, &product.ItemCode, &product.ItemName, &product.CodeBars, &product.OnHand, &product.MinLevel, &product.Warehouse, &product.SerialNumber, &product.Manufacturer, &product.Price, &product.Vat); err != nil {
+		if err = rows.Scan(&product.ID, &product.ItemCode, &product.ItemName, &product.CodeBars, &product.OnHand, &product.MinLevel, &product.Warehouse, &product.SerialNumber, &product.Manufacturer, &product.Price, &product.Vat, &product.ItemID); err != nil {
 			CheckError("Error Scanning Products.", err, false)
 		} else {
 			products = append(products, product)
@@ -60,7 +60,7 @@ func GetStoreProducts(id int) (products []Products, err error) {
 	defer rows.Close()
 	for rows.Next() {
 		product := Products{}
-		if err = rows.Scan(&product.ID, &product.ItemCode, &product.ItemName, &product.CodeBars, &product.OnHand, &product.MinLevel, &product.Warehouse, &product.SerialNumber, &product.Manufacturer, &product.Price, &product.Vat); err != nil {
+		if err = rows.Scan(&product.ID, &product.ItemCode, &product.ItemName, &product.CodeBars, &product.OnHand, &product.MinLevel, &product.Warehouse, &product.SerialNumber, &product.Manufacturer, &product.Price, &product.Vat, &product.ItemID); err != nil {
 			CheckError("Error Scanning Store Products.", err, false)
 		} else {
 			products = append(products, product)

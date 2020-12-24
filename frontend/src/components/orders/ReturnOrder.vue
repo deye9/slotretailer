@@ -2,15 +2,75 @@
   <section>
     <div class="row">
       <div class="col-8">
-        <h3>Create Returns for Order {{this.order.id}}</h3>
+        <h3>Create Returns for Order</h3>
       </div>
       <div class="col-4">
-        <router-link :to="{name: 'orderlist'}" class="btn btn-info btn-sm float-right">Back</router-link>
+        <router-link :to="{ name: 'orderlist' }" class="btn btn-info btn-sm float-right">Back</router-link>
       </div>
     </div>
     <hr />
 
-    <div class="form-row">
+    <!-- Modal -->
+    <div class="modal fade" id="returnsModal" data-backdrop="static" tabindex="-1" aria-labelledby="returnsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header text-center bg-dark text-white">
+            <h5 class="modal-title" id="returnsModalLabel">
+              Set Returns Criteria
+            </h5>
+            <button type="button" class="close text-white" @click="dismiss" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="form-row mb-3">
+                <div class="form-group col">
+                  <label for="fromWHS">Purchased From</label>
+                  <select id="fromWHS" class="form-control form-control-sm" placeholder="Kindly select store item was purchased from" v-model="StoreID">
+                    <option value="" selected>Select store item was purchased from</option>
+                    <option :key="store.name" :value="store.id" v-for="store in stores">
+                      {{ store.name }}
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group col">
+                  <label class="form-check-label" for="orderid">Order ID</label>
+                  <input id="orderid" class="form-control form-control-sm" type="text" v-model="OrderID" />
+                </div>
+              </div>
+              <hr />
+              <div class="form-row mb-3">
+                <div class="form-group col">
+                  <label class="form-check-label" for="serialnumber">
+                    Serial ID
+                  </label>
+                  <input id="serialnumber" class="form-control form-control-sm" type="text" v-model="SerialNumber" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-primary btn-sm mr-2"
+              @click="GetOrder"
+            >
+              Set Role
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              @click="dismiss"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="form-row">
       <div class="form-group col">
         <label>Order Number</label>
         <input type="text" class="form-control form-control-sm" disabled v-model="this.order.id" />
@@ -182,106 +242,121 @@
 
     <button type="button" class="btn btn-dark float-right mr-2 mb-5" @click="CreateReturn">
       Create Return
-    </button>
+    </button> -->
   </section>
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        canVat: false,
+import $ from "jquery";
 
-        order: [],
-        user: null,
-        comment: '',
-        payment: null,
-        discountby: null,
-        subTotal: '0.00',
-        vatAmount: '0.00',
-        grandTotal: '0.00',
-        balanceDue: '0.00',
-      };
+export default {
+  data() {
+    return {
+      stores: [],
+      StoreID: null,
+      OrderID: null,
+      SerialNumber: null,
+    };
+  },
+  mounted() {
+    // Get all stores
+    window.backend.GetStores().then((stores) => {
+      this.stores = stores;
+    }, (err) => {
+      this.$toast.error("Error! " + err);
+    });
+
+    // Show the modal
+    $("#returnsModal").modal("show");
+
+    //       console.log(this.$store.state.userStore.orders);
+    //     let url = "http://197.255.32.34:5000/Orders";
+    // let splitURL = url.toLowerCase().split("/orders");
+    // console.log(url);
+    // console.log(splitURL[0]);
+  },
+  created() {
+    //   var pageURL = location.pathname;
+    //   this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
+    //   // Check if the store is allowed to calculate VAT
+    //   if (this.$store.state.userStore.vat)
+    //   {
+    //     this.canVat = true;
+    //   }
+    //   window.backend.GetOrder(parseInt(this.id)).then((order) => {
+    //       order.doctotal = order.doctotal.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' });
+    //       this.order = order;
+    //       let runningTotal = 0.0;
+    //       this.order.items.forEach(item => {
+    //         // Calculate the discount. (quantity * price) - discount value
+    //         let quantity = item.quantity,
+    //           price = parseFloat(item.price),
+    //           discount = parseFloat(item.discount),
+    //           currentTotal = (quantity * price) - discount;
+    //         item.total = currentTotal;
+    //         runningTotal += parseFloat(currentTotal);
+    //         // Calculate footer details
+    //         this.subTotal = parseFloat(runningTotal);
+    //         if (this.canVat === true) {
+    //           this.vatAmount = parseFloat((7.5 / 100) * runningTotal);
+    //           this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal);
+    //         } else {
+    //           this.grandTotal = parseFloat(runningTotal);
+    //         }
+    //         this.balanceDue = parseFloat(this.grandTotal - this.amtPaid);
+    //       });
+    //       window.backend.GetUser(parseInt(order.created_by)).then((user) => {
+    //         if (JSON.stringify(user) !== "{}") {
+    //           this.user = user;
+    //         }
+    //       }, (err) => {
+    //         this.$toast.error("Error! " + err);
+    //       });
+    //       window.backend.PaymentOnOrder(parseInt(this.id)).then((payment) => {
+    //         if (JSON.stringify(payment) !== "{}") {
+    //           this.payment = payment;
+    //         }
+    //       }, (err) => {
+    //         this.$toast.error("Error! " + err);
+    //       });
+    //       if (parseInt(order.discountapprovedby) === 0) {
+    //         this.discountby = {
+    //           firstname: "Super",
+    //           lastname: "Admin",
+    //         };
+    //       } else {
+    //         window.backend.GetUser(parseInt(order.discountapprovedby)).then((user) => {
+    //           if (JSON.stringify(user) !== "{}") {
+    //             this.discountby = user;
+    //           }
+    //         }, (err) => {
+    //           this.$toast.error("Error! " + err);
+    //         });
+    //       }
+    //     }, (err) => {
+    //       this.$toast.error("Error! " + err);
+    //     });
+  },
+  methods: {
+    dismiss() {
+      // Hide the modal
+      $("#returnsModal").modal("hide");
+
+      // Hide the information and redirect to the Transfer Request list.
+      this.$toast.info("Info! You can't continue without setting your role.");
+      this.$router.push({ name: "orderlist" });
     },
-    created() {
-      var pageURL = location.pathname;
-      this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
+    GetOrder() {
 
-      // Check if the store is allowed to calculate VAT
-      if (this.$store.state.userStore.vat)
-      {
-        this.canVat = true;
-      }
-
-      window.backend.GetOrder(parseInt(this.id)).then((order) => {
-          order.doctotal = order.doctotal.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' });
-          this.order = order;
-          let runningTotal = 0.0;
-
-          this.order.items.forEach(item => {
-            // Calculate the discount. (quantity * price) - discount value
-            let quantity = item.quantity,
-              price = parseFloat(item.price),
-              discount = parseFloat(item.discount),
-              currentTotal = (quantity * price) - discount;
-
-            item.total = currentTotal;
-            runningTotal += parseFloat(currentTotal);
-
-            // Calculate footer details
-            this.subTotal = parseFloat(runningTotal);
-            if (this.canVat === true) {
-              this.vatAmount = parseFloat((7.5 / 100) * runningTotal);
-              this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal);
-            } else {
-              this.grandTotal = parseFloat(runningTotal);
-            }
-            this.balanceDue = parseFloat(this.grandTotal - this.amtPaid);
-          });
-          
-          window.backend.GetUser(parseInt(order.created_by)).then((user) => {
-            if (JSON.stringify(user) !== "{}") {
-              this.user = user;
-            }
-          }, (err) => {
-            this.$toast.error("Error! " + err);
-          });
-          
-          window.backend.PaymentOnOrder(parseInt(this.id)).then((payment) => {
-            if (JSON.stringify(payment) !== "{}") {
-              this.payment = payment;
-            }
-          }, (err) => {
-            this.$toast.error("Error! " + err);
-          });
-
-          if (parseInt(order.discountapprovedby) === 0) {
-            this.discountby = {
-              firstname: "Super",
-              lastname: "Admin",
-            };
-          } else {
-            window.backend.GetUser(parseInt(order.discountapprovedby)).then((user) => {
-              if (JSON.stringify(user) !== "{}") {
-                this.discountby = user;
-              }
-            }, (err) => {
-              this.$toast.error("Error! " + err);
-            });
-          }
-        }, (err) => {
-          this.$toast.error("Error! " + err);
-        });
     },
-    methods: {
-      CreateReturn() {
-        window.backend.CreateReturn(parseInt(this.id), this.comment).then(() => {
-          this.$toast.success("Success! Sales Order Return Document has been successfully saved.");
-          this.$router.push({name: 'orderlist'});
-        }, (err) => {
-          this.$toast.error("Error! " + err);
-        }
-      )}
-    }
-  };
+    // CreateReturn() {
+    //   window.backend.CreateReturn(parseInt(this.id), this.comment).then(() => {
+    //     this.$toast.success("Success! Sales Order Return Document has been successfully saved.");
+    //     this.$router.push({name: 'orderlist'});
+    //   }, (err) => {
+    //     this.$toast.error("Error! " + err);
+    //   }
+    // )}
+  },
+};
 </script>

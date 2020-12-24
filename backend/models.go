@@ -17,6 +17,7 @@ type Products struct {
 	Manufacturer string          `json:"manufacturer,omitempty"`  //
 	Price        float32         `json:"price,omitempty"`
 	Vat          sql.NullFloat64 `json:"vat,omitempty"`
+	ItemID       int             `json:"itemid,omitempty"`
 }
 
 // CreditCards struct

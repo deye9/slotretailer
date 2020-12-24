@@ -199,6 +199,7 @@ ALTER table store add column cashaccount VARCHAR(255) NOT NULL;
 ALTER table store add column storecashaccount VARCHAR(255) NOT NULL;
 ALTER table store add column banktransfer VARCHAR(255) NOT NULL;
 ALTER table store add column cheques VARCHAR(255) NOT NULL;
+ALTER table products add column itemid int;
 
 -- Default Reports
 REPLACE INTO reports (id, title, query, created_by) VALUES (1, "Todays Orders", "select id as order_id, docnum `Document Number`, canceled `Is Cancelled`, CardCode, CardName,  vatsum `VAT %`, concat('₦', format(doctotal, 2)) `Document Total`, case when Synced <> 0 then \"Yes\" else \"No\" END `Synced`, case when returned <> 0 then \"Yes\" else \"No\" END `Returned`, ifnull( (select concat(firstname, '  ', lastname) from users where users.id = o.discountapprovedby), 'Super Admin') `approved_by` from orders o where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
@@ -206,7 +207,7 @@ REPLACE INTO reports (id, title, query, created_by) VALUES (2, "Week's Top Selle
 REPLACE INTO reports (id, title, query, created_by) VALUES (3, "Todays Top Sellers", "select i.* from orders o inner join ordereditems i on o.id = i.orderid where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
 REPLACE INTO reports (id, title, query, created_by) VALUES (4, "Store Inventory Level", "select p.* from store s inner join products p on s.sapkey = p.warehouse;", 1);
 REPLACE INTO reports (id, title, query, created_by) VALUES (5, "Global Inventory Level", "select * from products p;", 1);
-INSERT INTO store (`id`,`name`,`address`,`phone`,`city`,`email`,`orders`,`products`,`customers`,`creditcard`,`sync_interval`,`sapkey`,`created_by`,`created_at`,`updated_at`,`deleted_at`,`logrotation`,`transfers`,`vat`,`warehouses`, `pricelist`, `productpricelist`, `cashaccount`, `storecashaccount`) VALUES (1,'New Store','Enter Store Address','080','Lagos','storename@slot.com','http://197.255.32.34:5000/Orders','http://197.255.32.34:5000/Products','http://197.255.32.34:5000/Customers','http://197.255.32.34:5000/CreditCards',30,'2BMEDICA',1,'2020-12-08 21:46:36',NULL,NULL,'1','http://197.255.32.34:5000/Transfers',0,'http://197.255.32.34:5000/Warehouses', 'http://197.255.32.34:5000/pricelist', 'code 1', 'http://197.255.32.34:5000/CashAccounts', '12330001');
+INSERT INTO store (`id`,`name`,`address`,`phone`,`city`,`email`,`orders`,`products`,`customers`,`creditcard`,`sync_interval`,`sapkey`,`created_by`,`created_at`,`updated_at`,`deleted_at`,`logrotation`,`transfers`,`vat`,`warehouses`, `pricelist`, `productpricelist`, `cashaccount`, `storecashaccount`, `banktransfer`, `cheques`) VALUES (1,'New Store','Enter Store Address','080','Lagos','storename@slot.com','http://197.255.32.34:5000/Orders','http://197.255.32.34:5000/Products','http://197.255.32.34:5000/Customers','http://197.255.32.34:5000/CreditCards',30,'2BMEDICA',1,'2020-12-08 21:46:36',NULL,NULL,'1','http://197.255.32.34:5000/Transfers',0,'http://197.255.32.34:5000/Warehouses', 'http://197.255.32.34:5000/pricelist', 1, 'http://197.255.32.34:5000/CashAccounts', '12330001', 'http://197.255.32.34:5000/BankTranserAccounts', 'http://197.255.32.34:5000/Banks');
 REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) VALUES ('super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true);
 
 -- REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');
@@ -337,50 +338,50 @@ END $$
 DELIMITER ;
 
 -- STORES TRIGGER
-drop trigger if exists store_insert_audit;
-drop trigger if exists store_update_audit;
-drop trigger if exists store_delete_audit;
+-- drop trigger if exists store_insert_audit;
+-- drop trigger if exists store_update_audit;
+-- drop trigger if exists store_delete_audit;
 
-DELIMITER $$
+-- DELIMITER $$
 
-CREATE trigger store_insert_audit
-AFTER INSERT ON store FOR EACH ROW
-BEGIN
-	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
-    VALUES
-    (null, 
-    JSON_OBJECT('id', new.id, 'name', new.name, 'address', new.address, 'phone', new.phone, 'city', new.city, 'email', new.email, 'orders', new.orders, 'products', new.products, 'customers', new.customers, 'banks', new.banks, 'sync_interval', new.sync_interval, 'sapkey', new.sapkey, 'logrotation', new.logrotation, 'created_at', new.created_at, 'created_by', new.created_by), 
-    'INSERT', new.created_by);
-END $$    
+-- CREATE trigger store_insert_audit
+-- AFTER INSERT ON store FOR EACH ROW
+-- BEGIN
+-- 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+--     VALUES
+--     (null, 
+--     JSON_OBJECT('id', new.id, 'name', new.name, 'address', new.address, 'phone', new.phone, 'city', new.city, 'email', new.email, 'orders', new.orders, 'products', new.products, 'customers', new.customers, 'banks', new.banks, 'sync_interval', new.sync_interval, 'sapkey', new.sapkey, 'logrotation', new.logrotation, 'created_at', new.created_at, 'created_by', new.created_by), 
+--     'INSERT', new.created_by);
+-- END $$    
 
-DELIMITER ;
+-- DELIMITER ;
 
-DELIMITER $$
+-- DELIMITER $$
 
-CREATE trigger store_update_audit
-AFTER UPDATE ON store FOR EACH ROW
-BEGIN
-	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
-    VALUES
-    (JSON_OBJECT('id', old.id, 'name', old.name, 'address', old.address, 'phone', old.phone, 'city', old.city, 'email', old.email, 'orders', old.orders, 'products', old.products, 'customers', old.customers, 'banks', old.banks, 'sync_interval', old.sync_interval, 'sapkey', old.sapkey, 'logrotation', old.logrotation, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
-    JSON_OBJECT('id', new.id, 'name', new.name, 'address', new.address, 'phone', new.phone, 'city', new.city, 'email', new.email, 'orders', new.orders, 'products', new.products, 'customers', new.customers, 'banks', new.banks, 'sync_interval', new.sync_interval, 'sapkey', new.sapkey, 'logrotation', new.logrotation, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at, 'created_by', new.created_by), 
-    'UPDATE', new.created_by);
-END $$    
+-- CREATE trigger store_update_audit
+-- AFTER UPDATE ON store FOR EACH ROW
+-- BEGIN
+-- 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+--     VALUES
+--     (JSON_OBJECT('id', old.id, 'name', old.name, 'address', old.address, 'phone', old.phone, 'city', old.city, 'email', old.email, 'orders', old.orders, 'products', old.products, 'customers', old.customers, 'banks', old.banks, 'sync_interval', old.sync_interval, 'sapkey', old.sapkey, 'logrotation', old.logrotation, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
+--     JSON_OBJECT('id', new.id, 'name', new.name, 'address', new.address, 'phone', new.phone, 'city', new.city, 'email', new.email, 'orders', new.orders, 'products', new.products, 'customers', new.customers, 'banks', new.banks, 'sync_interval', new.sync_interval, 'sapkey', new.sapkey, 'logrotation', new.logrotation, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at, 'created_by', new.created_by), 
+--     'UPDATE', new.created_by);
+-- END $$    
 
-DELIMITER ;
+-- DELIMITER ;
 
-DELIMITER $$
+-- DELIMITER $$
 
-CREATE trigger store_delete_audit
-AFTER DELETE ON store FOR EACH ROW
-BEGIN
-	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
-    VALUES
-    (JSON_OBJECT('id', old.id, 'name', old.name, 'address', old.address, 'phone', old.phone, 'city', old.city, 'email', old.email, 'orders', old.orders, 'products', old.products, 'customers', old.customers, 'banks', old.banks, 'sync_interval', old.sync_interval, 'sapkey', old.sapkey, 'logrotation', old.logrotation, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
-	null, 'DELETE', old.created_by);
-END $$    
+-- CREATE trigger store_delete_audit
+-- AFTER DELETE ON store FOR EACH ROW
+-- BEGIN
+-- 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
+--     VALUES
+--     (JSON_OBJECT('id', old.id, 'name', old.name, 'address', old.address, 'phone', old.phone, 'city', old.city, 'email', old.email, 'orders', old.orders, 'products', old.products, 'customers', old.customers, 'banks', old.banks, 'sync_interval', old.sync_interval, 'sapkey', old.sapkey, 'logrotation', old.logrotation, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
+-- 	null, 'DELETE', old.created_by);
+-- END $$    
 
-DELIMITER ;
+-- DELIMITER ;
 
 -- ORDERS TRIGGER
 drop trigger if exists order_insert_audit;
