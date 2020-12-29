@@ -109,7 +109,7 @@ const router = new Router({
                 component: NewOrder
             },
             {
-                path: "return/:id",
+                path: "return",
                 name: "returnorder",
                 component: ReturnOrder
             },
