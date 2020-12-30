@@ -375,7 +375,6 @@
                               {{ option.name }}
                             </option>
                           </optgroup>
-                          <!-- <option :key="detail.id" :value="detail.code" v-for="detail in details">{{ detail.name }}</option> -->
                         </select>
                       </td>
                       <td>
@@ -406,179 +405,6 @@
       </div>
     </div>
 
-    <!-- <div class="form-row">
-      <div class="form-group col">
-        <label>Order Number</label>
-        <input type="text" class="form-control form-control-sm" disabled v-model="this.order.id" />
-      </div>
-      <div class="form-group col">
-        <label>Customer</label>
-        <input type="text" class="form-control form-control-sm" disabled v-model="this.order.cardname" />
-      </div>
-      <div class="form-group col">
-        <label for="docnum">SAP Document Number</label>
-        <input type="text" class="form-control form-control-sm" disabled v-model="this.order.docnum" />
-      </div>
-      <div class="form-group col">
-        <label for="docnum">Created By</label>
-        <br />
-        <span class="btn btn-info btn-sm" disabled v-if="this.user !== null">
-          {{ this.user.firstname + " " + this.user.lastname }}
-        </span>
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group col">
-        <label>Synced</label>
-        <input type="text" class="form-control form-control-sm" disabled v-model="this.order.synced" />
-      </div>
-      <div class="form-group col">
-        <label>Canceled</label>
-        <input type="text" class="form-control form-control-sm" disabled v-model="this.order.canceled" />
-      </div>
-      <div class="form-group col">
-        <label for="docnum">Document Total</label>
-        <input type="text" class="form-control form-control-sm" disabled v-model="this.order.doctotal" />
-      </div>
-      <div class="form-group col">
-        <label for="docnum">Created On</label>
-        <br />
-        <span class="btn btn-info btn-sm" disabled v-if="this.user !== null" >
-          {{ this.user.created_at.Time }}
-        </span>
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group col">
-        <label>Reason for Return:</label>
-        <input type="text" class="form-control" v-model="comment" />
-      </div>
-      <div class="form-group col">
-        <label>Discount Approved By</label>
-        <br />
-        <span class="btn btn-info btn-sm" disabled v-if="this.discountby !== null" >
-          {{ this.discountby.firstname + " " + this.discountby.lastname }}
-        </span>
-      </div>
-    </div>
-
-    <h3>Order Details</h3>
-    <hr />
-    <div class="table-responsive-sm">
-      <table class="table table-bordered table-hover table-striped table-sm">
-        <thead class="thead-dark">
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Item No.</th>
-            <th scope="col">Item Description</th>
-            <th scope="col">Serial Number</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Price</th>
-            <th scope="col">Discount ₦</th>
-            <th scope="col">Total</th>
-          </tr>
-        </thead>
-        <tbody id="orderedItems">
-          <tr v-for="(item, index) in this.order.items" :key="index">
-            <th scope="row">
-              {{ index + 1 }}
-            </th>
-            <td>
-              {{ item.itemcode }}
-            </td>
-            <td>
-              {{ item.itemname }}
-            </td>
-            <td>
-              {{ item.serialnumber }}
-            </td>
-            <td>
-              {{ item.quantity }}
-            </td>
-            <td>
-              {{ item.price.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
-            </td>
-            <td>
-              {{ item.discount.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
-            </td>
-            <td>
-              {{ item.total.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
-            </td>
-          </tr>
-        </tbody>
-        <tfoot id="ItemsFooter">
-          <tr>
-            <td colspan="7" class="text-right font-weight-bold">
-              Subtotal:
-            </td>
-            <td class="font-weight-bold bg-primary text-white">
-              {{ subTotal.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
-            </td>
-          </tr>
-          <tr v-show="canVat">
-            <td colspan="7" class="text-right font-weight-bold">7.5% VAT:</td>
-            <td class="font-weight-bold bg-primary text-white">
-              {{ vatAmount.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
-            </td>
-          </tr>
-          <tr>
-            <td colspan="7" class="text-right font-weight-bold">
-              Grand Total:
-            </td>
-            <td class="font-weight-bold bg-primary text-white">
-              {{ grandTotal.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-
-    <h3>Payment Details</h3>
-    <hr />
-    <div class="table-responsive-sm">
-      <table class="table table-bordered table-hover table-striped table-sm">
-        <thead class="thead-dark">
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Payment Method</th>
-            <th scope="col">Bank Used</th>
-            <th scope="col">Canceled</th>
-            <th scope="col">Amount Paid</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(payment, index) in this.payment" :key="index">
-            <th scope="row">
-              {{ index + 1 }}
-            </th>
-            <td>
-              {{ payment.paymenttype }}
-            </td>
-            <td>
-              {{ payment.paymentdetails }}
-            </td>
-            <td>
-              {{ payment.canceled }}
-            </td>
-            <td>
-              {{ payment.amount.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}
-            </td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="4" class="text-right font-weight-bold">Amount Paid</td>
-            <td class="font-weight-bold bg-primary text-white">{{ grandTotal.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' }) }}</td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-
-    <button type="button" class="btn btn-dark float-right mr-2 mb-5" @click="CreateReturn">
-      Create Return
-    </button> -->
   </section>
 </template>
 
@@ -623,15 +449,15 @@ export default {
       payments: [],
       inventory: [],
       currentIndex: 0,
-      amtPaid: '0.00',
+      amtPaid: 0.00,
       isDisabled: true,
       selecteditem: '',
       ordercolumns: [],
-      subTotal: '0.00',
+      subTotal: 0.00,
       serialnumbers: [],
-      vatAmount: '0.00',
-      grandTotal: '0.00',
-      balanceDue: '0.00',
+      vatAmount: 0.00,
+      grandTotal: 0.00,
+      balanceDue: 0.00,
       paymentcolumns: [],
       paymentDetails: {},
       currentDate: moment().format("Do of MMMM YYYY"),
@@ -689,7 +515,9 @@ export default {
       this.$router.push({ name: "orderlist" });
     },
     GetOrder() {
-      let path = this.$store.state.userStore.orders;
+      let runningTotal = 0.0, 
+        path = this.$store.state.userStore.orders;
+
       if (this.StoreID !== null && this.OrderID !== null) {
         path += `/${this.OrderID}?storeId=${this.StoreID}`;
       } else if (this.SerialNumber !== null) {
@@ -712,6 +540,13 @@ export default {
               name: payment.paymentDetails,
               id: this.payments.length + 1,
             });
+
+            // Loop through the array and perform all needed calculations
+            runningTotal += parseFloat(payment.amount.toString().replace("₦", ""));
+      
+            // Calculate footer details
+            this.amtPaid = parseFloat(runningTotal).toFixed(2);
+            this.grandTotal = parseFloat(runningTotal).toFixed(2);
           });
           this.addRow();
           this.order = result;
@@ -921,7 +756,8 @@ export default {
         this.vatAmount = parseFloat((7.5 / 100) * runningTotal).toFixed(2);
         this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal).toFixed(2);
       } else {
-        this.grandTotal = parseFloat(runningTotal).toFixed(2);
+        this.grandTotal = parseFloat(runningTotal) + parseFloat(this.amtPaid);
+        this.grandTotal = parseFloat(this.grandTotal).toFixed(2);
       }
       this.balanceDue = parseFloat(this.grandTotal - this.amtPaid).toFixed(2);
     },
@@ -1000,11 +836,11 @@ export default {
     PaymentTotal(index, event) {
       let runningTotal = 0.0,
         amt = event.target.value,
-        bank = event.target.parentElement.parentElement.cells[2].childNodes[0].value,
-        method = event.target.parentElement.parentElement.cells[1].childNodes[0].value;
+        method = event.target.parentElement.parentElement.cells[1].childNodes[0].value,
+        details = event.target.parentElement.parentElement.cells[2].childNodes[0].value;
 
-      if (bank === null) {
-        this.$toast.error("Error! Bank Details is required in order to proceed.");
+      if (details === null) {
+        this.$toast.error("Error! Payment Details is required in order to proceed.");
         return;
       }
 
@@ -1013,13 +849,13 @@ export default {
         return;
       }
 
-      this.payments[index].name = bank;
       this.payments[index].amount = amt;
+      this.payments[index].name = details;
       this.payments[index].method = method;
 
        // Loop through the array and perform all needed calculations
       this.payments.forEach(element => {
-        runningTotal += parseFloat(element.amount.replace("₦", ""));
+        runningTotal += parseFloat(element.amount.toString().replace("₦", ""));
       });
 
       // Calculate footer details
@@ -1097,7 +933,28 @@ export default {
         // Add the items to the items array
         items.push(orderItem);
       });
-      
+      this.order.items.forEach(element => {
+        let serial = "";
+        if (element.serialNumber === "") {
+          serial = "null";
+        } else {
+          serial = element.serialNumber;
+        }
+
+        let orderItem = {
+          orderid: null,
+          serialnumber: serial,
+          itemname: element.itemName,
+          itemcode: element.itemCode,
+          quantity: "-" + element.quantity,
+          price: element.price.toString().replace("₦", ""),
+          discount: element.discount.toString().replace("₦", ""),
+        };
+
+        // Add the items to the items array
+        items.push(orderItem);
+      });
+       
       // Loop through the array and perform all needed calculations
       this.payments.forEach(element => {
         let payment = {
@@ -1116,23 +973,24 @@ export default {
       });
 
       // Build out the header.
-      this.order = {
+      let order = {
         id: 0,
-        docnum: 0,
-        docentry: 0,
+        docnum: this.order.docNum,
+        docentry: this.order.docEntry,
         vatsum: 7.5,
         synced: false,
         canceled: false,
-        cardname: this.customer.cardname,
-        cardcode: this.customer.cardcode,
+        cardname: this.order.cardName,
+        cardcode: this.order.cardCode,
         created_by: this.$store.state.user.id,
       };
-      this.order.items = items;
-      this.order.payments = payments;
-      this.order.doctotal = this.grandTotal;
-      this.order.discountapprovedby = parseInt(this.discountby);
+      order.items = items;
+      order.returned = true;
+      order.payments = payments;
+      order.doctotal = this.grandTotal;
+      order.discountapprovedby = parseInt(this.discountby);
       
-      window.backend.NewOrder(this.order).then(() => {
+      window.backend.NewOrder(order).then(() => {
         this.$toast.success("Success! Order has been successfully saved.");
         this.$router.push({name: 'orderlist'});
       }, (err) => {
@@ -1141,10 +999,4 @@ export default {
     },
   },
 };
-
-    //       console.log(this.$store.state.userStore.orders);
-    //     let url = "http://197.255.32.34:5000/Orders";
-    // let splitURL = url.toLowerCase().split("/orders");
-    // console.log(url);
-    // console.log(splitURL[0]);
 </script>
