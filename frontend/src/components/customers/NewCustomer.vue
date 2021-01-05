@@ -37,7 +37,6 @@
             </label>
             <input
               id="phone"
-              :key="phone"
               type="text"
               class="form-control form-control-sm"
               placeholder="Phone Number"
@@ -63,7 +62,6 @@
             <label for="phone2">Phone Number 2</label>
             <input
               id="phone1"
-              :key="phone1"
               type="text"
               class="form-control form-control-sm"
               placeholder="Phone Number"
@@ -111,14 +109,20 @@ export default {
   },
   methods: {
     handleBlur() {
-      alert(111);
       if (this.phone.charAt(0) === "0") {
         this.phone = this.phone.replace("0", "+234");
+        return
       }
 
       if (this.phone1.charAt(0) === "0") {
         this.phone1 = this.phone1.replace("0", "+234");
+        return
       }
+
+      if (this.phone.length <= 10 || this.phone1.length <= 10) {
+        return
+      }
+
       document.getElementById("register").disabled = false;
       let details = `phone = '${this.phone}' or phone = '${this.phone1}' or phone1 = '${this.phone}' or phone1 = '${this.phone1}'`;
 
@@ -164,8 +168,7 @@ export default {
       window.backend.NewCustomer(this.customer).then(() => {
         this.$toast.success( `Success! Customer ${this.cardname} has been successful registered.` );
         this.$router.push({name: "customerlist"});
-      },
-      (err) => {
+      }, (err) => {
         this.$toast.error("Error! " + err);
       });
     },

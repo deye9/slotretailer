@@ -5,11 +5,7 @@
         <h3>New Inventory Transfer</h3>
       </div>
       <div class="col-4">
-        <router-link
-          :to="{ name: 'transferlist' }"
-          class="btn btn-info btn-sm float-right"
-          >Back</router-link
-        >
+        <router-link :to="{ name: 'transferlist' }" class="btn btn-info btn-sm float-right">Back</router-link>
       </div>
     </div>
     <hr />
@@ -17,13 +13,7 @@
     <div class="form-row">
       <div class="form-group col">
         <label for="fromWHS">From Store</label>
-        <select
-          @input="fetchInventory"
-          label="name"
-          id="fromWHS"
-          ref="fromWHS"
-          class="form-control form-control-sm"
-          placeholder="Kindly select dispatching warehouse">
+        <select @input="fetchInventory" label="name" id="fromWHS" ref="fromWHS" class="form-control form-control-sm" placeholder="Kindly select dispatching warehouse">
           <option value="" selected>Select Dispatching Warehouse</option>
           <option :key="store.name" :value="store.id" v-for="store in stores">
             {{ store.name }}
@@ -32,43 +22,23 @@
       </div>
       <div class="form-group col">
         <label for="toWHS">To Store</label>
-        <select
-          @input="fetchInventory"
-          label="name"
-          id="toWHS"
-          ref="toWHS"
-          class="form-control form-control-sm"
-          placeholder="Kindly select receiving warehouse">
+        <select @input="fetchInventory" label="name" id="toWHS" ref="toWHS" class="form-control form-control-sm" placeholder="Kindly select receiving warehouse">
           <option value="" selected>Select Receiving Warehouse</option>
-          <option :key="store.name" :value="store.id" v-for="store in stores">
+          <option :key="store.name" :value="store.code" v-for="store in stores">
             {{ store.name }}
           </option>
         </select>
       </div>
       <div class="form-group col">
         <label for="createdBy">Requested by</label>
-        <input
-          id="createdBy"
-          type="text"
-          class="form-control form-control-sm"
-          placeholder="Requested By"
-          disabled
-          :value="this.$store.state.user.email"
-        />
+        <input id="createdBy" type="text" class="form-control form-control-sm" placeholder="Requested By" disabled :value="this.$store.state.user.email" />
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group col">
         <label for="comment">Remarks</label>
-        <input
-          id="comment"
-          type="text"
-          class="form-control form-control-sm"
-          placeholder="Comment"
-          v-model="comment"
-          required
-        />
+        <input id="comment" type="text" class="form-control form-control-sm" placeholder="Comment" v-model="comment" required />
       </div>
     </div>
 
@@ -120,53 +90,27 @@
     </button>
 
     <!-- Modal -->
-    <div
-      class="modal fade"
-      id="roleModal"
-      data-backdrop="static"
-      tabindex="-1"
-      aria-labelledby="roleModalLabel"
-      aria-hidden="true"
-    >
+    <div class="modal fade" id="roleModal" data-backdrop="static" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header text-center bg-dark text-white">
             <h5 class="modal-title" id="roleModalLabel">
               Set Inventory Transfer Role
             </h5>
-            <button
-              type="button"
-              class="close text-white"
-              @click="dismiss"
-              aria-label="Close"
-            >
+            <button type="button" class="close text-white" @click="dismiss" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
             <div class="container-fluid">
               <div class="form-check mb-3">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="RoleRadios"
-                  id="reqRadio"
-                  value="requester"
-                  v-model="picked"
-                />
+                <input class="form-check-input" type="radio" name="RoleRadios" id="reqRadio" value="requester" v-model="picked" />
                 <label class="form-check-label" for="reqRadio">
                   Requesting Store
                 </label>
               </div>
               <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  name="RoleRadios"
-                  id="recRadio"
-                  value="receiver"
-                  v-model="picked"
-                />
+                <input class="form-check-input" type="radio" name="RoleRadios" id="recRadio" value="receiver" v-model="picked" />
                 <label class="form-check-label" for="recRadio">
                   Receiving Store
                 </label>
@@ -174,18 +118,10 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-primary btn-sm mr-2"
-              @click="setRole"
-            >
+            <button type="button" class="btn btn-primary btn-sm mr-2" @click="setRole">
               Set Role
             </button>
-            <button
-              type="button"
-              class="btn btn-secondary btn-sm"
-              @click="dismiss"
-            >
+            <button type="button" class="btn btn-secondary btn-sm" @click="dismiss">
               Close
             </button>
           </div>
@@ -270,14 +206,27 @@ export default {
       this.$router.push({ name: "transferlist" });
     },
     fetchInventory(event) {
-      let selectedtext = event.target.selectedOptions[0].text,
+      let products = this.$store.state.userStore.products,
+        selectedtext = event.target.selectedOptions[0].text,
         selectedValue = parseInt(event.target.selectedOptions[0].value);
 
       if (selectedtext === this.localStore.sapkey) {
         this.$toast.error("Error! You cannot select your store. Kindly select another store.");
         return;
       }
+      console.log(products);
       console.log(selectedValue);
+
+      // var requestOptions = {
+      //   method: 'GET',
+      //   redirect: 'follow'
+      // };
+
+      // fetch("http://197.255.32.34:5000/Products/Quantity?PageSize=5000&StoreId=ABA2", requestOptions)
+      //   .then(response => response.text())
+      //   .then(result => console.log(result))
+      //   .catch(error => console.log('error', error));
+        
       // // Get inventory belonging to this store
       // window.backend.GetStoreProducts(selectedValue).then(
       //   (inventory) => {
