@@ -13,20 +13,16 @@
     <div class="form-row">
       <div class="form-group col">
         <label for="fromWHS">From Store</label>
-        <select @input="fetchInventory" label="name" id="fromWHS" ref="fromWHS" class="form-control form-control-sm" placeholder="Kindly select dispatching warehouse">
+        <select @input="fetchInventory" v-model="dispatching" label="name" id="fromWHS" ref="fromWHS" class="form-control form-control-sm" placeholder="Kindly select dispatching warehouse">
           <option value="" selected>Select Dispatching Warehouse</option>
-          <option :key="store.name" :value="store.id" v-for="store in stores">
-            {{ store.name }}
-          </option>
+          <option :key="store.name" :value="store.code" v-for="store in stores">{{ store.name }}</option>
         </select>
       </div>
       <div class="form-group col">
         <label for="toWHS">To Store</label>
-        <select @input="fetchInventory" label="name" id="toWHS" ref="toWHS" class="form-control form-control-sm" placeholder="Kindly select receiving warehouse">
+        <select @input="fetchInventory" v-model="receiving" label="name" id="toWHS" ref="toWHS" class="form-control form-control-sm" placeholder="Kindly select receiving warehouse">
           <option value="" selected>Select Receiving Warehouse</option>
-          <option :key="store.name" :value="store.code" v-for="store in stores">
-            {{ store.name }}
-          </option>
+          <option :key="store.name" :value="store.code" v-for="store in stores">{{ store.name }}</option>
         </select>
       </div>
       <div class="form-group col">
@@ -43,6 +39,7 @@
     </div>
 
     <div class="table-responsive">
+      <div class="loader"></div>
       <table class="table table-fixed table-bordered table-hover table-sm">
         <caption>
           <h5 style="display:inline-flex;" class="float-left">Ordered Items</h5>
@@ -52,33 +49,19 @@
             <th scope="col">#</th>
             <th scope="col">Item No.</th>
             <th scope="col">Item Description</th>
-            <th scope="col">Serial Number</th>
+            <th scope="col">Availale</th>
             <th scope="col">Quantity</th>
-            <th scope="col">Price</th>
-            <th scope="col">Total</th>
             <th scope="col"></th>
           </tr>
         </thead>
         <tbody id="LineItems">
           <tr v-for="(item, i) in items" :key="'row' + i" :id="'row' + i">
             <th scope="row">{{ i + 1 }}</th>
-            <td>{{ item.itemcode }}</td>
-            <td>
-              <v-select label="itemname" @input="(val) => itemSelected(val, i)" v-model="item.itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
-            </td>
-            <td>{{ item.serialnumber }}</td>
-            <td>
-              <input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" />
-            </td>
-            <td>
-              {{ item.price }}
-            </td>
-            <td>
-              {{ item.total }}
-            </td>
-            <td>
-              <button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteItemRow(i)">Remove Line</button>
-            </td>
+            <td>{{ item.itemCode }}</td>
+            <td>{{item.itemName}}</td>
+            <td>{{ item.onHand }}</td>
+            <td><input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" /></td>
+            <td><button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteItemRow(i)">Remove Line</button></td>
           </tr>
         </tbody>
         <tfoot id="ItemsFooter"></tfoot>
@@ -140,6 +123,21 @@
     text-align: left;
     caption-side: top;
   }
+
+  .loader {
+    display: none;
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 </style>
 
 <script>
@@ -153,10 +151,11 @@ export default {
       stores: [],
       comment: "",
       options: [],
-      transfer: {},
       inventory: [],
       isAdmin: false,
+      receiving: null,
       isDisabled: true,
+      dispatching: null,
       created_by: this.$store.state.user.id,
       localStore: this.$store.state.userStore,
     };
@@ -187,11 +186,11 @@ export default {
       })[0];
 
       if (this.picked === "requester") {
+        this.dispatching = localStore.code;
         document.getElementById("fromWHS").disabled = true;
-        document.getElementById("fromWHS").value = localStore.id;
       } else if (this.picked === "receiver") {
+        this.receiving = localStore.code;
         document.getElementById("toWHS").disabled = true;
-        document.getElementById("toWHS").value = localStore.id;
       }
 
       // Hide the modal
@@ -206,39 +205,32 @@ export default {
       this.$router.push({ name: "transferlist" });
     },
     fetchInventory(event) {
-      let products = this.$store.state.userStore.products,
-        selectedtext = event.target.selectedOptions[0].text,
-        selectedValue = parseInt(event.target.selectedOptions[0].value);
+      document.getElementById("loader").style.display = "block";
 
-      if (selectedtext === this.localStore.sapkey) {
+      let products = this.$store.state.userStore.products,
+        selectedValue = event.target.selectedOptions[0].value;
+
+      if (selectedValue === this.localStore.sapkey) {
         this.$toast.error("Error! You cannot select your store. Kindly select another store.");
         return;
       }
-      console.log(products);
-      console.log(selectedValue);
 
-      // var requestOptions = {
-      //   method: 'GET',
-      //   redirect: 'follow'
-      // };
-
-      // fetch("http://197.255.32.34:5000/Products/Quantity?PageSize=5000&StoreId=ABA2", requestOptions)
-      //   .then(response => response.text())
-      //   .then(result => console.log(result))
-      //   .catch(error => console.log('error', error));
-        
-      // // Get inventory belonging to this store
-      // window.backend.GetStoreProducts(selectedValue).then(
-      //   (inventory) => {
-      //     this.items = [];
-      //     this.isDisabled = false;
-      //     this.inventory = inventory;
-      //     this.addRow();
-      //   },
-      //   (err) => {
-      //     this.$toast.error("Error! " + err);
-      //   }
-      // );
+      var requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+      };
+      
+      // Get inventory belonging to this store
+      fetch(`${products}/Quantity?PageSize=10000&StoreId=${selectedValue}`, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+          this.inventory = result;
+          document.getElementById("loader").style.display = "none";
+        })
+        .catch(error => {
+          this.$toast.error("Error! " + error);
+          document.getElementById("loader").style.display = "none";
+          });
     },
     addRow(index) {
       if (index + 1 < this.items.length) {

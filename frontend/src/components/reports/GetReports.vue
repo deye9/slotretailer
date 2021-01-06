@@ -49,7 +49,6 @@
             this.$refs.myTable.setLoadingState(true);
             window.backend.GetReports().then((reports) => {
                 if (reports === null) {
-                    this.$toast.info("Error! No Report was returned.");
                     this.$refs.myTable.setLoadingState(false);
                     return;
                 }

@@ -32,7 +32,6 @@ export default {
     this.$refs.myTable.setLoadingState(true);
     window.backend.GetProducts().then((products) => {
       if (products === null) {
-        this.$toast.info("Error! No Product was returned.");
         this.$refs.myTable.setLoadingState(false);
         return;
       }

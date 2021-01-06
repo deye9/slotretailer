@@ -58,7 +58,6 @@ export default {
         // Set the dataSource
         this.data = users;
       } else {
-        this.$toast.info("Error! No user data was found.");
         this.$refs.myTable.setLoadingState(false);
       }
         this.isBusy = false;

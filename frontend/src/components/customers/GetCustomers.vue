@@ -44,7 +44,6 @@ export default {
     this.$refs.myTable.setLoadingState(true);
     window.backend.GetCustomers().then((customers) => {
       if (JSON.stringify(customers) === "{}") {
-        this.$toast.info("Error! No Customer was returned.");
         this.$refs.myTable.setLoadingState(false);
         return;
       }

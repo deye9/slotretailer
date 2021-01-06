@@ -86,7 +86,6 @@ export default {
     this.$refs.myTable.setLoadingState(true);
     window.backend.GetTransfers().then((transfers) => {
       if (transfers === null) {
-        this.$toast.info("Error! No Inventorty Transfer has been raised.");
         this.$refs.myTable.setLoadingState(false);
         return;
       }
@@ -117,20 +116,6 @@ export default {
     // Get all stores
     window.backend.GetStores().then((stores) => {
       this.stores = stores;
-      // let defaultStoreID = 0,
-        // localStore = this.stores.filter((store) => {
-        //   return (
-        //     store.name.toLowerCase() === this.localStore.sapkey.toLowerCase()
-        //   );
-        // })[0];
-
-      // if (localStore.id !== this.transfer.fromwhs) {
-      //   defaultStoreID = this.transfer.fromwhs;
-      //   document.getElementById("toWHS").disabled = true;
-      // } else {
-      //   defaultStoreID = this.transfer.towhs;
-      //   document.getElementById("fromWHS").disabled = true;
-      // }
     }, (err) => {
       this.$toast.error("Error! " + err);
     });

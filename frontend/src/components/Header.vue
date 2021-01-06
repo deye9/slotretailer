@@ -25,11 +25,6 @@
                     </router-link>
                 </li>
                 <li class="nav-item">
-                    <router-link :to="{ name: 'transferlist' }" class="nav-link">
-                        Stock Transfers
-                    </router-link>
-                </li>
-                <li class="nav-item">
                     <router-link :to="{ name: 'reportlist' }" class="nav-link">
                         Reports
                     </router-link>
@@ -45,8 +40,12 @@
                         <router-link :to="{ name: 'productlist' }" class="dropdown-item">
                             Inventory
                         </router-link>
+                        <div class="dropdown-divider"></div>
                         <router-link :to="{ name: 'store' }" class="dropdown-item">
                             Store Details
+                        </router-link>
+                        <router-link :to="{ name: 'transferlist' }" class="dropdown-item">
+                            Stock Transfers
                         </router-link>
                         <div class="dropdown-divider"></div>
                         <router-link :to="{ name: 'auditlogs' }" class="dropdown-item">
