@@ -39,7 +39,6 @@
     </div>
 
     <div class="table-responsive">
-      <div class="loader"></div>
       <table class="table table-fixed table-bordered table-hover table-sm">
         <caption>
           <h5 style="display:inline-flex;" class="float-left">Ordered Items</h5>
@@ -47,6 +46,7 @@
         <thead class="thead-dark">
           <tr>
             <th scope="col">#</th>
+            <th scope="col">Item</th>
             <th scope="col">Item No.</th>
             <th scope="col">Item Description</th>
             <th scope="col">Availale</th>
@@ -57,15 +57,23 @@
         <tbody id="LineItems">
           <tr v-for="(item, i) in items" :key="'row' + i" :id="'row' + i">
             <th scope="row">{{ i + 1 }}</th>
-            <td>{{ item.itemCode }}</td>
-            <td>{{item.itemName}}</td>
-            <td>{{ item.onHand }}</td>
+            <td>
+              <v-select label="itemName" @input="(val) => itemSelected(val, i)" v-model="item.itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
+            </td>
+            <td>{{ item.itemcode }}</td>
+            <td>{{item.itemname}}</td>
+            <td>{{ item.onhand }}</td>
             <td><input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" /></td>
-            <td><button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteItemRow(i)">Remove Line</button></td>
+            <td><button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteRow(i)">Remove Line</button></td>
           </tr>
         </tbody>
-        <tfoot id="ItemsFooter"></tfoot>
+        <tfoot id="ItemsFooter">
+          <tr>
+            <td colspan="7" class="text-right font-weight-bold">&nbsp;</td>
+          </tr>
+        </tfoot>
       </table>
+      <div id="loader"></div>
     </div>
 
     <button type="submit" id="register" class="btn btn-primary btn-sm float-right" :disabled="isDisabled" @click="inventoryRequest">
@@ -101,12 +109,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary btn-sm mr-2" @click="setRole">
-              Set Role
-            </button>
-            <button type="button" class="btn btn-secondary btn-sm" @click="dismiss">
-              Close
-            </button>
+            <button type="button" class="btn btn-primary btn-sm mr-2" @click="setRole">Set Role</button>
+            <button type="button" class="btn btn-secondary btn-sm" @click="dismiss">Close</button>
           </div>
         </div>
       </div>
@@ -124,14 +128,20 @@
     caption-side: top;
   }
 
-  .loader {
+  #loader {
     display: none;
-    border: 16px solid #f3f3f3; /* Light grey */
-    border-top: 16px solid #3498db; /* Blue */
+    border-top: 16px solid blue;
+    border-right: 16px solid green;
+    border-bottom: 16px solid red;
+    border-left: 16px solid pink;
     border-radius: 50%;
     width: 120px;
     height: 120px;
     animation: spin 2s linear infinite;
+    /* Center */
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   @keyframes spin {
@@ -174,6 +184,8 @@ export default {
       }
     );
 
+    document.getElementById("loader").style.display = "none";
+
     // Show the modal
     $("#roleModal").modal("show");
   },
@@ -205,6 +217,7 @@ export default {
       this.$router.push({ name: "transferlist" });
     },
     fetchInventory(event) {
+      this.isDisabled = true;
       document.getElementById("loader").style.display = "block";
 
       let products = this.$store.state.userStore.products,
@@ -225,83 +238,80 @@ export default {
         .then(response => response.json())
         .then(result => {
           this.inventory = result;
+          this.items.push({
+            onhand: 1,
+            quantity: 1,
+            itemcode: '',
+            itemname: '',
+            transferid: null,
+          });
+          this.isDisabled = false;
           document.getElementById("loader").style.display = "none";
         })
         .catch(error => {
+          this.isDisabled = true;
           this.$toast.error("Error! " + error);
           document.getElementById("loader").style.display = "none";
-          });
+        });
     },
-    addRow(index) {
-      if (index + 1 < this.items.length) {
-        return;
-      }
-
-      this.items.push({
-        onHand: 1,
-        quantity: 1,
-        itemcode: "",
-        itemname: "",
-        transferid: null,
-      });
-
-      const el = document.getElementById("register");
-      if (el) {
-        el.scrollIntoView();
-      }
-    },
-    deleteRow(index) {
-      this.$delete(this.items, index);
-
-      if (this.items.length === 0) {
-        this.addRow(index);
-      }
-    },
-    validateQuantity(index) {
-      this.items[index].quantity = parseInt(
-        document.getElementById("txt" + index).value
-      );
-      if (
-        parseInt(this.items[index].quantity) >
-        parseInt(this.items[index].onHand)
-      ) {
-        this.items[index].quantity = parseInt(this.items[index].onHand);
-      }
-    },
-    productDetails(index, event) {
-      let selectedValue = event.target.selectedOptions[0].value;
-
-      if (selectedValue === "null" && this.items.length === 1) {
-        this.$delete(this.items, index);
-        this.addRow();
-        return;
-      } else if (selectedValue === "null") {
-        this.$delete(this.items, index);
-        return;
-      }
-
-      let product = this.inventory.filter((item) => {
-        return item.itemcode.toLowerCase() === selectedValue.toLowerCase();
+    async itemSelected(val, rowIndex) {
+      this.item = this.inventory.filter((inventory) => {
+        return (
+          inventory.itemCode.toLowerCase() === val.itemCode.toLowerCase()
+        );
       })[0];
 
-      this.items[index].quantity = 1;
-      this.items[index].onHand = product.onhand;
-      this.items[index].itemname = product.itemname;
-      this.items[index].itemcode = product.itemcode;
-
-      // Set the max to the max inventory available.
-      document.getElementById("txt" + index).max = product.onhand;
-      this.addRow(index);
-    },
-    inventoryRequest() {
-      if (this.items.length === 0) {
-        this.$toast.error(
-          "Error! You are not permitted to create an empty Inventory Transfer Request."
-        );
+      if (this.item === undefined) {
         return;
       }
 
-      var r = confirm("Are you sure you want to create this Sales Order!");
+      // Set the table data
+      this.items[rowIndex].quantity = 1;
+      this.items[rowIndex].transferid = null;
+      this.items[rowIndex].onhand = this.item.onHand;
+      this.items[rowIndex].itemcode = this.item.itemCode;
+      this.items[rowIndex].itemname = this.item.itemName;
+      
+      // Add a new row to the table
+      this.items.push({
+        onhand: 1,
+        quantity: 1,
+        itemcode: '',
+        itemname: '',
+        transferid: null,
+      });
+    },
+    async setQuantity(rowIndex) {      
+      if (parseInt(event.target.value) > parseInt(this.items[rowIndex].onhand)) {
+        this.isDisabled = true;
+        this.$toast.info("Error! Requested Quantity is more than available Inventory at store.");
+        return
+      }
+
+      this.isDisabled = false;
+      this.items[rowIndex].quantity = event.target.value;
+    },   
+    async deleteRow(index) {
+      this.$delete(this.items, index);
+      
+      if (this.items.length === 0 || this.items.length === index) {
+        // Add a new row to the table
+        this.items.push({
+          onhand: 1,
+          quantity: 1,
+          itemcode: '',
+          itemname: '',
+          transferid: null,
+        });
+      }
+    },     
+    async inventoryRequest() {
+      if (this.items.length === 0) {
+        this.$toast.error("Error! You are not permitted to create an empty Inventory Transfer Request.");
+        return;
+      }
+
+      var r = confirm("Are you sure you want to create this Inventory Transfer Request!");
       if (r == false) {
         return;
       }
@@ -309,29 +319,24 @@ export default {
       // Remove the last row as this is not needed.
       this.$delete(this.items, this.items.length - 1);
 
-      this.transfer.synced = false;
-      this.transfer.canceled = false;
-      this.transfer.items = this.items;
-      this.transfer.comment = this.comment;
-      this.transfer.created_by = this.created_by;
-      this.transfer.towhs = parseInt(document.getElementById("toWHS").value);
-      this.transfer.fromwhs = parseInt(
-        document.getElementById("fromWHS").value
-      );
+      let transfer = {};
+      transfer.id = 0;
+      transfer.synced = false;
+      transfer.canceled = false;
+      transfer.status = "Pending";
+      transfer.items = this.items;
+      transfer.comment = this.comment;
+      transfer.towhs = this.receiving;
+      transfer.fromwhs = this.dispatching;
+      transfer.created_by = this.created_by;
 
-      window.backend.NewTransfer(this.transfer).then(
-        () => {
-          this.$toast.success(
-            "Success! Inventory Transfer has been successfully registered."
-          );
-          this.$router.push({ name: "transferlist" });
-        },
-        (err) => {
+      window.backend.NewTransfer(transfer).then(() => {
+        this.$toast.success("Success! Inventory Transfer request has been successfully registered.");
+        this.$router.push({ name: "transferlist" });
+      }, (err) => {
           this.$toast.error("Error! " + err);
-        }
-      );
+      });
     },
-
   },
 };
 </script>

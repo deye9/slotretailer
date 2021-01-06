@@ -147,7 +147,7 @@
             <th scope="row">{{ i + 1 }}</th>
             <td>{{ item.itemcode }}</td>
             <td>
-              <v-select label="itemname" @input="(val) => itemSelected(val, i)" v-model="item.itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
+              <v-select label="itemName" code="itemCode" @input="(val) => itemSelected(val, i)" v-model="item.itemName" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
             </td>
             <td>{{ item.serialnumber }}</td>
             <td>

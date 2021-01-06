@@ -206,11 +206,12 @@ type Stores struct {
 // Transfers struct
 type Transfers struct {
 	ID        int               `json:"id,omitempty"`
-	FromWhs   int               `json:"fromwhs"`
-	ToWhs     int               `json:"towhs"`
+	FromWhs   string            `json:"fromwhs"`
+	ToWhs     string            `json:"towhs"`
 	Comment   string            `json:"comment"`
 	Canceled  bool              `json:"canceled,omitempty"` // 15
 	Synced    bool              `json:"synced"`
+	Status    string            `json:"status"`
 	Items     []Transfereditems `json:"items"`
 	CreatedBy int               `json:"created_by,omitempty"`
 	CreatedAt sql.NullTime      `json:"created_at,omitempty"`

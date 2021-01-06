@@ -17,7 +17,7 @@ import (
 
 // APIlinks is a collection of all needed API links
 var APIlinks = make(map[string]string)
-var apikeys = [...]string{"customers", "orders"} //, "transfers"}
+var apikeys = [...]string{"transfers"} // "customers", "orders",
 
 // Sync will setup the cadence for sync btw the store and the server.
 func Sync() {
@@ -45,7 +45,7 @@ func Sync() {
 	APIlinks["creditcards"] = LocalStore.CreditCardAPI    // Ready
 	APIlinks["banktransfer"] = LocalStore.BankTransferAPI // Ready
 	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI  // Ready
-	// APIlinks["transfers"] = LocalStore.TransfersAPI // Get for other products on a need to basis.
+	APIlinks["transfers"] = LocalStore.TransfersAPI       // Get for other products on a need to basis.
 
 	duration := LocalStore.SyncInterval
 	if duration == 0 {
@@ -80,20 +80,20 @@ func task(t time.Time) {
 
 	sendData()
 
-	for key, link := range APIlinks {
-		// Write the sync start details to the File System via a Goroutine.
-		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
+	// for key, link := range APIlinks {
+	// 	// Write the sync start details to the File System via a Goroutine.
+	// 	go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
 
-		// Append the StoreID to the link
-		link += "?storeId=" + LocalStore.SapKey
+	// 	// Append the StoreID to the link
+	// 	link += "?storeId=" + LocalStore.SapKey
 
-		if key == "products" {
-			link += "&pricelist=" + LocalStore.ProductPriceList
-		}
+	// 	if key == "products" {
+	// 		link += "&pricelist=" + LocalStore.ProductPriceList
+	// 	}
 
-		getAllData(key, link, str)
-		time.Sleep(2 * time.Second)
-	}
+	// 	getAllData(key, link, str)
+	// 	time.Sleep(2 * time.Second)
+	// }
 }
 
 // sendData for Customers, Orders and Inventory Transfers
@@ -109,7 +109,9 @@ func sendData() (err error) {
 		}
 
 		// Append the StoreID to the link
-		url += "?storeId=" + LocalStore.SapKey
+		if value != "transfers" {
+			url += "?storeId=" + LocalStore.SapKey
+		}
 
 		switch value {
 		case "customers":
@@ -119,7 +121,9 @@ func sendData() (err error) {
 			SQLquery = "call getOrders()"
 
 		case "transfers":
-			SQLquery = "select id, cardname, address, phone, phone1, city, email from customers where synced = false;"
+			SQLquery = `select id, fromwhs, towhs, comment, canceled, synced, status, created_by, DATE_FORMAT(created_at, '%Y-%m-%d') docdate,
+			(select JSON_ARRAYAGG(JSON_OBJECT('itemcode', itemcode, 'itemname', itemname, 'quantity', quantity)) from transfereditems 
+			where transferid = t.id) items from transfers t where synced = false and deleted_at is null and status = 'pending';`
 		}
 
 		var rows *sql.Rows

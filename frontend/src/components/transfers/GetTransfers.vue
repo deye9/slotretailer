@@ -128,7 +128,7 @@ export default {
     storeName(storeID) {
       return this.stores.filter((store) => {
         return (
-          store.id === storeID
+          store.code.toLowerCase() === storeID.toLowerCase()
         );
       })[0].name;
     },
