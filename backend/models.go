@@ -221,12 +221,13 @@ type Transfers struct {
 
 // Transfereditems struct
 type Transfereditems struct {
-	ID         int    `json:"id"`
-	TransferID int    `json:"transferid"`
-	ItemCode   string `json:"itemcode"` // 20
-	ItemName   string `json:"itemname"` // 100
-	Quantity   int    `json:"quantity"`
-	OnHand     int    `json:"onhand"`
+	ID           int    `json:"id"`
+	TransferID   int    `json:"transferid"`
+	ItemCode     string `json:"itemcode"` // 20
+	ItemName     string `json:"itemname"` // 100
+	Quantity     int    `json:"quantity"`
+	OnHand       int    `json:"onhand"`
+	SerialNumber string `json:"serialnumber"`
 }
 
 // REMEMBER TO MODIFY THE migrations.sql ONCE MODIFIED via an alter statement.

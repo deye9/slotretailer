@@ -11,19 +11,22 @@
 
     <ul class="nav nav-tabs">
       <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="incoming-tab" data-toggle="tab" href="#incoming" role="tab" aria-controls="incoming" aria-selected="true">Incoming Transfers</a>
+        <a class="nav-link active" id="pending-tab" data-toggle="tab" href="#pending" role="tab" aria-controls="pending" aria-selected="true">Pending Transfers</a>
+      </li>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" id="incoming-tab" data-toggle="tab" href="#incoming" role="tab" aria-controls="incoming" aria-selected="false">Incoming Transfers</a>
       </li>
       <li class="nav-item" role="presentation">
         <a class="nav-link" id="outgoing-tab" data-toggle="tab" href="#outgoing" role="tab" aria-controls="outgoing" aria-selected="false">Outgoing Transfers</a>
       </li>
-      <li class="nav-item" role="presentation">
-        <a class="nav-link" id="rejected-tab" data-toggle="tab" href="#rejected" role="tab" aria-controls="rejected" aria-selected="false">Rejected Transfers</a>
-      </li>
     </ul>
 
     <div class="tab-content" id="transfersTab">
-      <div class="tab-pane fade show active mt-4" id="incoming" role="tabpanel" aria-labelledby="incoming-tab">
-        <v-client-table ref="myTable" id="myTable" :columns="columns" v-model="data" :options="options">
+      <div class="tab-pane fade active mt-4" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+        <v-client-table ref="pendingTransfers" :columns="columns" v-model="pending" :options="options"></v-client-table>
+      </div>
+      <div class="tab-pane fade show mt-4" id="incoming" role="tabpanel" aria-labelledby="incoming-tab">
+        <v-client-table ref="myTable" id="myTable" :columns="columns" v-model="incoming" :options="options">
           <div slot="id" slot-scope="{row}" style="text-transform: capitalize;">
             {{ 'trans-' + row.id }}
           </div>
@@ -59,8 +62,9 @@
           </div>
         </v-client-table>
       </div>
-      <div class="tab-pane fade mt-4" id="outgoing" role="tabpanel" aria-labelledby="outgoing-tab">...</div>
-      <div class="tab-pane fade mt-4" id="rejected" role="tabpanel" aria-labelledby="rejected-tab">...</div>
+      <div class="tab-pane fade mt-4" id="outgoing" role="tabpanel" aria-labelledby="outgoing-tab">
+        <v-client-table ref="outgoingTransfers" :columns="columns" v-model="outgoing" :options="options"></v-client-table>
+      </div>
     </div>
   </section>
 </template>
@@ -71,9 +75,11 @@ import moment from "moment";
 export default {
   data() {
     return {
-      data: [],
       stores: [],
       columns: [],
+      pending: [],
+      incoming: [],
+      outgoing: [],
       options: {},
       allowDelete: false,
       dateColumns:['created_at','updated_at', 'deleted_at']
@@ -84,7 +90,10 @@ export default {
   },
   mounted() {
     this.$refs.myTable.setLoadingState(true);
-    window.backend.GetTransfers().then((transfers) => {
+    this.$refs.pendingTransfers.setLoadingState(true);
+    this.$refs.outgoingTransfers.setLoadingState(true);
+
+    window.backend.GetTransfers().then(async (transfers) => {
       if (transfers === null) {
         this.$refs.myTable.setLoadingState(false);
         return;
@@ -103,14 +112,32 @@ export default {
           this.columns.push(key);
         }
       });
-      this.columns.push('actions');
+      // this.columns.push('actions');
 
       // Set the dataSource
-      this.data = transfers;
+      this.pending = await transfers.filter((transfer) => {
+        return (
+          transfer.status.toLowerCase() === "pending"
+        )
+      });
+      this.incoming = await transfers.filter((transfer) => {
+        return (
+          transfer.status.toLowerCase() === "approved"
+        )
+      });
+      this.outgoing = await transfers.filter((transfer) => {
+        return (
+          transfer.status.toLowerCase() === "accepted"
+        )
+      });
       this.$refs.myTable.setLoadingState(false);
+      this.$refs.pendingTransfers.setLoadingState(false);
+      this.$refs.outgoingTransfers.setLoadingState(false);
     }, (err) => {
       this.$toast.error("Error! " + err);
       this.$refs.myTable.setLoadingState(false);
+      this.$refs.pendingTransfers.setLoadingState(false);
+      this.$refs.outgoingTransfers.setLoadingState(false);
     });
 
     // Get all stores
@@ -119,7 +146,6 @@ export default {
     }, (err) => {
       this.$toast.error("Error! " + err);
     });
-    
   },
   methods: {
     formatDate(date) {

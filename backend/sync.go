@@ -17,7 +17,7 @@ import (
 
 // APIlinks is a collection of all needed API links
 var APIlinks = make(map[string]string)
-var apikeys = [...]string{"transfers"} // "customers", "orders",
+var apikeys = [...]string{"customers", "orders", "transfers"}
 
 // Sync will setup the cadence for sync btw the store and the server.
 func Sync() {
@@ -45,7 +45,6 @@ func Sync() {
 	APIlinks["creditcards"] = LocalStore.CreditCardAPI    // Ready
 	APIlinks["banktransfer"] = LocalStore.BankTransferAPI // Ready
 	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI  // Ready
-	APIlinks["transfers"] = LocalStore.TransfersAPI       // Get for other products on a need to basis.
 
 	duration := LocalStore.SyncInterval
 	if duration == 0 {
@@ -78,8 +77,8 @@ func task(t time.Time) {
 	str = strings.ReplaceAll(str, ":", "")
 	str = strings.Split(str, " ")[0]
 
-	sendData()
-
+	// sendData()
+	handleTransfers()
 	// for key, link := range APIlinks {
 	// 	// Write the sync start details to the File System via a Goroutine.
 	// 	go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
@@ -143,6 +142,17 @@ func sendData() (err error) {
 		ConvertToJSON(rows, columns, url, key)
 	}
 	return nil
+}
+
+func handleTransfers() (err error) {
+	// transfers := LocalStore.TransfersAPI
+	// var getTransfers =
+	// processedDestination := LocalStore.TransfersAPI + "/Processed/destination?destinationStore=ABUJA1"
+	// unprocessedDestination := LocalStore.TransfersAPI + "/Unprocessed/destination?destinationStore=Abuja1"
+
+	// // Append the StoreID to the link
+	// transfers += "?storeId=" + LocalStore.SapKey
+	return
 }
 
 // ConvertToJSON converts the database response to JSON.
@@ -284,7 +294,6 @@ func getAllData(key, link, str string) error {
 	switch strings.ToLower(key) {
 	case "orders":
 	case "customers":
-	case "transfers":
 	default:
 		cmd = "truncate table " + key + "; "
 	}

@@ -85,7 +85,7 @@ func GetTransfer(id int) (transfer Transfers, err error) {
 
 		if err = rows.Scan(&transfer.ID, &transfer.FromWhs, &transfer.ToWhs, &transfer.Comment, &transfer.Canceled, &transfer.Synced,
 			&transfer.Status, &transfer.CreatedBy, &transfer.CreatedAt, &transfer.UpdatedAt, &transfer.DeletedAt,
-			&item.ID, &item.TransferID, &item.ItemCode, &item.ItemName, &item.OnHand, &item.Quantity); err != nil {
+			&item.ID, &item.TransferID, &item.ItemCode, &item.ItemName, &item.OnHand, &item.Quantity, &item.SerialNumber); err != nil {
 			CheckError("Error Scanning Transfer Request.", err, false)
 		} else {
 			items = append(items, item)
