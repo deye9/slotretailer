@@ -234,6 +234,59 @@ func structToInsertUpdate(value interface{}, tableName string) string {
 	return cmd + "\n"
 }
 
+// structToInsertUpdate converts a struct to a sqllite3 replace statement
+func structToInsert(value interface{}, tableName string) string {
+	cmd := ""
+	var ok bool
+	var listSlice []interface{}
+
+	if listSlice, ok = value.([]interface{}); !ok {
+		fmt.Println("Argument is not a slice")
+	}
+
+	// Get the keys
+	var keys []string
+	for key := range listSlice[0].(map[string]interface{}) {
+		if strings.ToLower(key) != "docdate" && strings.ToLower(key) != "items" && strings.ToLower(key) != "requestedby" {
+			keys = append(keys, key)
+		}
+	}
+
+	// Sort the keys
+	sort.Strings(keys)
+
+	for _, _value := range listSlice {
+		var cmdValues []string
+		_Value := _value.(map[string]interface{})
+
+		for _, val := range keys {
+			if strings.ToLower(val) == "synced" {
+				cmdValues = append(cmdValues, fmt.Sprintf(`"%v", `, true))
+				continue
+			}
+			cmdValues = append(cmdValues, fmt.Sprintf(`"%v", `, _Value[val]))
+		}
+
+		// joining the string array by ", " separator
+		cmd += "INSERT INTO " + tableName + "(" + strings.Join(keys, ", ") + ") VALUES (" + strings.TrimSuffix(strings.Join(cmdValues, ""), ", ") + ");  \n"
+
+		// Convert the items to insert commands
+		var itemKeys []string
+		var itemValues []string
+		items := _Value["items"]
+		itemKeys = append(itemKeys, "transferid")
+		itemValues = append(itemValues, fmt.Sprintf("%.0f, ", _Value["id"]))
+		for key, value := range items.([]interface{})[0].(map[string]interface{}) {
+			itemKeys = append(itemKeys, key)
+			itemValues = append(itemValues, fmt.Sprintf(`"%v", `, value))
+		}
+		// joining the string array by ", " separator
+		cmd += "INSERT INTO transfereditems(" + strings.Join(itemKeys, ", ") + ") VALUES (" + strings.TrimSuffix(strings.Join(itemValues, ""), ", ") + ");  \n"
+	}
+
+	return cmd + "\n"
+}
+
 // MaptoInsert converts a map to a sql insert statement
 func MaptoInsert(mapData map[string]interface{}, tableName string) (string, error) {
 	cmd := "INSERT INTO " + tableName

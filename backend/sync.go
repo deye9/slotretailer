@@ -122,7 +122,7 @@ func sendData() (err error) {
 		case "transfers":
 			SQLquery = `select id, fromwhs, towhs, comment, canceled, synced, status, created_by, DATE_FORMAT(created_at, '%Y-%m-%d') docdate,
 			(select JSON_ARRAYAGG(JSON_OBJECT('itemcode', itemcode, 'itemname', itemname, 'quantity', quantity)) from transfereditems 
-			where transferid = t.id) items from transfers t where synced = false and deleted_at is null and status = 'pending';`
+			where transferid = t.id) items from transfers t where deleted_at is null and status in ('pending', 'incoming');`
 		}
 
 		var rows *sql.Rows
@@ -145,10 +145,34 @@ func sendData() (err error) {
 }
 
 func handleTransfers() (err error) {
-	// transfers := LocalStore.TransfersAPI
-	// var getTransfers =
-	// processedDestination := LocalStore.TransfersAPI + "/Processed/destination?destinationStore=" + LocalStore.SapKey
-	// unprocessedDestination := LocalStore.TransfersAPI + "/Unprocessed/destination?destinationStore=" + LocalStore.SapKey
+	data := []byte{}
+	var transferLinks = make(map[string]string)
+	transferLinks["processedDestination"] = LocalStore.TransfersAPI + "/Processed/destination?destinationStore=" + LocalStore.SapKey
+	transferLinks["unprocessedDestination"] = LocalStore.TransfersAPI + "/Unprocessed/destination?destinationStore=" + LocalStore.SapKey
+
+	for key, link := range transferLinks {
+		var response interface{} = []Transfers{}
+		data, err = httpget(link)
+
+		if string(data) == "[]" {
+			continue
+		}
+
+		if err = json.Unmarshal(data, &response); err != nil {
+			CheckError("Error unmarshalling data for ["+key+"].", err, false)
+			return err
+		}
+
+		cmd := structToInsert(response, "transfers")
+		if strings.ToLower((key)) == "unprocesseddestination" {
+			cmd = strings.ReplaceAll(cmd, "Pending", "Incoming")
+		}
+
+		if err = Modify(cmd); err != nil {
+			CheckError("Error saving HTTPGET for "+key+" result.", err, false)
+			return err
+		}
+	}
 	return
 }
 

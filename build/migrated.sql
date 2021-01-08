@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS transfers(
     fromwhs     VARCHAR(255) NOT NULL,
     towhs       VARCHAR(255) NOT NULL,
     comment     text,
-    canceled    boolean,
+    canceled    boolean DEFAULT false,
     synced      boolean,
     status      VARCHAR(255) NOT NULL,
     created_by  INT NOT NULL,
@@ -201,6 +201,8 @@ ALTER table store add column banktransfer VARCHAR(255) NOT NULL;
 ALTER table store add column cheques VARCHAR(255) NOT NULL;
 ALTER table products add column itemid int;
 ALTER table transfereditems add column serialnumber VARCHAR(255);
+ALTER table transfers add column docentry int;
+ALTER table transfers add column docnum int;
 
 -- Default Reports
 REPLACE INTO reports (id, title, query, created_by) VALUES (1, "Todays Orders", "select id as order_id, docnum `Document Number`, canceled `Is Cancelled`, CardCode, CardName,  vatsum `VAT %`, concat('₦', format(doctotal, 2)) `Document Total`, case when Synced <> 0 then \"Yes\" else \"No\" END `Synced`, case when returned <> 0 then \"Yes\" else \"No\" END `Returned`, ifnull( (select concat(firstname, '  ', lastname) from users where users.id = o.discountapprovedby), 'Super Admin') `approved_by` from orders o where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);

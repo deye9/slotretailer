@@ -11,10 +11,10 @@
 
     <ul class="nav nav-tabs">
       <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="pending-tab" data-toggle="tab" href="#pending" role="tab" aria-controls="pending" aria-selected="true">Pending Transfers</a>
+        <a class="nav-link active" id="pending-tab" data-toggle="tab" href="#pending" role="tab" aria-controls="pending" aria-selected="true">Pending Request(s)</a>
       </li>
       <li class="nav-item" role="presentation">
-        <a class="nav-link" id="incoming-tab" data-toggle="tab" href="#incoming" role="tab" aria-controls="incoming" aria-selected="false">Incoming Transfers</a>
+        <a class="nav-link" id="incoming-tab" data-toggle="tab" href="#incoming" role="tab" aria-controls="incoming" aria-selected="false">Incoming Request(s)</a>
       </li>
       <li class="nav-item" role="presentation">
         <a class="nav-link" id="outgoing-tab" data-toggle="tab" href="#outgoing" role="tab" aria-controls="outgoing" aria-selected="false">Outgoing Transfers</a>
@@ -122,12 +122,12 @@ export default {
       });
       this.incoming = await transfers.filter((transfer) => {
         return (
-          transfer.status.toLowerCase() === "approved"
+          transfer.status.toLowerCase() === "incoming"
         )
       });
       this.outgoing = await transfers.filter((transfer) => {
         return (
-          transfer.status.toLowerCase() === "accepted"
+          transfer.status.toLowerCase() === "accepted" || transfer.status.toLowerCase() === "approved"
         )
       });
       this.$refs.myTable.setLoadingState(false);

@@ -217,6 +217,8 @@ type Transfers struct {
 	CreatedAt sql.NullTime      `json:"created_at,omitempty"`
 	UpdatedAt sql.NullTime      `json:"updated_at,omitempty"`
 	DeletedAt sql.NullTime      `json:"deleted_at,omitempty"`
+	DocEntry  int               `json:"docentry,omitempty"`
+	DocNum    int               `json:"docnum,omitempty"`
 }
 
 // Transfereditems struct
