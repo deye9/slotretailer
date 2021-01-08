@@ -13,10 +13,11 @@
     <div class="form-row">
       <div class="form-group col">
         <label for="fromWHS">From Store</label>
-        <select @input="fetchInventory" v-model="dispatching" label="name" id="fromWHS" ref="fromWHS" class="form-control form-control-sm" placeholder="Kindly select dispatching warehouse">
+        <input id="createdBy" type="text" class="form-control form-control-sm" placeholder="Requested By" disabled v-model="dispatching" />
+        <!-- <select @input="fetchInventory" v-model="dispatching" label="name" id="fromWHS" ref="fromWHS" class="form-control form-control-sm" placeholder="Kindly select dispatching warehouse">
           <option value="" selected>Select Dispatching Warehouse</option>
           <option :key="store.name" :value="store.code" v-for="store in stores">{{ store.name }}</option>
-        </select>
+        </select> -->
       </div>
       <div class="form-group col">
         <label for="toWHS">To Store</label>
@@ -80,42 +81,6 @@
       Create Request
     </button>
 
-    <!-- Modal -->
-    <div class="modal fade" id="roleModal" data-backdrop="static" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header text-center bg-dark text-white">
-            <h5 class="modal-title" id="roleModalLabel">
-              Set Inventory Transfer Role
-            </h5>
-            <button type="button" class="close text-white" @click="dismiss" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="container-fluid">
-              <div class="form-check mb-3">
-                <input class="form-check-input" type="radio" name="RoleRadios" id="reqRadio" value="requester" v-model="picked" />
-                <label class="form-check-label" for="reqRadio">
-                  Requesting Store
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="RoleRadios" id="recRadio" value="receiver" v-model="picked" />
-                <label class="form-check-label" for="recRadio">
-                  Receiving Store
-                </label>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary btn-sm mr-2" @click="setRole">Set Role</button>
-            <button type="button" class="btn btn-secondary btn-sm" @click="dismiss">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </section>
 </template>
 
@@ -151,7 +116,6 @@
 </style>
 
 <script>
-import $ from "jquery";
 
 export default {
   data() {
@@ -170,7 +134,7 @@ export default {
       localStore: this.$store.state.userStore,
     };
   },
-  mounted() {
+  async mounted() {
     // Determine the state of the Discount element
     if (this.$store.state.isAdmin) {
       this.isAdmin = true;
@@ -178,47 +142,21 @@ export default {
 
     // Get all stores
     window.backend.GetStores().then((stores) => {
-        this.stores = stores;
-      }, (err) => {
+      // Remove the localstore
+      this.stores = stores.filter((el) => {
+        return el.code.toLowerCase() !== this.localStore.sapkey.toLowerCase();
+      });
+    }, (err) => {
         this.$toast.error("Error! " + err);
       }
     );
 
     document.getElementById("loader").style.display = "none";
-
-    // Show the modal
-    $("#roleModal").modal("show");
+    this.dispatching = this.localStore.sapkey;
   },
   methods: {
-    async setRole() {
-      let localStore = await this.stores.filter((store) => {
-        return (
-          store.code.toLowerCase() === this.localStore.sapkey.toLowerCase()
-        );
-      })[0];
-
-      if (this.picked === "requester") {
-        this.dispatching = localStore.code;
-        document.getElementById("fromWHS").disabled = true;
-      } else if (this.picked === "receiver") {
-        this.receiving = localStore.code;
-        document.getElementById("toWHS").disabled = true;
-      }
-
-      // Hide the modal
-      $("#roleModal").modal("hide");
-    },
-    dismiss() {
-      // Hide the modal
-      $("#roleModal").modal("hide");
-
-      // Hide the information and redirect to the Transfer Request list.
-      this.$toast.info("Info! You can't continue without setting your role.");
-      this.$router.push({ name: "transferlist" });
-    },
     fetchInventory(event) {
       this.isDisabled = true;
-      document.getElementById("loader").style.display = "block";
 
       let products = this.$store.state.userStore.products,
         selectedValue = event.target.selectedOptions[0].value;
@@ -228,6 +166,7 @@ export default {
         return;
       }
 
+      document.getElementById("loader").style.display = "block";
       var requestOptions = {
         method: 'GET',
         redirect: 'follow'
