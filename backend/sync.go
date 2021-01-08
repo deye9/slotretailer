@@ -77,22 +77,22 @@ func task(t time.Time) {
 	str = strings.ReplaceAll(str, ":", "")
 	str = strings.Split(str, " ")[0]
 
-	// sendData()
+	sendData()
 	handleTransfers()
-	// for key, link := range APIlinks {
-	// 	// Write the sync start details to the File System via a Goroutine.
-	// 	go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
+	for key, link := range APIlinks {
+		// Write the sync start details to the File System via a Goroutine.
+		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
 
-	// 	// Append the StoreID to the link
-	// 	link += "?storeId=" + LocalStore.SapKey
+		// Append the StoreID to the link
+		link += "?storeId=" + LocalStore.SapKey
 
-	// 	if key == "products" {
-	// 		link += "&pricelist=" + LocalStore.ProductPriceList
-	// 	}
+		if key == "products" {
+			link += "&pricelist=" + LocalStore.ProductPriceList
+		}
 
-	// 	getAllData(key, link, str)
-	// 	time.Sleep(2 * time.Second)
-	// }
+		getAllData(key, link, str)
+		time.Sleep(2 * time.Second)
+	}
 }
 
 // sendData for Customers, Orders and Inventory Transfers
@@ -129,7 +129,7 @@ func sendData() (err error) {
 		var columns []string
 
 		if rows, err = Get(SQLquery); err != nil {
-			CheckError("Error Getting customer data for Endpoint: ", errors.New(SQLquery), false)
+			CheckError("Error Getting "+value+" data for Endpoint: ", err, false)
 			return
 		}
 
@@ -147,11 +147,8 @@ func sendData() (err error) {
 func handleTransfers() (err error) {
 	// transfers := LocalStore.TransfersAPI
 	// var getTransfers =
-	// processedDestination := LocalStore.TransfersAPI + "/Processed/destination?destinationStore=ABUJA1"
-	// unprocessedDestination := LocalStore.TransfersAPI + "/Unprocessed/destination?destinationStore=Abuja1"
-
-	// // Append the StoreID to the link
-	// transfers += "?storeId=" + LocalStore.SapKey
+	// processedDestination := LocalStore.TransfersAPI + "/Processed/destination?destinationStore=" + LocalStore.SapKey
+	// unprocessedDestination := LocalStore.TransfersAPI + "/Unprocessed/destination?destinationStore=" + LocalStore.SapKey
 	return
 }
 

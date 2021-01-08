@@ -207,6 +207,12 @@ func structToInsertUpdate(value interface{}, tableName string) string {
 		var cmdValues []string
 		_Value := _value.(map[string]interface{})
 		for _, val := range keys {
+
+			if strings.ToLower(val) == "id" && fmt.Sprintf("%.0f", _Value["id"]) == "0" {
+				cmdValues = append(cmdValues, fmt.Sprintf(`%v, `, "null"))
+				continue
+			}
+
 			if strings.ToLower(val) == "valid_until" {
 				_Value[val] = "2038-01-19 03:14:07"
 			}
