@@ -172,7 +172,8 @@ func handleTransfers() (err error) {
 
 		cmd := structToInsert(response, "transfers")
 		if strings.ToLower((key)) == "unprocesseddestination" {
-			cmd = strings.ReplaceAll(strings.ToLower(cmd), "pending", "Incoming")
+			cmd = strings.ReplaceAll(strings.ToLower(cmd), "id", "requestid")
+			cmd += strings.ReplaceAll(strings.ToLower(cmd), "pending", "Incoming")
 			cmd += strings.ReplaceAll(strings.ToLower(cmd), "docdate", "created_at")
 		}
 
