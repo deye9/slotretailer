@@ -255,6 +255,9 @@ export default {
 
       let transfer = {};
       transfer.id = 0;
+      transfer.docnum = 0;
+      transfer.docentry = 0;
+      transfer.requestid = 0;
       transfer.synced = false;
       transfer.canceled = false;
       transfer.status = "Pending";

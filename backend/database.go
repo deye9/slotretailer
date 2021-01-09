@@ -223,8 +223,9 @@ func structToInsertUpdate(value interface{}, tableName string) string {
 				continue
 			}
 
-			update += fmt.Sprintf(`%s = "%v", `, val, _Value[val])
-			cmdValues = append(cmdValues, fmt.Sprintf(`"%v", `, _Value[val]))
+			cleanedValue := strings.ReplaceAll(fmt.Sprintf(`%v`, _Value[val]), `"`, `\"`)
+			update += fmt.Sprintf(`%s = "%v", `, val, cleanedValue)
+			cmdValues = append(cmdValues, fmt.Sprintf(`"%v", `, cleanedValue))
 		}
 
 		// joining the string array by ", " separator

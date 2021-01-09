@@ -205,10 +205,12 @@ export default {
           transfer.status.toLowerCase() === "rejected"
         )
       });
+      
       this.$refs.myTable.setLoadingState(false);
       this.$refs.pendingTransfers.setLoadingState(false);
       this.$refs.outgoingTransfers.setLoadingState(false);
       this.$refs.rejectedTransfers.setLoadingState(false);
+
     }, (err) => {
       this.$toast.error("Error! " + err);
       this.$refs.myTable.setLoadingState(false);
@@ -228,8 +230,8 @@ export default {
     formatDate(date) {
       return moment(date.Time).format("Do of MMMM YYYY");
     },
-    async storeName(storeID) {
-      return await this.stores.filter((store) => {
+    storeName(storeID) {
+      return this.stores.filter((store) => {
         return (
           store.code.toLowerCase() === storeID.toLowerCase()
         );

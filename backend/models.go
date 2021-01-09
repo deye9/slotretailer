@@ -219,6 +219,7 @@ type Transfers struct {
 	DeletedAt sql.NullTime      `json:"deleted_at,omitempty"`
 	DocEntry  int               `json:"docentry,omitempty"`
 	DocNum    int               `json:"docnum,omitempty"`
+	RequestID int               `json:"requestid,omitempty"`
 }
 
 // Transfereditems struct

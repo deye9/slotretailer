@@ -36,17 +36,17 @@ func Sync() {
 		return
 	}
 
-	APIlinks["orders"] = LocalStore.OrdersAPI                                                                    // WIP
-	APIlinks["stores"] = LocalStore.WarehousesAPI                                                                // Ready
-	APIlinks["cheques"] = LocalStore.ChequesAPI                                                                  // Ready
-	APIlinks["products"] = LocalStore.ProductsAPI                                                                // Ready
-	APIlinks["transfers"] = LocalStore.TransfersAPI                                                              // Ready
-	APIlinks["customers"] = LocalStore.CustomersAPI                                                              // POST ready and GET ready. How to get customers for other stores / across board.
-	APIlinks["pricelist"] = LocalStore.PricelistAPI                                                              // Ready
-	APIlinks["creditcards"] = LocalStore.CreditCardAPI                                                           // Ready
-	APIlinks["banktransfer"] = LocalStore.BankTransferAPI                                                        // Ready
-	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI                                                         // Ready
-	APIlinks["transferRequests"] = strings.Replace(LocalStore.TransfersAPI, "TransferRequests", "Transfers", -1) // Ready
+	APIlinks["orders"] = LocalStore.OrdersAPI                                                             // WIP
+	APIlinks["stores"] = LocalStore.WarehousesAPI                                                         // Ready
+	APIlinks["cheques"] = LocalStore.ChequesAPI                                                           // Ready
+	APIlinks["products"] = LocalStore.ProductsAPI                                                         // Ready
+	APIlinks["customers"] = LocalStore.CustomersAPI                                                       // POST ready and GET ready. How to get customers for other stores / across board.
+	APIlinks["pricelist"] = LocalStore.PricelistAPI                                                       // Ready
+	APIlinks["creditcards"] = LocalStore.CreditCardAPI                                                    // Ready
+	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI                                                  // Ready
+	APIlinks["banktransfer"] = LocalStore.BankTransferAPI                                                 // Ready
+	APIlinks["transferRequests"] = LocalStore.TransfersAPI                                                // Ready
+	APIlinks["transfers"] = strings.Replace(LocalStore.TransfersAPI, "TransferRequests", "Transfers", -1) // Ready
 
 	duration := LocalStore.SyncInterval
 	if duration == 0 {
@@ -110,7 +110,7 @@ func sendData() (err error) {
 		}
 
 		// Append the StoreID to the link
-		if value != "transfers" {
+		if value != "transfers" && value != "transferRequests" {
 			url += "?storeId=" + LocalStore.SapKey
 		}
 
@@ -127,7 +127,7 @@ func sendData() (err error) {
 			where transferid = t.id) items from transfers t where deleted_at is null and status = 'Accepted' and synced = false;`
 
 		case "transferRequests":
-			SQLquery = `select id, fromwhs, towhs, comment, canceled, synced, status, created_by, DATE_FORMAT(created_at, '%Y-%m-%d') docdate docentry, docnum, requestId,
+			SQLquery = `select id, fromwhs, towhs, comment, canceled, synced, status, created_by, DATE_FORMAT(created_at, '%Y-%m-%d') docdate, docentry, docnum, requestId,
 			(select JSON_ARRAYAGG(JSON_OBJECT('itemcode', itemcode, 'itemname', itemname, 'quantity', quantity, 'serialnumber', serialnumber)) from transfereditems 
 			where transferid = t.id) items from transfers t where deleted_at is null and status in ('pending', 'rejected') and synced = false;`
 		}
@@ -167,7 +167,7 @@ func handleTransfers() (err error) {
 
 		if err = json.Unmarshal(data, &response); err != nil {
 			CheckError("Error unmarshalling data for ["+key+"].", err, false)
-			return err
+			continue
 		}
 
 		cmd := structToInsert(response, "transfers")
@@ -178,7 +178,7 @@ func handleTransfers() (err error) {
 
 		if err = Modify(cmd); err != nil {
 			CheckError("Error saving HTTPGET for "+key+" result.", err, false)
-			return err
+			continue
 		}
 	}
 	return
@@ -242,7 +242,7 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 
 	if jsonStr != "null" {
 		// Remove the last ", " from the ID string and generate the update command
-		cmd := "UPDATE " + key + " SET synced = true WHERE id IN (" + strings.TrimRight(id, ", ") + ");"
+		cmd := "UPDATE " + strings.Replace(key, "transferRequests", "transfers", -1) + " SET synced = true WHERE id IN (" + strings.TrimRight(id, ", ") + ");"
 		_, _, _ = httppost(url, jsonStr, cmd)
 	}
 	return
@@ -276,9 +276,16 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 
 	status = res.Status
 	data, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		CheckError("Error from Endpoint " + url + " for Payload sent. ", err, false)
+	}
 
+	fmt.Println("err is: ", payload)
+	fmt.Println("url is: ", url)
 	if status == "200 OK" {
 		Modify(successcommand)
+	} else {
+		CheckError("Error from Endpoint " + url + " for Payload sent. ", errors.New("status is " + status + ". "+ string(data)), false)
 	}
 
 	return
@@ -330,7 +337,6 @@ func getAllData(key, link, str string) error {
 	cmd += structToInsertUpdate(response, key)
 	if err = Modify(cmd); err != nil {
 		CheckError("Error saving HTTPGET for "+key+" result.", err, false)
-		return err
 	}
 
 	// Write the sync start details to the File System via a Goroutine.
