@@ -156,7 +156,7 @@ func NewTransfer(transfer map[string]interface{}) (err error) {
 // UpdateTransfer updates the Transfer details in the database
 func UpdateTransfer(transfer map[string]interface{}) (id int, err error) {
 	// Get a new reference to the transfered items and remove it from the map.
-	var result, detail string
+	var result, detail, inventory string
 	itemsOrdered := transfer["items"]
 	delete(transfer, "items")
 
@@ -167,6 +167,8 @@ func UpdateTransfer(transfer map[string]interface{}) (id int, err error) {
 
 	for _, _value := range itemsOrdered.([]interface{}) {
 		item := _value.(map[string]interface{})
+
+		inventory += fmt.Sprintf(`UPDATE products SET onhand = onhand - %v WHERE itemcode = "%s";`, item["quantity"], item["itemcode"])
 
 		if item["id"] == 0.00 {
 			// Generate the Insert Query
@@ -181,14 +183,27 @@ func UpdateTransfer(transfer map[string]interface{}) (id int, err error) {
 				return 0, err
 			}
 		}
+
 		// Build out the needed queries
-		result += strings.Replace(fmt.Sprintf("%v", detail), `updated_at = CURRENT_TIMESTAMP,`, "", -1)
+		result += strings.Replace(fmt.Sprintf("%v", detail), `updated_at = CURRENT_TIMESTAMP,`, "", -1) + " \n"
 	}
 
-	if err = Modify(result); err != nil {
+	// Perform cleanups
+	result = strings.ReplaceAll(strings.ToLower(result), "update transfers set ", "update transfers set synced = false, status = 'Accepted', ")
+	if err = Modify(result + inventory); err != nil {
 		CheckError("Error updating the Transfer.", err, false)
 	}
 	return
+}
+
+// RejectTransfer rejects a Transfer request from the requesting store
+func RejectTransfer(id int) (err error) {
+	if err = Modify(fmt.Sprintf(`update transfers set status = 'Rejected', canceled = true, synced = false where id = %d;`, id)); err != nil {
+		CheckError("Error removing Transfer.", err, false)
+		return err
+	}
+
+	return nil
 }
 
 // RemoveTransfer deletes a Transfer from the database

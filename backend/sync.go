@@ -17,7 +17,7 @@ import (
 
 // APIlinks is a collection of all needed API links
 var APIlinks = make(map[string]string)
-var apikeys = [...]string{"customers", "orders", "transfers"}
+var apikeys = [...]string{"customers", "orders", "transfers", "transferRequests"}
 
 // Sync will setup the cadence for sync btw the store and the server.
 func Sync() {
@@ -36,15 +36,17 @@ func Sync() {
 		return
 	}
 
-	APIlinks["orders"] = LocalStore.OrdersAPI             // WIP
-	APIlinks["stores"] = LocalStore.WarehousesAPI         // Ready
-	APIlinks["cheques"] = LocalStore.ChequesAPI           // Ready
-	APIlinks["products"] = LocalStore.ProductsAPI         // Ready
-	APIlinks["customers"] = LocalStore.CustomersAPI       // POST ready and GET ready. How to get customers for other stores / across board.
-	APIlinks["pricelist"] = LocalStore.PricelistAPI       // Ready
-	APIlinks["creditcards"] = LocalStore.CreditCardAPI    // Ready
-	APIlinks["banktransfer"] = LocalStore.BankTransferAPI // Ready
-	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI  // Ready
+	APIlinks["orders"] = LocalStore.OrdersAPI                                                                    // WIP
+	APIlinks["stores"] = LocalStore.WarehousesAPI                                                                // Ready
+	APIlinks["cheques"] = LocalStore.ChequesAPI                                                                  // Ready
+	APIlinks["products"] = LocalStore.ProductsAPI                                                                // Ready
+	APIlinks["transfers"] = LocalStore.TransfersAPI                                                              // Ready
+	APIlinks["customers"] = LocalStore.CustomersAPI                                                              // POST ready and GET ready. How to get customers for other stores / across board.
+	APIlinks["pricelist"] = LocalStore.PricelistAPI                                                              // Ready
+	APIlinks["creditcards"] = LocalStore.CreditCardAPI                                                           // Ready
+	APIlinks["banktransfer"] = LocalStore.BankTransferAPI                                                        // Ready
+	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI                                                         // Ready
+	APIlinks["transferRequests"] = strings.Replace(LocalStore.TransfersAPI, "TransferRequests", "Transfers", -1) // Ready
 
 	duration := LocalStore.SyncInterval
 	if duration == 0 {
@@ -120,9 +122,14 @@ func sendData() (err error) {
 			SQLquery = "call getOrders()"
 
 		case "transfers":
-			SQLquery = `select id, fromwhs, towhs, comment, canceled, synced, status, created_by, DATE_FORMAT(created_at, '%Y-%m-%d') docdate,
-			(select JSON_ARRAYAGG(JSON_OBJECT('itemcode', itemcode, 'itemname', itemname, 'quantity', quantity)) from transfereditems 
-			where transferid = t.id) items from transfers t where deleted_at is null and status in ('pending', 'incoming');`
+			SQLquery = `select id, fromwhs, towhs, comment, canceled, synced, status, created_by, DATE_FORMAT(created_at, '%Y-%m-%d') docdate, docentry, docnum, requestId,
+			(select JSON_ARRAYAGG(JSON_OBJECT('itemcode', itemcode, 'itemname', itemname, 'quantity', quantity, 'serialnumber', serialnumber)) from transfereditems 
+			where transferid = t.id) items from transfers t where deleted_at is null and status = 'Accepted' and synced = false;`
+
+		case "transferRequests":
+			SQLquery = `select id, fromwhs, towhs, comment, canceled, synced, status, created_by, DATE_FORMAT(created_at, '%Y-%m-%d') docdate docentry, docnum, requestId,
+			(select JSON_ARRAYAGG(JSON_OBJECT('itemcode', itemcode, 'itemname', itemname, 'quantity', quantity, 'serialnumber', serialnumber)) from transfereditems 
+			where transferid = t.id) items from transfers t where deleted_at is null and status in ('pending', 'rejected') and synced = false;`
 		}
 
 		var rows *sql.Rows
@@ -134,7 +141,7 @@ func sendData() (err error) {
 		}
 
 		if columns, err = rows.Columns(); err != nil {
-			CheckError("Error getting Row columns from Report.", err, false)
+			CheckError("Error getting Row columns from "+value+"Query.", err, false)
 			return
 		}
 

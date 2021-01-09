@@ -96,10 +96,7 @@ export default {
   data() {
     return {
       stores: [],
-      comment: "",
-      options: [],
       transfer: [],
-      inventory: [],
       created_by: this.$store.state.user.id,
       localStore: this.$store.state.userStore,
     };
