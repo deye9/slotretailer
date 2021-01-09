@@ -73,7 +73,7 @@ func GetStoreProducts(id int) (products []Products, err error) {
 // GetTransfer returns a instance belonging to the Transfer id passed in
 func GetTransfer(id int) (transfer Transfers, err error) {
 	var rows *sql.Rows
-	if rows, err = Get(fmt.Sprintf(`select * from transfers t inner join transfereditems i on t.id = i.transferid where t.id = %d and t.deleted_at is null;`, id)); err != nil {
+	if rows, err = Get(fmt.Sprintf(`select t.*, i.id, i.transferid, i.itemcode, i.itemname, p.onhand, i.quantity, p.serialnumbers from transfers t inner join transfereditems i on t.id = i.transferid inner join products p on p.itemcode = i.itemcode where t.id = %d and t.deleted_at is null;`, id)); err != nil {
 		CheckError("Error getting Transfer Request data.", err, false)
 		return Transfers{}, err
 	}

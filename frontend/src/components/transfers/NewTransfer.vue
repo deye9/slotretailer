@@ -14,10 +14,6 @@
       <div class="form-group col">
         <label for="fromWHS">From Store</label>
         <input id="createdBy" type="text" class="form-control form-control-sm" placeholder="Requested By" disabled v-model="dispatching" />
-        <!-- <select @input="fetchInventory" v-model="dispatching" label="name" id="fromWHS" ref="fromWHS" class="form-control form-control-sm" placeholder="Kindly select dispatching warehouse">
-          <option value="" selected>Select Dispatching Warehouse</option>
-          <option :key="store.name" :value="store.code" v-for="store in stores">{{ store.name }}</option>
-        </select> -->
       </div>
       <div class="form-group col">
         <label for="toWHS">To Store</label>
@@ -116,7 +112,6 @@
 </style>
 
 <script>
-
 export default {
   data() {
     return {

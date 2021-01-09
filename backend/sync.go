@@ -165,7 +165,8 @@ func handleTransfers() (err error) {
 
 		cmd := structToInsert(response, "transfers")
 		if strings.ToLower((key)) == "unprocesseddestination" {
-			cmd = strings.ReplaceAll(cmd, "Pending", "Incoming")
+			cmd = strings.ReplaceAll(strings.ToLower(cmd), "pending", "Incoming")
+			cmd += strings.ReplaceAll(strings.ToLower(cmd), "docdate", "created_at")
 		}
 
 		if err = Modify(cmd); err != nil {

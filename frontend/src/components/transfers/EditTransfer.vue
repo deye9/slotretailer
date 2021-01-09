@@ -2,7 +2,7 @@
   <section>
     <div class="row">
       <div class="col-8">
-        <h3>Editing Inventory Transfer "Trans-{{this.transfer.id}}".</h3>
+        <h3>Viewing Inventory Transfer [Trans-{{this.transfer.id}}]</h3>
       </div>
       <div class="col-4">
         <router-link :to="{name: 'transferlist'}" class="btn btn-info btn-sm float-right">Back</router-link>
@@ -12,288 +12,139 @@
 
     <div class="form-row">
       <div class="form-group col">
-        <label for="fromWHS">From Store</label>
-        <select @input="fetchInventory" label="name" v-model="this.transfer.fromwhs" id="fromWHS" class="form-control form-control-sm" placeholder="Kindly select dispatching warehouse">
-          <option :key="store.name" :value="store.id" v-for="store in stores">{{ store.name }}</option>
-        </select>
+        <label>From Store</label>
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.fromwhs" title="Requesting Store" />
       </div>
       <div class="form-group col">
-        <label for="toWHS">To Store</label>
-        <select @input="fetchInventory" label="name" v-model="this.transfer.towhs" id="toWHS" class="form-control form-control-sm" placeholder="Kindly select receiving warehouse">
-          <option :key="store.name" :value="store.id" v-for="store in stores">{{ store.name }}</option>
-        </select>
+        <label>To Store</label>
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.towhs" title="Receiving Store" />
       </div>
       <div class="form-group col">
-        <label>Requested by</label>
-        <br />
-        <input id="createdBy" type="text" class="form-control form-control-sm" placeholder="Requested By" disabled v-if="this.user !== null" :value="this.user.firstname + ' ' + this.user.lastname" />
+        <label>Status</label>
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.status" title="Request Status" />
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group col">
-        <label for="comment">Remarks</label>
-        <input id="comment" type="text" class="form-control form-control-sm" placeholder="Comment" v-model="this.transfer.comment" required />
+        <label>SAP Doc Number</label>
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.docnum" title="Request Comment" />
+      </div>
+      <div class="form-group col">
+        <label>SAP Doc Entry Number</label>
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.docentrty" title="Request Comment" />
+      </div>
+      <div class="form-group col">
+        <label>Requested On</label>
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.created_at" title="Requested On" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label>Remarks</label>
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.comment" title="Request Comment" />
       </div>
     </div>
 
     <div class="table-responsive">
       <table class="table table-fixed table-bordered table-hover table-sm">
         <caption>
-          <h5 style="display:inline-flex;" class="float-left">Transfer Items</h5>
+          <h5 style="display:inline-flex;" class="float-left">Ordered Items</h5>
         </caption>
         <thead class="thead-dark">
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Item No.</th>
+            <th scope="col">Item Code</th>
             <th scope="col">Item Description</th>
-            <th scope="col">Quantity Available</th>
-            <th scope="col">Quantity</th>
+            <th scope="col">Current Inventory</th>
+            <th scope="col">Quantity Requested</th>
+            <th scope="col">Serial Number</th>
             <th scope="col"></th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="(item, i) in items" :key="'row' + i" :id="'row' + i">
+        <tbody id="LineItems">
+          <tr v-for="(item, i) in transfer.items" :key="'row' + i" :id="'row' + i">
             <th scope="row">{{ i + 1 }}</th>
-            <td>
-              {{ item.itemcode }}
-            </td>
-            <td>
-              <select v-model="item.itemcode" class="form-control form-control-sm" @change="productDetails(i, $event)">
-                <option value="null" selected>Select Desired Product</option>
-                <option :key="item.id" :value="item.itemcode" v-for="item in inventory">{{ item.itemname }}</option>
-              </select>
-            </td>
-            <td>
-              {{ item.onHand }}
-            </td>
-            <td>
-              <input :id="'txt' + i" type="number" min="1" max="1" step="1" class="form-control form-control-sm" :v-model="item.quantity" :value="item.quantity" @blur="validateQuantity(i)"/>
-            </td>
-            <td>
-              <button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteRow(i)">Remove Line</button>
-            </td>
+            <td>{{ item.itemcode }}</td>
+            <td>{{item.itemname}}</td>
+            <td>{{ item.onhand }}</td>
+            <td><input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" /></td>
+            <td>{{ item.serialnumbers }}</td>
+            <td><button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteRow(i)">Remove Line</button></td>
           </tr>
         </tbody>
+        <tfoot id="ItemsFooter">
+          <tr>
+            <td colspan="7" class="text-right font-weight-bold">&nbsp;</td>
+          </tr>
+        </tfoot>
       </table>
+      <div id="loader"></div>
     </div>
-
-    <button type="submit" id="Update" class="btn btn-primary btn-sm float-right" @click="inventoryRequest">
-      Update Request
-    </button>
 
   </section>
 </template>
 
 <style scoped>
   caption {
-    padding-top: .75rem;
-    padding-bottom: .75rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
     color: Black;
     text-align: left;
     caption-side: top;
   }
 </style>
 
+
 <script>
+import moment from "moment";
+
 export default {
   data() {
     return {
-      user: null,
-
-      items: [],
-      picked: '',
       stores: [],
-      comment: '',
+      comment: "",
       options: [],
-      transfer: {},
+      transfer: [],
       inventory: [],
-      isAdmin: false,
       created_by: this.$store.state.user.id,
       localStore: this.$store.state.userStore,
     };
   },
-  mounted() {
+  created() {
     var pageURL = location.pathname;
     this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
 
-    // Determine the state of the Discount element
-    if (this.$store.state.isAdmin)
-    {
-      this.isAdmin = true;
-    }
-
-    // Load the default values
     window.backend.GetTransfer(parseInt(this.id)).then((transfer) => {
-      let items = transfer.items;
+      let toWhs = transfer.towhs,
+        fromWhs = transfer.fromwhs;
+
+      transfer.created_at = moment(transfer.created_at.Time).format("Do of MMMM YYYY");
       this.transfer = transfer;
+      console.log(transfer);
 
       // Get all stores
       window.backend.GetStores().then((stores) => {
         this.stores = stores;
-        let defaultStoreID = 0,
-          localStore = this.stores.filter((store) => {
-            return (
-              store.name.toLowerCase() === this.localStore.sapkey.toLowerCase()
-            );
-          })[0];
 
-        if (localStore.id !== this.transfer.fromwhs) {
-          defaultStoreID = this.transfer.fromwhs;
-          document.getElementById("toWHS").disabled = true;
-        } else {
-          defaultStoreID = this.transfer.towhs;
-          document.getElementById("fromWHS").disabled = true;
-        }
-
-        // Get inventory belonging to this store
-        window.backend.GetStoreProducts(defaultStoreID).then((inventory) => {
-          this.inventory = inventory;
-
-          // Write out the items data.
-          items.forEach(item => {
-            this.items.push({
-              id: item.id,
-              onHand: item.onhand,
-              quantity: item.quantity,
-              itemcode: item.itemcode,
-              itemname: item.itemname,
-              transferid: item.transferid,
-            });
-          });
-          this.addRow();
+        stores.filter((store) => {
+          if (store.code === fromWhs) {
+            this.transfer.fromwhs = store.name;
+          }
+        });
+        
+        stores.filter((store) => {
+          if (store.code === toWhs) {
+            this.transfer.towhs = store.name;
+          }
+        });
       }, (err) => {
         this.$toast.error("Error! " + err);
       });
-
-    }, (err) => {
-      this.$toast.error("Error! " + err);
-    });
-    
-      // Get the user who created the order
-      window.backend.GetUser(parseInt(transfer.created_by)).then((user) => {
-        if (JSON.stringify(user) !== "{}") {
-          this.user = user;
-        }
-      }, (err) => {
-        this.$toast.error("Error! " + err);
-      });
-
     }, (err) => {
         this.$toast.error("Error! " + err);
     });
-  },
-  methods: {
-    addRow(index) {
-      if ((index + 1) < this.items.length) {
-        return;
-      }
-
-      this.items.push({
-        id: 0,
-        onHand: 1,
-        quantity: 1,
-        itemcode: '',
-        itemname: '',
-        transferid: this.items[0].transferid,
-      });
-
-      const el = document.getElementById("Update");
-      if (el) {
-        el.scrollIntoView();
-      }
-    },
-    deleteRow(index) {
-      this.$delete(this.items, index);
-      
-      if (this.items.length === 0 || this.items.length === index) {
-        this.addRow(index);
-      }
-    },
-    validateQuantity(index) {
-      this.items[index].quantity = parseInt(document.getElementById("txt" + index).value);
-      if (parseInt(this.items[index].quantity) > parseInt(this.items[index].onHand)) {
-        this.items[index].quantity = parseInt(this.items[index].onHand);
-      }
-    },
-    productDetails(index, event) {
-      let selectedValue = event.target.selectedOptions[0].value;
-
-      if(selectedValue === "null" && this.items.length === 1) {
-        this.$delete(this.items, index);
-        this.addRow();
-        return;
-      } else if(selectedValue === "null") {
-        this.$delete(this.items, index);
-        return;
-      }
-
-      let product = this.inventory.filter((item) => {
-        return (
-          item.itemcode.toLowerCase() === selectedValue.toLowerCase()
-        );
-      })[0];
-
-      this.items[index].quantity = 1;
-      this.items[index].onHand = product.onhand;
-      this.items[index].itemname = product.itemname;
-      this.items[index].itemcode = product.itemcode;
-
-      // Set the max to the max inventory available.
-      document.getElementById("txt" + index).max = product.onhand;
-      this.addRow(index);
-    },
-    inventoryRequest() {
-      if (this.items.length === 0) {
-        this.$toast.error("Error! You are not permitted to create an empty Inventory Transfer Request.");
-        return;
-      }
-
-      var r = confirm("Are you sure you want to create this Sales Order!");
-      if (r == false) {
-        return;
-      }
-
-      // Remove the last row as this is not needed.
-      this.$delete(this.items, this.items.length - 1);
-      
-      let transfer = {};
-      transfer.id = this.id;
-      transfer.synced = false;
-      transfer.canceled = false;
-      transfer.items = this.items;
-      transfer.created_by = this.created_by;
-      transfer.comment = this.transfer.comment;
-      transfer.towhs = parseInt(document.getElementById("toWHS").value);
-      transfer.fromwhs = parseInt(document.getElementById("fromWHS").value);
-
-      window.backend.UpdateTransfer(transfer).then(() => {
-        this.$toast.success("Success! Inventory Transfer Requested has been successfully updated.");
-        this.$router.push({name: 'transferlist'});
-      },
-      (err) => {
-        this.$toast.error("Error! " + err);
-      });
-    },
-    fetchInventory(event) {
-      let selectedtext = event.target.selectedOptions[0].text,
-        selectedValue = parseInt(event.target.selectedOptions[0].value);
-
-      if (selectedtext === this.localStore.sapkey) {
-        this.$toast.error("Error! You cannot select your store. Kindly select another store.");
-        return;
-      }
-
-      // Get inventory belonging to this store
-      window.backend.GetStoreProducts(selectedValue).then((inventory) => {
-        this.items = [];
-        this.inventory = inventory;
-        this.addRow();
-      },
-      (err) => {
-        this.$toast.error("Error! " + err);
-      });
-    },
-  },
+  }
 };
 </script>

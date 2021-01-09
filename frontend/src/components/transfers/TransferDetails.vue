@@ -2,7 +2,7 @@
   <section>
     <div class="row">
       <div class="col-8">
-        <h3>Viewing Inventory Transfer Request {{this.transfer.id}}</h3>
+        <h3>Viewing Inventory Transfer [Trans-{{this.transfer.id}}]</h3>
       </div>
       <div class="col-4">
         <router-link :to="{name: 'transferlist'}" class="btn btn-info btn-sm float-right">Back</router-link>
@@ -13,67 +13,63 @@
     <div class="form-row">
       <div class="form-group col">
         <label>From Store</label>
-        <input type="text" class="form-control form-control-sm" disabled v-model="this.fromWHS" />
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.fromwhs" title="Requesting Store" />
       </div>
-
       <div class="form-group col">
         <label>To Store</label>
-        <input type="text" class="form-control form-control-sm" disabled v-model="this.toWHS" />
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.towhs" title="Receiving Store" />
       </div>
-
       <div class="form-group col">
-        <label>Created By</label>
-        <br />
-        <span class="btn btn-info btn-sm" disabled v-if="this.user !== null">
-          {{ this.user.firstname + " " + this.user.lastname }}
-        </span>
+        <label>Status</label>
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.status" title="Request Status" />
       </div>
     </div>
 
     <div class="form-row">
-      <div class="form-group col-8">
-        <label>Comments</label>
-        <input type="text" class="form-control form-control-sm" disabled v-model="this.transfer.comment" v-if="this.transfer.comment !== undefined" />
-      </div>
-
       <div class="form-group col">
-        <label for="docnum">Created On</label>
-        <br />
-        <span class="btn btn-info btn-sm" disabled v-if="this.user !== null" >
-          {{ this.transfer.created_at }}
-        </span>
+        <label>SAP Doc Number</label>
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.docnum" title="Request Comment" />
+      </div>
+      <div class="form-group col">
+        <label>SAP Doc Entry Number</label>
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.docentrty" title="Request Comment" />
+      </div>
+      <div class="form-group col">
+        <label>Requested On</label>
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.created_at" title="Requested On" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label>Remarks</label>
+        <input type="text" class="form-control form-control-sm" disabled :value="transfer.comment" title="Request Comment" />
       </div>
     </div>
 
     <div class="table-responsive">
       <table class="table table-fixed table-bordered table-hover table-sm">
         <caption>
-          <h5 style="display:inline-flex;" class="float-left">Transfer Items</h5>
+          <h5 style="display:inline-flex;" class="float-left">Transfered Items</h5>
         </caption>
         <thead class="thead-dark">
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Item No.</th>
+            <th scope="col">Item Code</th>
             <th scope="col">Item Description</th>
-            <th scope="col">Quantity Available when requested.</th>
+            <th scope="col">Current Inventory</th>
             <th scope="col">Quantity Requested</th>
+            <th scope="col">Serial Number</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="LineItems">
           <tr v-for="(item, i) in transfer.items" :key="'row' + i" :id="'row' + i">
             <th scope="row">{{ i + 1 }}</th>
-            <td>
-              {{ item.itemcode }}
-            </td>
-            <td>
-              {{ item.itemname }}
-            </td>
-            <td>
-              {{ item.onhand }}
-            </td>
-            <td>
-              {{ item.quantity }}
-            </td>
+            <td>{{ item.itemcode }}</td>
+            <td>{{item.itemname}}</td>
+            <td>{{ item.onhand }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.serialnumbers }}</td>
           </tr>
         </tbody>
       </table>
@@ -84,13 +80,14 @@
 
 <style scoped>
   caption {
-    padding-top: .75rem;
-    padding-bottom: .75rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
     color: Black;
     text-align: left;
     caption-side: top;
   }
 </style>
+
 
 <script>
 import moment from "moment";
@@ -98,11 +95,13 @@ import moment from "moment";
 export default {
   data() {
     return {
-      toWHS: '',
       stores: [],
-      user: null,
-      fromWHS: '',
-      transfer: {},
+      comment: "",
+      options: [],
+      transfer: [],
+      inventory: [],
+      created_by: this.$store.state.user.id,
+      localStore: this.$store.state.userStore,
     };
   },
   created() {
@@ -110,37 +109,27 @@ export default {
     this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
 
     window.backend.GetTransfer(parseInt(this.id)).then((transfer) => {
+      let toWhs = transfer.towhs,
+        fromWhs = transfer.fromwhs;
+
+      transfer.created_at = moment(transfer.created_at.Time).format("Do of MMMM YYYY");
       this.transfer = transfer;
-      let toWhs = this.transfer.towhs,
-        fromWhs = this.transfer.fromwhs,
-        create_time = this.transfer.created_at.Time;
 
       // Get all stores
       window.backend.GetStores().then((stores) => {
         this.stores = stores;
 
-        this.stores.filter((store) => {
-          if (store.id === fromWhs) {
-            this.fromWHS = store.name;
+        stores.filter((store) => {
+          if (store.code === fromWhs) {
+            this.transfer.fromwhs = store.name;
           }
         });
-
-        this.stores.filter((store) => {
-          if (store.id === toWhs) {
-            this.toWHS = store.name;
+        
+        stores.filter((store) => {
+          if (store.code === toWhs) {
+            this.transfer.towhs = store.name;
           }
         });
-      }, (err) => {
-        this.$toast.error("Error! " + err);
-      });
-    
-      this.transfer.created_at = moment(create_time).format("Do of MMMM YYYY");
-
-      // Get the user who created the order
-      window.backend.GetUser(parseInt(transfer.created_by)).then((user) => {
-        if (JSON.stringify(user) !== "{}") {
-          this.user = user;
-        }
       }, (err) => {
         this.$toast.error("Error! " + err);
       });

@@ -177,8 +177,8 @@ export default {
     formatDate(date) {
       return moment(date.Time).format("Do of MMMM YYYY");
     },
-    storeName(storeID) {
-      return this.stores.filter((store) => {
+    async storeName(storeID) {
+      return await this.stores.filter((store) => {
         return (
           store.code.toLowerCase() === storeID.toLowerCase()
         );

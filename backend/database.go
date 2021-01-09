@@ -247,7 +247,7 @@ func structToInsert(value interface{}, tableName string) string {
 	// Get the keys
 	var keys []string
 	for key := range listSlice[0].(map[string]interface{}) {
-		if strings.ToLower(key) != "docdate" && strings.ToLower(key) != "items" && strings.ToLower(key) != "requestedby" {
+		if strings.ToLower(key) != "items" && strings.ToLower(key) != "requestedby" {
 			keys = append(keys, key)
 		}
 	}

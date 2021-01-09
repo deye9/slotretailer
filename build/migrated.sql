@@ -200,7 +200,7 @@ ALTER table store add column storecashaccount VARCHAR(255) NOT NULL;
 ALTER table store add column banktransfer VARCHAR(255) NOT NULL;
 ALTER table store add column cheques VARCHAR(255) NOT NULL;
 ALTER table products add column itemid int;
-ALTER table transfereditems add column serialnumber VARCHAR(255);
+ALTER table transfereditems add column serialnumber VARCHAR(255) DEFAULT ' ';
 ALTER table transfers add column docentry int;
 ALTER table transfers add column docnum int;
 
