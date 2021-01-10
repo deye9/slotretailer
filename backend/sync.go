@@ -213,6 +213,13 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 				case "1":
 					resultMap[columns[i]] = true
 				}
+			} else if strings.ToLower(columns[i]) == "canceled" {
+				switch fmt.Sprintf("%s", val) {
+				case "0":
+					resultMap[columns[i]] = false
+				case "1":
+					resultMap[columns[i]] = true
+				}
 			} else if strings.ToLower(columns[i]) == "items" {
 				resultMap[columns[i]] = interfaceToMap(val, "ordered items")
 			} else if strings.ToLower(columns[i]) == "payments" {
@@ -278,15 +285,13 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 	status = res.Status
 	data, err = ioutil.ReadAll(res.Body)
 	if err != nil {
-		CheckError("Error from Endpoint " + url + " for Payload sent. ", err, false)
+		CheckError("Error from Endpoint "+url+" for Payload sent. ", err, false)
 	}
 
-	fmt.Println("err is: ", payload)
-	fmt.Println("url is: ", url)
 	if status == "200 OK" {
 		Modify(successcommand)
 	} else {
-		CheckError("Error from Endpoint " + url + " for Payload sent. ", errors.New("status is " + status + ". "+ string(data)), false)
+		CheckError("Error from Endpoint "+url+" for Payload sent. ", errors.New("status is "+status+". "+string(data)), false)
 	}
 
 	return
