@@ -80,7 +80,7 @@ func task(t time.Time) {
 	str = strings.Split(str, " ")[0]
 
 	sendData()
-	handleTransfers()
+	getTransfers()
 	for key, link := range APIlinks {
 		// Write the sync start details to the File System via a Goroutine.
 		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
@@ -151,7 +151,7 @@ func sendData() (err error) {
 	return nil
 }
 
-func handleTransfers() (err error) {
+func getTransfers() (err error) {
 	data := []byte{}
 	var transferLinks = make(map[string]string)
 	transferLinks["processedDestination"] = LocalStore.TransfersAPI + "/Processed/destination?destinationStore=" + LocalStore.SapKey
@@ -173,8 +173,9 @@ func handleTransfers() (err error) {
 		cmd := structToInsert(response, "transfers")
 		if strings.ToLower((key)) == "unprocesseddestination" {
 			cmd = strings.ReplaceAll(strings.ToLower(cmd), "id", "requestid")
-			cmd += strings.ReplaceAll(strings.ToLower(cmd), "pending", "Incoming")
-			cmd += strings.ReplaceAll(strings.ToLower(cmd), "docdate", "created_at")
+			cmd = strings.ReplaceAll(strings.ToLower(cmd), "pending", "Incoming")
+			cmd = strings.ReplaceAll(strings.ToLower(cmd), "docdate", "created_at")
+			cmd = strings.ReplaceAll(strings.ToLower(cmd), "transferrequestid", "transferid")
 		}
 
 		if err = Modify(cmd); err != nil {
@@ -247,7 +248,6 @@ func ConvertToJSON(rows *sql.Rows, columns []string, url, key string) (err error
 	}
 
 	jsonStr := string(payload)
-
 	if jsonStr != "null" {
 		// Remove the last ", " from the ID string and generate the update command
 		cmd := "UPDATE " + strings.Replace(key, "transferRequests", "transfers", -1) + " SET synced = true WHERE id IN (" + strings.TrimRight(id, ", ") + ");"

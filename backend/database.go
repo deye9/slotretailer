@@ -265,6 +265,13 @@ func structToInsert(value interface{}, tableName string) string {
 				cmdValues = append(cmdValues, fmt.Sprintf(`"%v", `, true))
 				continue
 			}
+
+			if strings.ToLower(val) == "docdate" {
+				date := fmt.Sprintf(`"%s", `, _Value[val])
+				date = strings.Split(strings.ToLower(date), "t")[0]
+				cmdValues = append(cmdValues, date+"\", ")
+				continue
+			}
 			cmdValues = append(cmdValues, fmt.Sprintf(`"%v", `, _Value[val]))
 		}
 
@@ -272,17 +279,17 @@ func structToInsert(value interface{}, tableName string) string {
 		cmd += "INSERT INTO " + tableName + "(" + strings.Join(keys, ", ") + ") VALUES (" + strings.TrimSuffix(strings.Join(cmdValues, ""), ", ") + ");  \n"
 
 		// Convert the items to insert commands
-		var itemKeys []string
-		var itemValues []string
 		items := _Value["items"]
-		itemKeys = append(itemKeys, "transferid")
-		itemValues = append(itemValues, fmt.Sprintf("%.0f, ", _Value["id"]))
-		for key, value := range items.([]interface{})[0].(map[string]interface{}) {
-			itemKeys = append(itemKeys, key)
-			itemValues = append(itemValues, fmt.Sprintf(`"%v", `, value))
+		for _, value := range items.([]interface{}) {
+			itemsData := value.(map[string]interface{})
+
+			cmd += "INSERT INTO transfereditems(transferid, itemcode, itemname, quantity, serialnumber) VALUES (" +
+				fmt.Sprintf("%.0f", _Value["id"]) + "," +
+				fmt.Sprintf(`"%v"`, itemsData["itemCode"]) + "," +
+				fmt.Sprintf(`"%v"`, itemsData["itemName"]) + "," +
+				fmt.Sprintf(`"%v"`, itemsData["quantity"]) + "," +
+				fmt.Sprintf(`"%v"`, itemsData["serialNumber"]) + ");  \n"
 		}
-		// joining the string array by ", " separator
-		cmd += "INSERT INTO transfereditems(" + strings.Join(itemKeys, ", ") + ") VALUES (" + strings.TrimSuffix(strings.Join(itemValues, ""), ", ") + ");  \n"
 	}
 
 	return cmd + "\n"
