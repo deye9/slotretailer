@@ -302,7 +302,6 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 		CheckError("Error from Endpoint "+url+" for Payload sent. ", errors.New("status is "+status+". "+string(data)), false)
 	}
 
-	// [{"canceled":false,"comment":"treat as urgent","created_by":"1","docdate":"2021-01-09","docentry":"0","docnum":"0","fromwhs":"2bmedica","id":"1","items":[{"itemcode":"1c4k8ea","itemname":"hp notebook 15 intel pentium 4gb ram 1tb hdd,win 10","quantity":1,"serialnumber":"[cnd0268l4c]"},{"itemcode":"3tt19ua#aba","itemname":"hp notebook 15 pentium quad core 4gb ram 500gb win 10 nonetouch","quantity":1,"serialnumber":"[cnd8260h69]"}],"requestId":"1","status":"Accepted","synced":true,"towhs":"aba2"}]
 	return
 }
 
