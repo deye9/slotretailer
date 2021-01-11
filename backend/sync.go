@@ -86,10 +86,12 @@ func task(t time.Time) {
 		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
 
 		// Append the StoreID to the link
-		link += "?storeId=" + LocalStore.SapKey
-
 		if key == "products" {
-			link += "&pricelist=" + LocalStore.ProductPriceList
+			link += "?storeId=" + LocalStore.SapKey + "&pricelist=" + LocalStore.ProductPriceList
+		} else if key == "transfers" {
+			link += "?sourceStore=" + LocalStore.SapKey
+		} else {
+			link += "?storeId=" + LocalStore.SapKey
 		}
 
 		getAllData(key, link, str)
@@ -137,12 +139,12 @@ func sendData() (err error) {
 
 		if rows, err = Get(SQLquery); err != nil {
 			CheckError("Error Getting "+value+" data for Endpoint: ", err, false)
-			return
+			continue
 		}
 
 		if columns, err = rows.Columns(); err != nil {
 			CheckError("Error getting Row columns from "+value+"Query.", err, false)
-			return
+			continue
 		}
 
 		defer rows.Close()
@@ -286,14 +288,21 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 	data, err = ioutil.ReadAll(res.Body)
 	if err != nil {
 		CheckError("Error from Endpoint "+url+" for Payload sent. ", err, false)
+		return
 	}
 
 	if status == "200 OK" {
 		Modify(successcommand)
 	} else {
+		fmt.Println("Status is: ", status)
+		fmt.Println(string(data))
+		fmt.Println("URL is: ", url)
+		fmt.Println("Payload is: ", payload)
+		fmt.Println("err is: ", err)
 		CheckError("Error from Endpoint "+url+" for Payload sent. ", errors.New("status is "+status+". "+string(data)), false)
 	}
 
+	// [{"canceled":false,"comment":"treat as urgent","created_by":"1","docdate":"2021-01-09","docentry":"0","docnum":"0","fromwhs":"2bmedica","id":"1","items":[{"itemcode":"1c4k8ea","itemname":"hp notebook 15 intel pentium 4gb ram 1tb hdd,win 10","quantity":1,"serialnumber":"[cnd0268l4c]"},{"itemcode":"3tt19ua#aba","itemname":"hp notebook 15 pentium quad core 4gb ram 500gb win 10 nonetouch","quantity":1,"serialnumber":"[cnd8260h69]"}],"requestId":"1","status":"Accepted","synced":true,"towhs":"aba2"}]
 	return
 }
 
