@@ -42,6 +42,7 @@ import NewTransfer from "@/components/transfers/NewTransfer";
 import GetTransfers from "@/components/transfers/GetTransfers";
 import EditTransfer from "@/components/transfers/EditTransfer";
 import TransferDetails from "@/components/transfers/TransferDetails";
+import FinalizeTransfer from "@/components/transfers/FinalizeTransfer";
 
 import vSelect from "vue-select";
 import {ClientTable} from 'vue-tables-2';
@@ -198,6 +199,11 @@ const router = new Router({
             path: "edit/:id",
             name: "edittransfer",
             component: EditTransfer
+        },
+        {
+            path: "finalize/:id",
+            name: "finalizeTransfer",
+            component: FinalizeTransfer
         },
         {
             path: "details/:id",

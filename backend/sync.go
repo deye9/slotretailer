@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -80,6 +81,7 @@ func task(t time.Time) {
 	str = strings.Split(str, " ")[0]
 
 	sendData()
+	updateStatus()
 	getTransfers()
 	for key, link := range APIlinks {
 		// Write the sync start details to the File System via a Goroutine.
@@ -156,7 +158,6 @@ func sendData() (err error) {
 func getTransfers() (err error) {
 	data := []byte{}
 	var transferLinks = make(map[string]string)
-	transferLinks["processedDestination"] = LocalStore.TransfersAPI + "/Processed/destination?destinationStore=" + LocalStore.SapKey
 	transferLinks["unprocessedDestination"] = LocalStore.TransfersAPI + "/Unprocessed/destination?destinationStore=" + LocalStore.SapKey
 
 	for key, link := range transferLinks {
@@ -185,6 +186,55 @@ func getTransfers() (err error) {
 			continue
 		}
 	}
+	return
+}
+
+func updateStatus() (err error) {
+	var rows *sql.Rows
+	if rows, err = Get("select docentry, status  from transfers where lower(status) like 'finalize_%' and deleted_at is null order by created_at desc;"); err != nil {
+		CheckError("Error getting Transfer Request Finalized data for sync.", err, false)
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var docentry int
+		var status string
+		if err = rows.Scan(&docentry, &status); err != nil {
+			CheckError("Error Scanning Transfer Request Details.", err, false)
+			continue
+		}
+
+		url := APIlinks["transfers"] + "/UpdateStatus/" + strconv.Itoa(docentry) + "?status=" + status
+		method := "PUT"
+
+		client := &http.Client{}
+		req, err := http.NewRequest(method, url, nil)
+		if err != nil {
+			CheckError("Error Parsing PUT data to URL: "+url, err, false)
+			continue
+		}
+
+		res, err := client.Do(req)
+		if err != nil {
+			CheckError("Error PATCHING data to URL: "+url, err, false)
+			continue
+		}
+		defer res.Body.Close()
+
+		data, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			CheckError("Error from Endpoint "+url+" for PATCH payload sent. ", err, false)
+			continue
+		}
+
+		if status == "200 OK" {
+			Modify("UPDATE transfers set synced = true; ")
+		} else {
+			CheckError("Error from Endpoint "+url+" for Payload sent. ", errors.New("status is "+status+". "+string(data)), false)
+		}
+	}
+
 	return
 }
 
@@ -275,6 +325,7 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 	req, err := http.NewRequest(method, url, requestBody)
 	if err != nil {
 		CheckError("Error Parsing data to URL: "+url, err, false)
+		return
 	}
 
 	req.Header.Add("Content-Type", "application/json")
@@ -294,11 +345,6 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 	if status == "200 OK" {
 		Modify(successcommand)
 	} else {
-		fmt.Println("Status is: ", status)
-		fmt.Println(string(data))
-		fmt.Println("URL is: ", url)
-		fmt.Println("Payload is: ", payload)
-		fmt.Println("err is: ", err)
 		CheckError("Error from Endpoint "+url+" for Payload sent. ", errors.New("status is "+status+". "+string(data)), false)
 	}
 
@@ -344,15 +390,20 @@ func getAllData(key, link, str string) error {
 	switch strings.ToLower(key) {
 	case "orders":
 	case "customers":
+	case "transfers":
 	default:
 		cmd = "truncate table " + key + "; "
 	}
 
-	cmd += structToInsertUpdate(response, key)
+	if strings.ToLower(key) == "transfers" {
+		cmd += structToUpdate(response, key)
+	} else {
+		cmd += structToInsertUpdate(response, key)
+	}
+
 	if err = Modify(cmd); err != nil {
 		CheckError("Error saving HTTPGET for "+key+" result.", err, false)
 	}
-
 	// Write the sync start details to the File System via a Goroutine.
 	go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" finished at "+time.Now().String()+"\n"))
 	return nil

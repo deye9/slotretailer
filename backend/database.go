@@ -172,7 +172,7 @@ func MaptoReplace(mapData map[string]interface{}, tableName string) (string, err
 	return cmd + "(" + strings.TrimSuffix(keys, ",") + ") VALUES (" + strings.TrimSuffix(values, ",") + ");", nil
 }
 
-// structToInsertUpdate converts a struct to a sqllite3 replace statement
+// structToInsertUpdate converts a struct to a insertupdate statement
 func structToInsertUpdate(value interface{}, tableName string) string {
 	cmd := ""
 	var ok bool
@@ -235,7 +235,7 @@ func structToInsertUpdate(value interface{}, tableName string) string {
 	return cmd + "\n"
 }
 
-// structToInsertUpdate converts a struct to a sqllite3 replace statement
+// structToInsertUpdate converts a struct to a insert statement
 func structToInsert(value interface{}, tableName string) string {
 	cmd := ""
 	var ok bool
@@ -290,6 +290,63 @@ func structToInsert(value interface{}, tableName string) string {
 				fmt.Sprintf(`"%v"`, itemsData["quantity"]) + "," +
 				fmt.Sprintf(`"%v"`, itemsData["serialNumber"]) + ");  \n"
 		}
+	}
+
+	return cmd + "\n"
+}
+
+// structToUpdate converts a struct to an update statement
+func structToUpdate(value interface{}, tableName string) string {
+	cmd := ""
+	var ok bool
+	var listSlice []interface{}
+
+	if listSlice, ok = value.([]interface{}); !ok {
+		fmt.Println("Argument is not a slice")
+	}
+
+	// Get the keys
+	var keys []string
+	for key := range listSlice[0].(map[string]interface{}) {
+		if strings.ToLower(key) != "items" && strings.ToLower(key) != "id" && strings.ToLower(key) != "docdate" && strings.ToLower(key) != "canceled" && strings.ToLower(key) != "towhs" && strings.ToLower(key) != "fromwhs" {
+			keys = append(keys, key)
+		}
+	}
+
+	// Sort the keys
+	sort.Strings(keys)
+
+	for _, _value := range listSlice {
+		id := ""
+		update := ""
+		_Value := _value.(map[string]interface{})
+		for _, val := range keys {
+
+			if strings.ToLower(val) == "requestid" {
+				id = fmt.Sprintf("%v", _Value["requestId"])
+			}
+
+			if strings.ToLower(val) == "synced" {
+				update += fmt.Sprintf(`%s = "%v", `, val, true)
+				continue
+			}
+
+			cleanedValue := strings.ReplaceAll(fmt.Sprintf(`%v`, _Value[val]), `"`, `\"`)
+			update += fmt.Sprintf(`%s = "%v", `, val, cleanedValue)
+		}
+
+		// Convert the items to insert commands
+		items := _Value["items"]
+		for _, value := range items.([]interface{}) {
+			itemsData := value.(map[string]interface{})
+
+			cmd += "UPDATE transfereditems SET " + fmt.Sprintf(`quantity = "%v"`, itemsData["quantity"]) + ", " +
+				fmt.Sprintf(`serialnumber = "%v"`, itemsData["serialNumber"]) + " WHERE itemcode = " + fmt.Sprintf(`"%v"`, itemsData["itemCode"]) +
+				" AND transferid =  " + id + "; \n"
+		}
+
+		// joining the string array by ", " separator
+		cmd += "UPDATE " + tableName + " SET " + strings.TrimSuffix(update, ", ") + " WHERE ID = " + id + "; \n"
 	}
 
 	return cmd + "\n"

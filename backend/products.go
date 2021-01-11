@@ -84,8 +84,8 @@ func GetTransfer(id int) (transfer Transfers, err error) {
 		item := Transfereditems{}
 
 		if err = rows.Scan(&transfer.ID, &transfer.FromWhs, &transfer.ToWhs, &transfer.Comment, &transfer.Canceled, &transfer.Synced,
-			&transfer.Status, &transfer.CreatedBy, &transfer.CreatedAt, &transfer.UpdatedAt, &transfer.DeletedAt, &transfer.DocEntry, 
-			&transfer.DocNum, &transfer.RequestID, &item.ID, &item.TransferID, &item.ItemCode, &item.ItemName, &item.OnHand, 
+			&transfer.Status, &transfer.CreatedBy, &transfer.CreatedAt, &transfer.UpdatedAt, &transfer.DeletedAt, &transfer.DocEntry,
+			&transfer.DocNum, &transfer.RequestID, &item.ID, &item.TransferID, &item.ItemCode, &item.ItemName, &item.OnHand,
 			&item.Quantity, &item.SerialNumber); err != nil {
 			CheckError("Error Scanning Transfer Request.", err, false)
 		} else {
@@ -97,10 +97,30 @@ func GetTransfer(id int) (transfer Transfers, err error) {
 	return
 }
 
+// GetSerials returns an array of serial Numbers transfered based on the Transfer id passed in
+func GetSerials(id int) (serials string, err error) {
+	var rows *sql.Rows
+	if rows, err = Get(fmt.Sprintf(`SELECT serialNumber FROM retail.transfereditems where id = %d;`, id)); err != nil {
+		CheckError("Error getting Transfer Request data.", err, false)
+		return "", err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var serial string
+		if err = rows.Scan(&serial); err != nil {
+			CheckError("Error Scanning Transfer Request Serial Numbers.", err, false)
+		}
+		serials = serial
+	}
+	return
+}
+
 // GetTransfers returns an array of Transfers
 func GetTransfers() (transfers []Transfers, err error) {
 	var rows *sql.Rows
-	if rows, err = Get(`select * from transfers where deleted_at is null order by created_at desc;`); err != nil {
+	if rows, err = Get(`select * from transfers where lower(status) not like 'finalize_%' and deleted_at is null order by created_at desc;`); err != nil {
 		CheckError("Error getting Transfers.", err, false)
 		return nil, err
 	}
@@ -201,6 +221,16 @@ func UpdateTransfer(transfer map[string]interface{}) (id int, err error) {
 func RejectTransfer(id int) (err error) {
 	if err = Modify(fmt.Sprintf(`update transfers set status = 'Rejected', canceled = true, synced = false where id = %d;`, id)); err != nil {
 		CheckError("Error removing Transfer.", err, false)
+		return err
+	}
+
+	return nil
+}
+
+// FinalizeTransfer accepts or rejects a Transfer request
+func FinalizeTransfer(id int, status string) (err error) {
+	if err = Modify(fmt.Sprintf(`update transfers set status = 'Finalize_%s', synced = false where id = %d;`, status, id)); err != nil {
+		CheckError("Error Finalizing Transfer.", err, false)
 		return err
 	}
 

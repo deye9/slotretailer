@@ -22,6 +22,9 @@
       <li class="nav-item" role="presentation">
         <a class="nav-link" id="outgoing-tab" data-toggle="tab" href="#outgoing" role="tab" aria-controls="outgoing" aria-selected="false">Outgoing Transfers</a>
       </li>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" id="incoming-trans" data-toggle="tab" href="#incomingtrans" role="tab" aria-controls="incomingtrans" aria-selected="false">Incoming Transfers</a>
+      </li>      
     </ul>
 
     <div class="tab-content" id="transfersTab">
@@ -129,6 +132,31 @@
           </div>          
         </v-client-table>
       </div>
+      <div class="tab-pane fade mt-4" id="incomingtrans" role="tabpanel" aria-labelledby="incoming-trans">
+        <v-client-table ref="incomingTransfers" :columns="columns" v-model="incomingtrans" :options="options">
+          <div slot="id" slot-scope="{row}" style="text-transform: capitalize;">
+            {{ 'trans-' + row.id }}
+          </div>
+          <div slot="fromwhs" slot-scope="{row}" style="text-transform: capitalize;">
+            {{ storeName(row.fromwhs) }}
+          </div>
+          <div slot="towhs" slot-scope="{row}" style="text-transform: capitalize;">
+            {{ storeName(row.towhs) }}
+          </div>
+          <div slot="created_at" slot-scope="{row}" style="text-transform: capitalize;">
+            {{ formatDate(row.created_at) }}
+          </div>
+          <div slot="synced" slot-scope="{row}" style="text-transform: capitalize;">
+            {{ row.synced }}
+          </div>
+          <div id="actions" slot="actions" slot-scope="{row}">
+            <a class="btn btn-primary btn-sm mr-2" title="Order Details" @click="acceptTransfer(row)">
+              <i class="bi bi-pencil-fill">&nbsp;</i>
+              Process
+            </a>
+          </div>          
+        </v-client-table>
+      </div>      
     </div>
   </section>
 </template>
@@ -146,6 +174,7 @@ export default {
       rejected: [],
       outgoing: [],
       options: {},
+      incomingtrans: [],
       allowDelete: false,
       incomingcolumns: [],
       dateColumns:['created_at','updated_at', 'deleted_at']
@@ -159,6 +188,7 @@ export default {
     this.$refs.pendingTransfers.setLoadingState(true);
     this.$refs.outgoingTransfers.setLoadingState(true);
     this.$refs.rejectedTransfers.setLoadingState(true);
+    this.$refs.incomingTransfers.setLoadingState(true);
 
     window.backend.GetTransfers().then(async (transfers) => {
       if (transfers === null) {
@@ -166,6 +196,7 @@ export default {
         this.$refs.pendingTransfers.setLoadingState(false);
         this.$refs.outgoingTransfers.setLoadingState(false);
         this.$refs.rejectedTransfers.setLoadingState(false);
+        this.$refs.incomingTransfers.setLoadingState(false);
         return;
       }
 
@@ -197,9 +228,14 @@ export default {
       });
       this.outgoing = await transfers.filter((transfer) => {
         return (
-          transfer.status.toLowerCase() === "accepted" || transfer.status.toLowerCase() === "approved"
+          transfer.status.toLowerCase() === "approved"
         )
       });
+      this.incomingtrans = await transfers.filter((transfer) => {
+        return (
+          transfer.status.toLowerCase() === "accepted"
+        )
+      });      
       this.rejected = await transfers.filter((transfer) => {
         return (
           transfer.status.toLowerCase() === "rejected"
@@ -210,6 +246,7 @@ export default {
       this.$refs.pendingTransfers.setLoadingState(false);
       this.$refs.outgoingTransfers.setLoadingState(false);
       this.$refs.rejectedTransfers.setLoadingState(false);
+      this.$refs.incomingTransfers.setLoadingState(false);
 
     }, (err) => {
       this.$toast.error("Error! " + err);
@@ -217,6 +254,7 @@ export default {
       this.$refs.pendingTransfers.setLoadingState(false);
       this.$refs.outgoingTransfers.setLoadingState(false);
       this.$refs.rejectedTransfers.setLoadingState(false);
+      this.$refs.incomingTransfers.setLoadingState(false);
     });
 
     // Get all stores
@@ -245,6 +283,10 @@ export default {
       const id = row.id;
       this.$router.push({ name: "transferdetail", params: {id} });
     },
+    acceptTransfer(row) {
+      const id = row.id;
+      this.$router.push({ name: "finalizeTransfer", params: {id} });
+    },    
   }
 };
 </script>
