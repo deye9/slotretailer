@@ -482,7 +482,6 @@ export default {
       window.backend.GetProduct(search).then((inventory) => {
         if (inventory !== null) {
           vm.inventory = inventory;
-          // this.addItemRow();
         }
         loading(false);
       }, (err) => {

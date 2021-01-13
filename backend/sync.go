@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"reflect"
 	"strconv"
 	"strings"
 	"syscall"
@@ -354,6 +355,11 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 func getAllData(key, link, str string) error {
 	cmd := ""
 	data, err := httpget(link)
+
+	if string(data) == "" {
+		return nil
+	}
+	
 	var response interface{}
 
 	if strings.ToLower(key) == "orders" {
@@ -377,8 +383,11 @@ func getAllData(key, link, str string) error {
 	}
 
 	if err = json.Unmarshal(data, &response); err != nil {
-		CheckError("Error unmarshalling data for ["+key+"].", err, false)
 		return err
+	}
+
+	if reflect.TypeOf(response).Kind().String() == "map" {
+		return nil
 	}
 
 	if len(response.([]interface{})) <= 0 {

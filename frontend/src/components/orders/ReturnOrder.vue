@@ -147,7 +147,22 @@
             <th scope="row">{{ i + 1 }}</th>
             <td>{{ item.itemcode }}</td>
             <td>
-              <v-select label="itemName" code="itemCode" @input="(val) => itemSelected(val, i)" v-model="item.itemName" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
+              <!-- <v-select label="itemName" code="itemCode" @input="(val) => itemSelected(val, i)" v-model="item.itemName" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select> -->
+              <v-select @search="fetchOptions" :filterable="false" label="itemname" :options="inventory" :clearable="false" @input="(val) => itemSelected(val, i)" >
+                <template slot="no-options">
+                  type to search for Product
+                </template>
+                <template slot="option" slot-scope="option">
+                  <div class="d-center">
+                    {{ option.itemname }}
+                  </div>
+                </template>
+                <template slot="selected-option" slot-scope="option">
+                  <div class="selected d-center">
+                    {{ option.itemname }}
+                  </div>
+                </template>                
+              </v-select>
             </td>
             <td>{{ item.serialnumber }}</td>
             <td>
@@ -419,6 +434,7 @@
 </style>
 
 <script>
+import _ from 'lodash';
 import $ from "jquery";
 import moment from "moment";
 import "vue-select/dist/vue-select.css";
@@ -477,13 +493,13 @@ export default {
       this.canVat = true;
     }
 
-    // Get all inventory
-    window.backend.GetProducts().then((inventory) => {
-      this.inventory = inventory;
-      this.addItemRow();
-    }, (err) => {
-      this.$toast.error("Error! " + err);
-    });
+    // // Get all inventory
+    // window.backend.GetProducts().then((inventory) => {
+    //   this.inventory = inventory;
+    //   this.addItemRow();
+    // }, (err) => {
+    //   this.$toast.error("Error! " + err);
+    // });
 
     // Get all stores
     window.backend.GetStores().then((stores) => {
@@ -532,26 +548,31 @@ export default {
       fetch(path, requestOptions)
         .then(response => response.json())
         .then(result => {
-          result.payments.forEach((payment) => {
-            // Add the payment to the payments array
-            this.payments.push({
-              amount: payment.amount,
-              method: payment.paymentType,
-              name: payment.paymentDetails,
-              id: this.payments.length + 1,
-            });
+          if (result !== null && result !== undefined) {
+            result.payments.forEach((payment) => {
+              // Add the payment to the payments array
+              this.payments.push({
+                amount: payment.amount,
+                method: payment.paymentType,
+                name: payment.paymentDetails,
+                id: this.payments.length + 1,
+              });
 
-            // Loop through the array and perform all needed calculations
-            runningTotal += parseFloat(payment.amount.toString().replace("₦", ""));
-      
-            // Calculate footer details
-            this.amtPaid = parseFloat(runningTotal).toFixed(2);
-            this.grandTotal = parseFloat(runningTotal).toFixed(2);
-          });
-          this.addRow();
-          this.order = result;
+              // Loop through the array and perform all needed calculations
+              runningTotal += parseFloat(payment.amount.toString().replace("₦", ""));
+        
+              // Calculate footer details
+              this.amtPaid = parseFloat(runningTotal).toFixed(2);
+              this.grandTotal = parseFloat(runningTotal).toFixed(2);
+            });
+            this.addRow();
+            this.order = result;
+          }
         })
-        .catch(error => this.$toast.error("Error! " + error));
+        .catch(error => { 
+          this.$toast.error("Error! Unable to retrieve data for store.  \n" + error);
+          this.$router.push({name: 'orderlist'});
+        });
       
       // Hide the modal
       $("#returnsModal").modal("hide");
@@ -631,6 +652,30 @@ export default {
       // Calculate the totals [invoice subtotal, grand total, vat]
       await this.totals();
     },
+    /**
+     * Triggered when the search text changes.
+     *
+     * @param search  {String}    Current search text
+     * @param loading {Function}	Toggle loading class
+     */
+    async fetchOptions (search, loading) {
+      if (search.length >= 3) {
+        loading(true);
+        this.search(loading, search, this);
+      }
+    },
+    search: _.debounce((loading, search, vm) => {
+      // Get all inventory
+      window.backend.GetProduct(search).then((inventory) => {
+        if (inventory !== null) {
+          vm.inventory = inventory;
+        }
+        loading(false);
+      }, (err) => {
+        this.$toast.error("Error! " + err);
+        loading(false);
+      });      
+    }, 350),    
     async itemSelected(val, rowIndex) {
       this.item = val;
       await this.populateRow(rowIndex);
