@@ -48,6 +48,28 @@ func GetProducts() (products []Products, err error) {
 	return
 }
 
+// GetProduct returns a instance belonging to the Product id passed in
+func GetProduct(details string) (products []Products, err error) {
+	var rows *sql.Rows
+
+	if rows, err = Get("select * from products where serialnumbers like '%" + details + "%' or itemcode like  '%" + details + "%' or itemname like '%" + details + "%' ;"); err != nil {
+		CheckError("Error getting Products data.", err, false)
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		product := Products{}
+		if err = rows.Scan(&product.ID, &product.ItemCode, &product.ItemName, &product.CodeBars, &product.OnHand, &product.MinLevel, &product.Warehouse, &product.SerialNumber, &product.Manufacturer, &product.Price, &product.Vat, &product.ItemID); err != nil {
+			CheckError("Error Scanning Products.", err, false)
+		} else {
+			products = append(products, product)
+		}
+	}
+
+	return
+}
+
 // GetStoreProducts returns an array of Products belonging to the specified Store
 func GetStoreProducts(id int) (products []Products, err error) {
 	var rows *sql.Rows

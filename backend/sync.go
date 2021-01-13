@@ -191,7 +191,7 @@ func getTransfers() (err error) {
 
 func updateStatus() (err error) {
 	var rows *sql.Rows
-	if rows, err = Get("select docentry, status  from transfers where lower(status) like 'finalize_%' and deleted_at is null order by created_at desc;"); err != nil {
+	if rows, err = Get("select docentry, status  from transfers where lower(status) like 'finalize_%' and deleted_at is null and synced = false order by created_at desc;"); err != nil {
 		CheckError("Error getting Transfer Request Finalized data for sync.", err, false)
 		return err
 	}

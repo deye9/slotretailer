@@ -61,6 +61,7 @@ func main() {
 	app.Bind(service.GetOrders)
 
 	// Product Details
+	app.Bind(service.GetProduct)
 	app.Bind(service.GetProducts)
 	app.Bind(service.CreateReturn)
 	app.Bind(service.ProductDetails)
