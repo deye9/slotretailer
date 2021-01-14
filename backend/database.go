@@ -75,6 +75,7 @@ func Setup() {
 	if _, err = os.Stat(BasePath() + "/build/migrations.sql"); !os.IsNotExist(err) {
 		if DbConn, err = connectDB("sys"); err != nil {
 			CheckError("Error Connecting to the Database", err, true)
+			return
 		}
 		createDB()
 		runMigrations()
@@ -82,6 +83,7 @@ func Setup() {
 
 	if DbConn, err = connectDB(""); err != nil {
 		CheckError("Error Connecting to the Database", err, true)
+		return
 	}
 
 	DbConn.SetMaxOpenConns(3)

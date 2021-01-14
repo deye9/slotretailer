@@ -33,7 +33,7 @@ func Sync() {
 		go rotateLogs()
 	}
 
-	if LocalStore.CreditCardAPI == "" || LocalStore.ProductsAPI == "" || LocalStore.CustomersAPI == "" {
+	if LocalStore.CreditCardAPI == "" || LocalStore.ProductsAPI == "" || LocalStore.CustomersAPI == "" || LocalStore.SapKey == "" {
 		CheckError("LocalStore endpoint missing.", errors.New("Missing endpoint from application"), false)
 		return
 	}
