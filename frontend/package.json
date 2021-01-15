@@ -20,6 +20,7 @@
     "regenerator-runtime": "^0.13.3",
     "vue": "^2.6.11",
     "vue-html2pdf": "^1.8.0",
+    "vue-json-excel": "^0.3.0",
     "vue-router": "^3.4.8",
     "vue-select": "^3.10.8",
     "vue-tables-2": "^2.1.46",

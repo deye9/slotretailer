@@ -84,6 +84,7 @@ func task(t time.Time) {
 	sendData()
 	updateStatus()
 	getTransfers()
+
 	for key, link := range APIlinks {
 		// Write the sync start details to the File System via a Goroutine.
 		go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" started at "+t.String()+"\n"))
@@ -359,7 +360,7 @@ func getAllData(key, link, str string) error {
 	if string(data) == "" {
 		return nil
 	}
-	
+
 	var response interface{}
 
 	if strings.ToLower(key) == "orders" {
@@ -412,6 +413,7 @@ func getAllData(key, link, str string) error {
 
 	if err = Modify(cmd); err != nil {
 		CheckError("Error saving HTTPGET for "+key+" result.", err, false)
+		return err
 	}
 	// Write the sync start details to the File System via a Goroutine.
 	go WriteFile(BasePath()+"/build/sync/"+str+".log", []byte("Sync for "+key+" finished at "+time.Now().String()+"\n"))

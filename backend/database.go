@@ -422,11 +422,12 @@ func Modify(modificationQuery string) (err error) {
 	modificationQuery = strings.Replace(modificationQuery, `"true"`, "true", -1)
 	modificationQuery = strings.Replace(modificationQuery, `"false"`, "false", -1)
 
-	tx, _ := DbConn.Begin()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	// tx, _ := DbConn.Begin()
+	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// defer cancel()
 
-	_, err = DbConn.ExecContext(ctx, modificationQuery)
-	tx.Commit()
+	// _, err = DbConn.ExecContext(ctx, modificationQuery)
+	// tx.Commit()
+	_, err = DbConn.Exec(modificationQuery)
 	return
 }
