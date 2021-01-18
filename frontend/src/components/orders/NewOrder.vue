@@ -122,9 +122,9 @@
       </table>
     </div>
 
-    <button type="button" class="btn btn-dark btn-sm float-right ml-2" @click="DraftOrder">
+    <!-- <button type="button" class="btn btn-dark btn-sm float-right ml-2" @click="DraftOrder">
       Save as Draft
-    </button>
+    </button> -->
     
     <button type="button" class="btn btn-primary btn-sm float-right" @click="SaveOrder" :disabled="isDisabled">
       Save
@@ -296,6 +296,7 @@ import _ from 'lodash';
 import $ from "jquery";
 import moment from "moment";
 import "vue-select/dist/vue-select.css";
+let barcode = '../../assets/js/jquery-barcode.min.js.js';
 
 export default {
   data() {
@@ -328,11 +329,13 @@ export default {
       balanceDue: '0.00',
       paymentcolumns: [],
       paymentDetails: {},
+      currentSerial: "",
       currentDate: moment().format("Do of MMMM YYYY"),
       dateColumns:['created_at','updated_at', 'deleted_at'],
     };
   },
   async created() {
+    console.log(barcode);
     // Determine the state of the Discount element
     if (this.$store.state.isAdmin)
     {
@@ -347,12 +350,14 @@ export default {
 
     // Get all customers
     window.backend.GetCustomers().then((customers) => {
-      this.customers = customers;
-      this.customers.forEach((customer) => {
-        if (customer.cardcode === "0") {
-          customer.cardcode = `R-${customer.id}`;
-        }
-      });
+      if (customers !== null) {
+        this.customers = customers;
+        this.customers.forEach((customer) => {
+          if (customer.cardcode === "0") {
+            customer.cardcode = `R-${customer.id}`;
+          }
+        });
+      }
     }, (err) => {
       this.$toast.error("Error! " + err);
     });
@@ -453,8 +458,10 @@ export default {
         this.items[rowIndex].itemname = this.item.itemname;
         this.items[rowIndex].price = `₦${parseFloat(this.item.price).toFixed(2)}`;
       }
-
-      if (this.item.serialnumbers !== "[]") {
+      
+      if (this.currentSerial !== "") {
+        this.items[rowIndex].serialnumber = this.currentSerial;
+      } else if (this.item.serialnumbers !== "[]") {
         // Prompt for serial number of item.
         this.serialnumbers = this.item.serialnumbers.substring(1, this.item.serialnumbers.length-1).split(" ");
         $('#serialsModal').modal('show');
@@ -482,6 +489,11 @@ export default {
       window.backend.GetProduct(search).then((inventory) => {
         if (inventory !== null) {
           vm.inventory = inventory;
+          if (inventory.length === 1) {
+            vm.currentSerial = search;
+          } else {
+            vm.currentSerial = "";
+          }
         }
         loading(false);
       }, (err) => {
@@ -506,29 +518,6 @@ export default {
         await this.populateRow(rowIndex);
         await this.addItemRow(rowIndex);
     },
-    // async fetchProduct(search, loading, rowIndex) {
-    //   loading(true);
-    //   if (search.length >= 3) {  
-    //     // this.item = await this.inventory.filter((item) => {
-    //     //   return (
-    //     //     item.itemcode.toLowerCase() === search.toLowerCase() ||
-    //     //     item.itemname.toLowerCase() === search.toLowerCase() ||
-    //     //     item.codebars.toLowerCase() === search.toLowerCase() ||
-    //     //     item.serialnumbers.toLowerCase() === search.toLowerCase()
-    //     //   );
-    //     // })[0];
-    //     this.item = await this.inventory.filter((item) => {
-    //       return (
-    //         item.itemcode.toLowerCase().indexOf(search.toLowerCase()) !== -1 ||
-    //         item.itemname.toLowerCase().indexOf(search.toLowerCase()) !== -1 ||
-    //         item.serialnumbers.toLowerCase().indexOf(search.toLowerCase()) !== -1
-    //       );
-    //     })[0];
-    //     await this.populateRow(rowIndex);
-    //   }
-    //   loading(false);
-    //   return;
-    // },
     async adminLogin() {
       const email = this.email,
         password = this.password;
@@ -840,15 +829,58 @@ export default {
       this.order.payments = payments;
       this.order.doctotal = this.grandTotal;
       this.order.discountapprovedby = parseInt(this.discountby);
-      
-      window.backend.NewOrder(this.order).then(() => {
+
+      window.backend.NewOrder(this.order).then(async () => {
+        // Print out the customer's receipt.
+        await this.PrintOrder();
         this.$toast.success("Success! Order has been successfully saved.");
         this.$router.push({name: 'orderlist'});
       }, (err) => {
         this.$toast.error("Error! " + err);
       });
     },
-    DraftOrder() {},
+    // DraftOrder() {},
+    async PrintOrder() {
+      let IDString = Math.random().toString(36).substring(7);
+
+      var salesReceipt = window.open('', 'Sales Receipt', 'height=400,width=600');
+      salesReceipt.document.write('<html><head><title>Sales Receipt</title>');
+      /*optional stylesheet*/ //salesReceipt.document.write('<link rel="stylesheet" href="main.css" type="text/css" />');
+      salesReceipt.document.write('</head><body >');
+      salesReceipt.document.writeln("<h3>SLOT SYSTEMS LTD.</h3>");
+      salesReceipt.document.writeln(this.$store.state.userStore.address);
+      salesReceipt.document.writeln(`<br />TEL: ${this.$store.state.userStore.phone}`);
+      salesReceipt.document.writeln('<hr />');
+      salesReceipt.document.writeln('<h3>Copy</h3>');
+      salesReceipt.document.writeln('<h3>Receipt</h3>');
+      salesReceipt.document.writeln(`<br /><b>ID: </b>${IDString}`);
+      salesReceipt.document.writeln(`<br /><b>Date: </b>${moment().format("Do.MMMM.YYYY HH:MM:SS")}<br />`);
+
+      this.order.items.forEach(item => {
+        salesReceipt.document.writeln("<br />" + item.itemname + " " + item.quantity + " piece * ₦" + item.price);
+        salesReceipt.document.writeln("<br />Serial No.:" + item.serialnumber) + "<br />";
+      });
+
+      salesReceipt.document.writeln("<br /><b>Total: ₦</b>" + this.grandTotal);
+      salesReceipt.document.writeln("<br /><b>Net amount: ₦</b>" + this.grandTotal);
+      salesReceipt.document.writeln("<br /><b>Tax amounts</b>: ₦0");
+      // salesReceipt.document.writeln("<br />X0: 0.00%");
+      // salesReceipt.document.writeln("<br />Access: " + this.grandTotal);
+
+      salesReceipt.document.writeln("<br />You were served by: " + this.$store.state.user.firstname + " " + this.$store.state.user.lastname);
+      salesReceipt.document.writeln('<br /><hr />');
+      // salesReceipt.document.writeln(`${<barcode value="IDString">Error Rendering</barcode>}`)
+      salesReceipt.document.writeln('<br /><hr />');
+      salesReceipt.document.writeln('<br />**ITEMS BROUGHT IN GOOD CONDITION**');
+      salesReceipt.document.writeln('<br />*****ARE NOT RETURNABLE*****');
+      
+      // salesReceipt.document.write(JSON.stringify(this.order) + "<br />" + JSON.stringify(this.$store.state.userStore));
+      salesReceipt.document.write('</body></html>');
+
+      salesReceipt.print();
+      salesReceipt.close();
+      return true;
+    },
   },
 };
 </script>

@@ -117,7 +117,6 @@ func NewOrder(order map[string]interface{}) (err error) {
 		return err
 	}
 
-	// Print out invoice & email to the customer.
 	return
 }
 
