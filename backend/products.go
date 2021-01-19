@@ -52,7 +52,7 @@ func GetProducts() (products []Products, err error) {
 func GetProduct(details string) (products []Products, err error) {
 	var rows *sql.Rows
 
-	if rows, err = Get("select * from products where serialnumbers like '%" + details + "%' or itemcode like  '%" + details + "%' or itemname like '%" + details + "%' and onhand > 0;"); err != nil {
+	if rows, err = Get("select * from products where serialnumbers like '%" + details + "%' or itemcode like  '%" + details + "%' or itemname like '%" + details + "%';"); err != nil {
 		CheckError("Error getting Products data.", err, false)
 		return nil, err
 	}
@@ -63,7 +63,9 @@ func GetProduct(details string) (products []Products, err error) {
 		if err = rows.Scan(&product.ID, &product.ItemCode, &product.ItemName, &product.CodeBars, &product.OnHand, &product.MinLevel, &product.Warehouse, &product.SerialNumber, &product.Manufacturer, &product.Price, &product.Vat, &product.ItemID); err != nil {
 			CheckError("Error Scanning Products.", err, false)
 		} else {
-			products = append(products, product)
+			if product.OnHand >= 1 {
+				products = append(products, product)
+			}
 		}
 	}
 
