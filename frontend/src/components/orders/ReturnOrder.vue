@@ -148,7 +148,7 @@
             <td>{{ item.itemcode }}</td>
             <td>
               <!-- <v-select label="itemName" code="itemCode" @input="(val) => itemSelected(val, i)" v-model="item.itemName" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select> -->
-              <v-select @search="fetchOptions" :filterable="false" label="itemname" :options="inventory" :clearable="false" @input="(val) => itemSelected(val, i)" >
+              <v-select @search="fetchOptions" :filterable="false" label="itemname" :options="inventory" :clearable="false" @input="(val) => itemSelected(val, i)" style="min-width: 250px;" >
                 <template slot="no-options">
                   type to search for Product
                 </template>
@@ -166,7 +166,7 @@
             </td>
             <td>{{ item.serialnumber }}</td>
             <td>
-              <input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" />
+              <input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" style="width: 40px;" />
             </td>
             <td>
               {{ item.price }}
