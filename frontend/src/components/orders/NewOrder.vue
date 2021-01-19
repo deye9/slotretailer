@@ -53,7 +53,7 @@
             <th scope="row">{{ i + 1 }}</th>
             <td>{{ item.itemcode }}</td>
             <td>
-              <v-select @search="fetchOptions" :filterable="false" label="itemname" :options="inventory" :clearable="false" @input="(val) => itemSelected(val, i)" >
+              <v-select @search="fetchOptions" :filterable="false" label="itemname" :options="inventory" :clearable="false" @input="(val) => itemSelected(val, i)" style="width: 250px;">
                 <template slot="no-options">
                   type to search for Product
                 </template>
@@ -71,7 +71,7 @@
             </td>
             <td>{{ item.serialnumber }}</td>
             <td>
-              <input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" />
+              <input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" style="width: 40px;" />
             </td>
             <td>
               {{ item.price }}
