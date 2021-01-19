@@ -95,7 +95,7 @@ func NewOrder(order map[string]interface{}) (err error) {
 		}
 
 		// Build out the needed queries
-		inventory += fmt.Sprintf(`UPDATE products SET onhand = onhand - %v WHERE itemcode = "%s";`, _value.(map[string]interface{})["quantity"], _value.(map[string]interface{})["itemcode"])
+		inventory += fmt.Sprintf(`UPDATE products SET onhand = onhand - %v, serialnumbers = replace(serialnumbers,  '%s', '') WHERE itemcode = "%s";`, _value.(map[string]interface{})["quantity"], _value.(map[string]interface{})["serialnumber"], _value.(map[string]interface{})["itemcode"])
 		master += strings.Replace(fmt.Sprintf("%v", detail), `""`, "@last_id", -1)
 		master = strings.Replace(master, `"null"`, `""`, -1)
 	}

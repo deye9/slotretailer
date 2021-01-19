@@ -52,7 +52,7 @@ func GetProducts() (products []Products, err error) {
 func GetProduct(details string) (products []Products, err error) {
 	var rows *sql.Rows
 
-	if rows, err = Get("select * from products where serialnumbers like '%" + details + "%' or itemcode like  '%" + details + "%' or itemname like '%" + details + "%' ;"); err != nil {
+	if rows, err = Get("select * from products where serialnumbers like '%" + details + "%' or itemcode like  '%" + details + "%' or itemname like '%" + details + "%' and onhand > 0;"); err != nil {
 		CheckError("Error getting Products data.", err, false)
 		return nil, err
 	}
