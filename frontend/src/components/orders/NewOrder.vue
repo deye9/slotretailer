@@ -296,7 +296,7 @@ import _ from 'lodash';
 import $ from "jquery";
 import moment from "moment";
 import "vue-select/dist/vue-select.css";
-let barcode = '../../assets/js/jquery-barcode.min.js.js';
+// let barcode = '../../assets/js/jquery-barcode.min.js.js';
 
 export default {
   data() {
@@ -335,7 +335,6 @@ export default {
     };
   },
   async created() {
-    console.log(barcode);
     // Determine the state of the Discount element
     if (this.$store.state.isAdmin)
     {
@@ -501,7 +500,19 @@ export default {
         loading(false);
       });      
     }, 350),
-    async itemSelected(val, rowIndex) {
+    async itemSelected(val, rowIndex) {      
+      // If the serialNumber has already been selected, do not allow for it to be re-added.
+      let itemExists = await this.items.filter(async (item) => {
+          return (
+            item.serialnumber.toLowerCase() === this.currentSerial.toLowerCase()
+          );
+        })[0];
+
+      if (itemExists.serialnumber.toLowerCase() === this.currentSerial.toLowerCase()) {
+        this.$toast.error("Error! Serial Number has already been positioned for Sales.");
+        return
+      }
+
       this.item = val;
       await this.populateRow(rowIndex);
       await this.addItemRow(rowIndex);
