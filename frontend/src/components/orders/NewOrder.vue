@@ -71,7 +71,7 @@
             </td>
             <td>{{ item.serialnumber }}</td>
             <td>
-              <input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" style="width: 40px;" />
+              <input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" style="width: 60px;" />
             </td>
             <td>
               {{ item.price }}
@@ -402,6 +402,7 @@ export default {
       this.selecteditem = '';
       this.items.push({
         id: this.items.length + 1,
+        onhand: 0,
         quantity: 1,
         itemcode: '',
         itemname: '',
@@ -422,6 +423,8 @@ export default {
       if (this.items.length === 0 || this.items.length === index) {
         await this.addItemRow(index);
       }
+
+      await this.totals();
     },
     async setSerial() {
       if (this.serial === null || this.serial === " ") {
@@ -449,6 +452,7 @@ export default {
         this.items[rowIndex].quantity = 1;
         this.items[rowIndex].id = rowIndex;
         this.items[rowIndex].discount = '₦0.00';
+        this.items[rowIndex].onhand = this.item.onhand;
         this.items[rowIndex].itemcode = this.item.itemcode;
         this.items[rowIndex].itemname = this.item.itemname;
         this.items[rowIndex].price = `₦${parseFloat(this.item.price).toFixed(2)}`;
@@ -500,7 +504,7 @@ export default {
         loading(false);
       });      
     }, 350),
-    async itemSelected(val, rowIndex) {      
+    async itemSelected(val, rowIndex) {
       // If the serialNumber has already been selected, do not allow for it to be re-added.
       let itemExists = await this.items.filter(async (item) => {
           return (
@@ -508,9 +512,27 @@ export default {
           );
         })[0];
 
-      if (itemExists.serialnumber.toLowerCase() === this.currentSerial.toLowerCase()) {
-        this.$toast.error("Error! Serial Number has already been positioned for Sales.");
-        return
+      if (this.currentSerial !== "") {
+        if (itemExists.serialnumber.toLowerCase() === this.currentSerial.toLowerCase()) {
+          this.inventory = [];
+          this.$toast.error("Error! Serial Number has already been positioned for Sales.");
+          return
+        }
+      }
+
+      if (rowIndex >= 1) {
+        let sumByQuantity = 0;
+        let items = this.items.filter(it => it.itemcode === val.itemcode);
+
+        items.forEach((item) => {
+          sumByQuantity += parseInt(item.quantity);
+        });
+
+        if (sumByQuantity >= parseInt(val.onhand)) {
+          this.$toast.error(`Error! Quantity ordered {${sumByQuantity}} for ${val.itemcode} is more than available Inventory Quantity ${val.onhand}.`);
+          await this.deleteItemRow(rowIndex);
+          return
+        }
       }
 
       this.item = val;
@@ -578,11 +600,11 @@ export default {
       }
     },
     async applyDiscount(rowIndex) {
-      if (this.items.serialnumbers !== "[]" && this.items[rowIndex].serialnumber === "") {
-        this.$toast.error("Error! Product Serial Number is required in order to proceed.");
-        $('#serialsModal').modal('show');
-        return;
-      }
+      // if (this.items.serialnumbers !== "[]" && this.items[rowIndex].serialnumber === "") {
+      //   this.$toast.error("Error! Product Serial Number is required in order to proceed.");
+      //   $('#serialsModal').modal('show');
+      //   return;
+      // }
 
       // Perform a quick clean up
       if (this.items[rowIndex].price === '₦0.00') {
@@ -610,7 +632,20 @@ export default {
       await this.totals();
     },
     async setQuantity(rowIndex) {
+      let sumByQuantity = 0;
       this.items[rowIndex].quantity = event.target.value;
+
+      let items = this.items.filter(it => it.itemcode === this.items[rowIndex].itemcode);
+
+      items.forEach((item) => {
+        sumByQuantity += parseInt(item.quantity);
+      });
+
+      if (sumByQuantity > parseInt(items[0].onhand)) {
+        this.$toast.error(`Error! Quantity ordered {${sumByQuantity}} for ${items[0].itemcode} is more than available Inventory Quantity ${items[0].onhand}.`);
+        await this.deleteItemRow(rowIndex);
+        return
+      }
       await this.totals();
     },
     async totals() {
@@ -620,17 +655,29 @@ export default {
       let runningTotal = 0.0;
 
       // Loop through the array and perform all needed calculations
-      this.items.forEach(element => {
+      this.items.forEach(item => {
+        // let sumByQuantity = 0;
+        this.isDisabled = false;
+
+        // let items = this.items.filter(it => it.itemcode === item.itemcode);
+        // items.forEach(item => {
+        //   sumByQuantity += parseInt(item.quantity);
+        //   if (item.itemcode !== "" && sumByQuantity > parseInt(item.onhand)) {
+        //     this.isDisabled = true;
+        //     this.$toast.error(`Error! Quantity ordered ${sumByQuantity} for ${item.itemcode} is more than available Inventory Quantity of ${item.onhand}.`);
+        //   }
+        // });
+
         // Calculate the discount. (quantity * price) - discount value
-        let quantity = element.quantity,
-          price = parseFloat(element.price.replace("₦", "")),
-          discount = parseFloat(element.discount.replace("₦", "")),
+        let quantity = item.quantity,
+          price = parseFloat(item.price.replace("₦", "")),
+          discount = parseFloat(item.discount.replace("₦", "")),
           currentTotal = (quantity * price) - discount;
 
-        element.total = "₦" + currentTotal;
+        item.total = "₦" + currentTotal;
         runningTotal += parseFloat(currentTotal);
       });
-      
+
       // Calculate footer details
       this.subTotal = parseFloat(runningTotal).toFixed(2);
       if (this.canVat === true) {
