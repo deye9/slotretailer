@@ -147,8 +147,7 @@
             <th scope="row">{{ i + 1 }}</th>
             <td>{{ item.itemcode }}</td>
             <td>
-              <!-- <v-select label="itemName" code="itemCode" @input="(val) => itemSelected(val, i)" v-model="item.itemName" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select> -->
-              <v-select @search="fetchOptions" :filterable="false" label="itemname" :options="inventory" :clearable="false" @input="(val) => itemSelected(val, i)" style="min-width: 250px;" >
+              <v-select @search="fetchOptions" :filterable="false" label="itemname" :options="inventory" :clearable="false" @input="(val) => itemSelected(val, i)" style="min-width: 250px;">
                 <template slot="no-options">
                   type to search for Product
                 </template>
@@ -166,7 +165,7 @@
             </td>
             <td>{{ item.serialnumber }}</td>
             <td>
-              <input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" style="width: 40px;" />
+              <input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" style="width: 60px;" />
             </td>
             <td>
               {{ item.price }}
@@ -250,7 +249,7 @@
                   <input id="orderid" class="form-control form-control-sm mt-2" type="text" v-model="OrderID" />
                 </div>
               </div>
-              <hr />
+              OR <hr />
               <div class="form-row mb-3">
                 <div class="form-group col">
                   <label class="form-check-label" for="serialnumber">
@@ -476,6 +475,7 @@ export default {
       balanceDue: 0.00,
       paymentcolumns: [],
       paymentDetails: {},
+      currentSerial: "",
       currentDate: moment().format("Do of MMMM YYYY"),
       dateColumns:['created_at','updated_at', 'deleted_at'],
     };
@@ -493,14 +493,6 @@ export default {
       this.canVat = true;
     }
 
-    // // Get all inventory
-    // window.backend.GetProducts().then((inventory) => {
-    //   this.inventory = inventory;
-    //   this.addItemRow();
-    // }, (err) => {
-    //   this.$toast.error("Error! " + err);
-    // });
-
     // Get all stores
     window.backend.GetStores().then((stores) => {
       this.stores = stores;
@@ -514,6 +506,8 @@ export default {
       this.paymentDetails["pos"] = PaymentDetails[0]["pos"];
       this.paymentDetails["cheque"] = PaymentDetails[0]["cheque"];
       this.paymentDetails["banktransfer"] = PaymentDetails[0]["banktransfer"];
+      this.addRow();
+      this.addItemRow();
     }, (err) => {
       this.$toast.error("Error! " + err);
     });
@@ -584,6 +578,7 @@ export default {
 
       this.selecteditem = '';
       this.items.push({
+        onhand: 0,
         id: this.items.length + 1,
         quantity: 1,
         itemcode: '',
@@ -632,6 +627,7 @@ export default {
         this.items[rowIndex].quantity = 1;
         this.items[rowIndex].id = rowIndex;
         this.items[rowIndex].discount = '₦0.00';
+        this.items[rowIndex].onhand = this.item.onhand;
         this.items[rowIndex].itemcode = this.item.itemcode;
         this.items[rowIndex].itemname = this.item.itemname;
         this.items[rowIndex].price = `₦${parseFloat(this.item.price).toFixed(2)}`;
@@ -640,8 +636,10 @@ export default {
         this.items[rowIndex].itemname = this.item.itemname;
         this.items[rowIndex].price = `₦${parseFloat(this.item.price).toFixed(2)}`;
       }
-
-      if (this.item.serialnumbers !== "[]") {
+      
+      if (this.currentSerial !== "") {
+        this.items[rowIndex].serialnumber = this.currentSerial;
+      } else if (this.item.serialnumbers !== "[]") {
         // Prompt for serial number of item.
         this.serialnumbers = this.item.serialnumbers.substring(1, this.item.serialnumbers.length-1).split(" ");
         $('#serialsModal').modal('show');
@@ -669,14 +667,49 @@ export default {
       window.backend.GetProduct(search).then((inventory) => {
         if (inventory !== null) {
           vm.inventory = inventory;
+          if (inventory.length === 1) {
+            vm.currentSerial = search;
+          } else {
+            vm.currentSerial = "";
+          }
         }
         loading(false);
       }, (err) => {
         this.$toast.error("Error! " + err);
         loading(false);
       });      
-    }, 350),    
+    }, 350),
     async itemSelected(val, rowIndex) {
+      // If the serialNumber has already been selected, do not allow for it to be re-added.
+      let itemExists = await this.items.filter(async (item) => {
+          return (
+            item.serialnumber.toLowerCase() === this.currentSerial.toLowerCase()
+          );
+        })[0];
+
+      if (this.currentSerial !== "") {
+        if (itemExists.serialnumber.toLowerCase() === this.currentSerial.toLowerCase()) {
+          this.inventory = [];
+          this.$toast.error("Error! Serial Number has already been positioned for Sales.");
+          return
+        }
+      }
+
+      if (rowIndex >= 1) {
+        let sumByQuantity = 0;
+        let items = this.items.filter(it => it.itemcode === val.itemcode);
+
+        items.forEach((item) => {
+          sumByQuantity += parseInt(item.quantity);
+        });
+
+        if (sumByQuantity >= parseInt(val.onhand)) {
+          this.$toast.error(`Error! Quantity ordered {${sumByQuantity}} for ${val.itemcode} is more than available Inventory Quantity ${val.onhand}.`);
+          await this.deleteItemRow(rowIndex);
+          return
+        }
+      }
+
       this.item = val;
       await this.populateRow(rowIndex);
       await this.addItemRow(rowIndex);
@@ -742,12 +775,6 @@ export default {
       }
     },
     async applyDiscount(rowIndex) {
-      if (this.items.serialnumbers !== "[]" && this.items[rowIndex].serialnumber === "") {
-        this.$toast.error("Error! Product Serial Number is required in order to proceed.");
-        $('#serialsModal').modal('show');
-        return;
-      }
-
       // Perform a quick clean up
       if (this.items[rowIndex].price === '₦0.00') {
         event.target.innerText = '₦0.00';
@@ -774,7 +801,20 @@ export default {
       await this.totals();
     },
     async setQuantity(rowIndex) {
+      let sumByQuantity = 0;
       this.items[rowIndex].quantity = event.target.value;
+
+      let items = this.items.filter(it => it.itemcode === this.items[rowIndex].itemcode);
+
+      items.forEach((item) => {
+        sumByQuantity += parseInt(item.quantity);
+      });
+
+      if (sumByQuantity > parseInt(items[0].onhand)) {
+        this.$toast.error(`Error! Quantity ordered {${sumByQuantity}} for ${items[0].itemcode} is more than available Inventory Quantity ${items[0].onhand}.`);
+        await this.deleteItemRow(rowIndex);
+        return
+      }
       await this.totals();
     },
     async totals() {
@@ -785,6 +825,8 @@ export default {
 
       // Loop through the array and perform all needed calculations
       this.items.forEach(element => {
+        this.isDisabled = false;
+
         // Calculate the discount. (quantity * price) - discount value
         let quantity = element.quantity,
           price = parseFloat(element.price.replace("₦", "")),
@@ -809,6 +851,10 @@ export default {
     // Payment Section
     transformPayment(payment) {
       let pay = this.paymentDetails[payment.paymentType.toLowerCase()];
+
+      if (pay === undefined || pay === null) {
+        return "";
+      }
 
       return pay.filter((data) => {
         return (data.code === payment.paymentDetails);

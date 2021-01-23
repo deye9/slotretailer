@@ -656,17 +656,7 @@ export default {
 
       // Loop through the array and perform all needed calculations
       this.items.forEach(item => {
-        // let sumByQuantity = 0;
         this.isDisabled = false;
-
-        // let items = this.items.filter(it => it.itemcode === item.itemcode);
-        // items.forEach(item => {
-        //   sumByQuantity += parseInt(item.quantity);
-        //   if (item.itemcode !== "" && sumByQuantity > parseInt(item.onhand)) {
-        //     this.isDisabled = true;
-        //     this.$toast.error(`Error! Quantity ordered ${sumByQuantity} for ${item.itemcode} is more than available Inventory Quantity of ${item.onhand}.`);
-        //   }
-        // });
 
         // Calculate the discount. (quantity * price) - discount value
         let quantity = item.quantity,
