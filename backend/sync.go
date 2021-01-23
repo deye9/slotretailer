@@ -348,6 +348,7 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 		Modify(successcommand)
 	} else {
 		CheckError("Error from Endpoint "+url+" for Payload sent. ", errors.New("status is "+status+". "+string(data)), false)
+		// CheckError("Payload is ", errors.New(payload), false)
 	}
 
 	return
