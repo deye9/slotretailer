@@ -843,10 +843,10 @@ export default {
         this.vatAmount = parseFloat((7.5 / 100) * runningTotal).toFixed(2);
         this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal).toFixed(2);
       } else {
-        this.grandTotal = parseFloat(runningTotal) + parseFloat(this.amtPaid);
-        this.grandTotal = parseFloat(this.grandTotal).toFixed(2);
+        this.grandTotal = parseFloat(runningTotal) - parseFloat(this.amtPaid);
+        this.grandTotal = Math.abs(parseFloat(this.grandTotal).toFixed(2)) <= this.grandTotal ? Math.abs(parseFloat(this.grandTotal).toFixed(2)) : 0.0;
       }
-      this.balanceDue = parseFloat(this.grandTotal - this.amtPaid).toFixed(2);
+      this.balanceDue = Math.abs(parseFloat(this.grandTotal).toFixed(2)) <= this.grandTotal ? Math.abs(parseFloat(this.grandTotal).toFixed(2)) : 0.0;
     },
     // Payment Section
     transformPayment(payment) {
