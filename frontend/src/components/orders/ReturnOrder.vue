@@ -249,7 +249,9 @@
                   <input id="orderid" class="form-control form-control-sm mt-2" type="text" v-model="OrderID" />
                 </div>
               </div>
-              OR <hr />
+              <fieldset class="title">
+                  <legend>OR</legend>
+              </fieldset>
               <div class="form-row mb-3">
                 <div class="form-group col">
                   <label class="form-check-label" for="serialnumber">
@@ -430,6 +432,15 @@
     text-align: left;
     caption-side: top;
   }
+
+fieldset.title {
+    border-top: 1px solid #aaa;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    display: block;
+    text-align: center;
+}
 </style>
 
 <script>
@@ -847,6 +858,9 @@ export default {
         this.grandTotal = Math.abs(parseFloat(this.grandTotal).toFixed(2)) <= this.grandTotal ? Math.abs(parseFloat(this.grandTotal).toFixed(2)) : 0.0;
       }
       this.balanceDue = Math.abs(parseFloat(this.grandTotal).toFixed(2)) <= this.grandTotal ? Math.abs(parseFloat(this.grandTotal).toFixed(2)) : 0.0;
+      if (this.balanceDue <= 0.0) {
+        this.amtPaid = this.grandTotal;
+      }
     },
     // Payment Section
     transformPayment(payment) {
