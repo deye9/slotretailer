@@ -106,8 +106,42 @@ export default {
       this.$router.push({ name: "returnorder", params: {id} });
     },
     printOrder(row) {
-      const id = row.id;
-      this.$router.push({ name: "orderdetail", params: {id} });
+      // const id = row.id;
+      let IDString = Math.random().toString(36).substring(7);
+
+      var salesReceipt = window.open('', 'Sales Receipt', 'height=400,width=600');
+      salesReceipt.document.write('<html><head><title>Sales Receipt</title>');
+      salesReceipt.document.write('</head><body >');
+      salesReceipt.document.writeln("<h3>SLOT SYSTEMS LTD.</h3>");
+      salesReceipt.document.writeln(this.$store.state.userStore.address);
+      salesReceipt.document.writeln(`<br />TEL: ${this.$store.state.userStore.phone}`);
+      salesReceipt.document.writeln('<hr />');
+      salesReceipt.document.writeln('<h3>Copy</h3>');
+      salesReceipt.document.writeln('<h3>Receipt</h3>');
+      salesReceipt.document.writeln(`<br /><b>ID: </b>${IDString}`);
+      salesReceipt.document.writeln(`<br /><b>Date: </b>${moment().format("Do.MMMM.YYYY HH:MM:SS")}<br />`);
+
+      this.data.items.forEach(item => {
+        salesReceipt.document.writeln("<br />" + item.itemname + " " + item.quantity + " piece * ₦" + item.price);
+        salesReceipt.document.writeln("<br />Serial No.:" + item.serialnumber) + "<br />";
+      });
+
+      salesReceipt.document.writeln("<br /><b>Total: ₦</b>" + this.grandTotal);
+      salesReceipt.document.writeln("<br /><b>Net amount: ₦</b>" + this.grandTotal);
+      salesReceipt.document.writeln("<br /><b>Tax amounts</b>: ₦0");
+
+      salesReceipt.document.writeln("<br />You were served by: " + this.$store.state.user.firstname + " " + this.$store.state.user.lastname);
+      salesReceipt.document.writeln('<br /><hr />');
+      salesReceipt.document.writeln('<br /><hr />');
+      salesReceipt.document.writeln('<br />**ITEMS BROUGHT IN GOOD CONDITION**');
+      salesReceipt.document.writeln('<br />*****ARE NOT RETURNABLE*****');
+      
+      salesReceipt.document.write('</body></html>');
+
+      salesReceipt.print();
+      salesReceipt.close();
+      return true;
+      // this.$router.push({ name: "orderdetail", params: {id} });
     },
     displayInfo(row) {
       const id = row.id;

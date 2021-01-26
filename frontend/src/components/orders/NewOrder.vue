@@ -858,7 +858,9 @@ export default {
         };
 
         // Add the payments to the payments array
-        payments.push(payment);
+        if (parseFloat(element.amount) >= 1){
+          payments.push(payment);
+        }
       });
 
       // Build out the header.
