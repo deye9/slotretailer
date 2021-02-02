@@ -69,7 +69,7 @@
             <td>{{ item.itemcode }}</td>
             <td>{{item.itemname}}</td>
             <td>{{ item.onhand }}</td>
-            <td><input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" /></td>
+            <td><input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" style="width: 60px;" /></td>
             <td>{{ item.serial }}</td>
             <td>
               <button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteRow(i)">Remove Line</button>

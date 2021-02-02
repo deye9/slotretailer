@@ -222,32 +222,35 @@ REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin)
 USE `retail`;
 DROP procedure IF EXISTS `getOrders`;
 
-USE `retail`;
-DROP procedure IF EXISTS `retail`.`getOrders`;
-
 DELIMITER $$
 USE `retail`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getOrders`()
 BEGIN
-	select id, id customer_id, DATE_FORMAT(created_at, '%Y-%m-%d') docdate, docnum,
-    case when cardcode like 'R-%' then replace(cardcode, 'R-', '') else cardcode end cardcode, 
-    cardname, doctotal,  comment, returned, synced, created_by,
-    (select JSON_ARRAYAGG(JSON_OBJECT(
+    select id,
+        case when cardcode like 'R-%' then replace(cardcode, 'R-', '') else id end customer_id, 
+        DATE_FORMAT(created_at, '%Y-%m-%d') docdate, docnum,
+        case when cardcode like 'R-%' then "" else cardcode end cardcode,
+        cardname, doctotal, comment, returned, synced, created_by,
+        (select JSON_ARRAYAGG(JSON_OBJECT(
         'itemcode', itemcode, 
         'itemname', itemname, 
         'quantity', quantity, 
         'price', price, 
         'discount', discount, 
-    'warehouse', (select sapkey from store) ,
-    'serialnumber', serialnumber))  
-    from ordereditems where orderid = o.id) items,
-    (select JSON_ARRAYAGG(JSON_OBJECT(
+        'warehouse', (select sapkey from store) ,
+        'serialnumber', serialnumber)) from ordereditems where orderid = o.id) items,
+        (select JSON_ARRAYAGG(JSON_OBJECT(
         'amount', amount, 
         'paymenttype', paymenttype,
-        'paymentdetails', case when lower(paymenttype) = 'cash' then (select storecashaccount from store) else paymentdetails end )) 
-        from payments where orderid = o.id) payments 
-        from orders o where id in (select id from orders where synced = false and canceled = false and deleted_at is null);
-END$$
+        'paymentdetails', case when lower(paymenttype) = 'cash' then (select storecashaccount
+            from store) else paymentdetails end ))
+        from payments
+        where orderid = o.id) payments
+    from orders o
+    where id in (select id
+    from orders
+    where synced = false and canceled = false and deleted_at is null);
+    END$$
 
 DELIMITER ;
 

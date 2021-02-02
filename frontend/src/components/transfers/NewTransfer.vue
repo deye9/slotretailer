@@ -55,12 +55,12 @@
           <tr v-for="(item, i) in items" :key="'row' + i" :id="'row' + i">
             <th scope="row">{{ i + 1 }}</th>
             <td>
-              <v-select label="itemName" @input="(val) => itemSelected(val, i)" v-model="item.itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product"></v-select>
+              <v-select label="itemName" @input="(val) => itemSelected(val, i)" v-model="item.itemname" :options="inventory" :clearable="false" placeholder="Kindly select Product" style="min-width: 250px;"></v-select>
             </td>
             <td>{{ item.itemcode }}</td>
             <td>{{item.itemname}}</td>
             <td>{{ item.onhand }}</td>
-            <td><input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" /></td>
+            <td><input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" style="width: 60px;" /></td>
             <td><button :id="'del' + i" class="btn btn-danger btn-sm mr-2 float-right" @click="deleteRow(i)">Remove Line</button></td>
           </tr>
         </tbody>

@@ -30,9 +30,10 @@
       <div class="card-header">Contact Information</div>
       <div class="card-body">
         <div class="form-row">
+
           <div class="form-group col">
-            <label for="city">City</label>
-            <input type="text" class="form-control form-control-sm" placeholder="City" v-model="city" required />
+            <label for="phone1">Phone Number 1 <span style="color: red">*</span></label>
+            <input type="text" class="form-control form-control-sm" placeholder="Phone Number" v-model="phone" @blur="handleBlur" required />
           </div>
           <div class="form-group col">
             <label for="address">Contact Address</label>
@@ -41,14 +42,14 @@
         </div>
         <div class="form-row">
           <div class="form-group col">
-            <label for="phone1">Phone Number 1 <span style="color: red">*</span></label>
-            <input type="text" class="form-control form-control-sm" placeholder="Phone Number" v-model="phone" @blur="handleBlur" required />
-          </div>
-          <div class="form-group col">
             <label for="phone2">Phone Number 2</label>
             <input type="text" class="form-control form-control-sm" placeholder="Phone Number" v-model="phone1" @blur="handleBlur" required />
           </div>
         </div>
+        <div class="form-group col">
+          <label for="city">City</label>
+          <input type="text" class="form-control form-control-sm" placeholder="City" v-model="city" required />
+        </div>     
       </div>
     </div>
 
