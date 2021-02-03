@@ -3,20 +3,20 @@ package service
 import "database/sql"
 
 // GetRoles returns an array of role Names
-func GetRoles() (customer Customers, err error) {
+func GetRoles() (acls []string, err error) {
 	var rows *sql.Rows
-	if rows, err = Get(`select * from customers where deleted_at is null order by created_at desc;`); err != nil {
-		CheckError("Error getting Customers.", err, false)
+	if rows, err = Get(`select distinct rolename from acl order by 1 desc;;`); err != nil {
+		CheckError("Error getting Role Names.", err, false)
 		return nil, err
 	}
 
 	defer rows.Close()
 	for rows.Next() {
-		customer := Customers{}
-		if err = rows.Scan(&customer.ID, &customer.CardCode, &customer.CardName, &customer.Address, &customer.Phone, &customer.Phone1, &customer.City, &customer.Email, &customer.Synced, &customer.CreatedBy, &customer.CreatedAt, &customer.UpdatedAt, &customer.DeletedAt); err != nil {
+		var acl string
+		if err = rows.Scan(&acl); err != nil {
 			CheckError("Error Scanning Customers.", err, false)
 		} else {
-			customers = append(customers, customer)
+			acls = append(acls, acl)
 		}
 	}
 

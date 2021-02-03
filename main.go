@@ -29,6 +29,13 @@ func main() {
 		Colour:    "#131313",
 	})
 
+	// Access Control List
+	app.Bind(service.GetRoles)
+	app.Bind(service.GetRoleByID)
+	app.Bind(service.SaveRole)
+	app.Bind(service.UpdateRole)
+	app.Bind(service.DeleteRole)
+
 	// Sync Details
 	app.Bind(service.GetLog)
 	app.Bind(service.GetLogs)
