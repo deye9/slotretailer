@@ -31,7 +31,7 @@ func main() {
 
 	// Access Control List
 	app.Bind(service.GetRoles)
-	app.Bind(service.GetRoleByID)
+	app.Bind(service.GetRoleByName)
 	app.Bind(service.SaveRole)
 	app.Bind(service.UpdateRole)
 	app.Bind(service.DeleteRole)

@@ -23,8 +23,8 @@ func GetRoles() (acls []string, err error) {
 	return
 }
 
-// GetRoleByID returns an object of the current Role
-func GetRoleByID(id int) {
+// GetRoleByName returns an object of the current Role
+func GetRoleByName(name string) {
 	return
 }
 

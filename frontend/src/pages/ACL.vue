@@ -11,14 +11,17 @@
     <hr />
 
     <div class="form-row">
-      <div class="form-group col">
+      <div class="col-6">
         <label for="rolename">Role Name</label>
         <v-select label="rolename" @search="RoleDetails" :options="roles" v-model="rolename" :clearable="false" placeholder="Kindly select desired Role"></v-select>
       </div>
-      <div class="form-group col">
+      <div class="col-4">
         <label>Enter New Role</label>
-        <input type="text" class="form-control form-control-sm" placeholder="Enter New Role Name" v-model="this.newrole" />
-        <button type="button" class="btn btn-primary btn-sm float-right" @click="NewRole">Save</button>
+        <input type="text" class="form-control form-control-sm" placeholder="Enter New Role Name" v-model="newrole" />
+      </div>
+      <div class="col-auto">
+        <br />
+        <button type="button" class="btn btn-primary float-right" @click="NewRole">Save</button>
       </div>
     </div>
   </section>
@@ -44,8 +47,33 @@ export default {
   },
   methods: {
     NewRole() {
-      
+      if (this.newrole === null) {
+        this.$toast.error("Error! Role Name cannot be blank.");
+        return;
+      }
+
+      // Add the new Role to the list of available roles
+      this.roles.push(this.newrole);
+
+      // Set the selected Index to the newly added Item
+
+      // Reset the property back to it's inital value
+      this.newrole = null;
     },
+    /**
+     * Triggered when the search text changes.
+     *
+     * @param search  {String}    Current search text
+     * @param loading {Function}	Toggle loading class
+     */
+    RoleDetails(search, loading) {
+      loading(true);
+      if (search.length >= 3) {
+        alert(search);
+      }
+      loading(false);
+      return;
+    }
   }
 };
 </script>
