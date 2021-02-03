@@ -854,8 +854,9 @@ export default {
         this.vatAmount = parseFloat((7.5 / 100) * runningTotal).toFixed(2);
         this.grandTotal = parseFloat((7.5 / 100) * runningTotal + runningTotal).toFixed(2);
       } else {
-        this.grandTotal = parseFloat(runningTotal) - parseFloat(this.amtPaid);
-        this.grandTotal = Math.abs(parseFloat(this.grandTotal).toFixed(2)) <= this.grandTotal ? Math.abs(parseFloat(this.grandTotal).toFixed(2)) : 0.0;
+        this.grandTotal = parseFloat(runningTotal).toFixed(2);
+        // this.grandTotal = parseFloat(runningTotal) - parseFloat(this.amtPaid);
+        // this.grandTotal = Math.abs(parseFloat(this.grandTotal).toFixed(2)) <= this.grandTotal ? Math.abs(parseFloat(this.grandTotal).toFixed(2)) : 0.0;
       }
       this.balanceDue = Math.abs(parseFloat(this.grandTotal).toFixed(2)) <= this.grandTotal ? Math.abs(parseFloat(this.grandTotal).toFixed(2)) : 0.0;
       if (this.balanceDue <= 0.0) {
@@ -965,7 +966,7 @@ export default {
 
       // Calculate footer details
       this.amtPaid = parseFloat(runningTotal).toFixed(2);
-      this.balanceDue = parseFloat(this.grandTotal - this.amtPaid).toFixed(2);
+      this.balanceDue = parseFloat(this.grandTotal) - parseFloat(this.grandTotal - this.amtPaid).toFixed(2);
     },
     isValid() {
       let isvalid = true;

@@ -7,14 +7,14 @@ import (
 // Products struct
 type Products struct {
 	ID           string          `json:"id,omitempty"`
-	ItemCode     string          `json:"itemcode,omitempty"` // 20
-	ItemName     string          `json:"itemname,omitempty"` // 100
-	CodeBars     string          `json:"codebars,omitempty"` // 254
+	ItemCode     string          `json:"itemcode,omitempty"`
+	ItemName     string          `json:"itemname,omitempty"`
+	CodeBars     string          `json:"codebars,omitempty"`
 	OnHand       int             `json:"onhand,omitempty"`
 	MinLevel     int             `json:"minlevel,omitempty"`
-	Warehouse    string          `json:"warehouse,omitempty"`     // 8
-	SerialNumber string          `json:"serialnumbers,omitempty"` // 17
-	Manufacturer string          `json:"manufacturer,omitempty"`  //
+	Warehouse    string          `json:"warehouse,omitempty"`
+	SerialNumber string          `json:"serialnumbers,omitempty"`
+	Manufacturer string          `json:"manufacturer,omitempty"`
 	Price        float32         `json:"price,omitempty"`
 	Vat          sql.NullFloat64 `json:"vat,omitempty"`
 	ItemID       int             `json:"itemid,omitempty"`
@@ -58,13 +58,13 @@ type PriceList struct {
 // Customers struct
 type Customers struct {
 	ID        int          `json:"id,omitempty"`
-	CardCode  string       `json:"cardcode,omitempty"` // 15
-	CardName  string       `json:"cardname,omitempty"` // 100
-	Address   string       `json:"address,omitempty"`  // 100
-	Phone     string       `json:"phone,omitempty"`    // 20
-	Phone1    string       `json:"phone1,omitempty"`   // 20
-	City      string       `json:"city,omitempty"`     // 100
-	Email     string       `json:"email,omitempty"`    // 100
+	CardCode  string       `json:"cardcode,omitempty"`
+	CardName  string       `json:"cardname,omitempty"`
+	Address   string       `json:"address,omitempty"`
+	Phone     string       `json:"phone,omitempty"`
+	Phone1    string       `json:"phone1,omitempty"`
+	City      string       `json:"city,omitempty"`
+	Email     string       `json:"email,omitempty"`
 	Synced    bool         `json:"synced,omitempty"`
 	CreatedBy int          `json:"created_by,omitempty"`
 	CreatedAt sql.NullTime `json:"created_at,omitempty"`
@@ -78,8 +78,8 @@ type Orders struct {
 	DocEntry           int            `json:"docentry"`
 	DocNum             int            `json:"docnum"`
 	Canceled           bool           `json:"canceled"`
-	CardCode           string         `json:"cardcode,omitempty"` // 15
-	CardName           string         `json:"cardname,omitempty"` // 100
+	CardCode           string         `json:"cardcode,omitempty"`
+	CardName           string         `json:"cardname,omitempty"`
 	VatSum             float32        `json:"vatsum,omitempty"`
 	DocTotal           float32        `json:"doctotal,omitempty"`
 	Synced             bool           `json:"synced"`
@@ -98,8 +98,8 @@ type Orders struct {
 type OrderedItems struct {
 	ID           int     `json:"id"`
 	OrderID      int     `json:"orderid"`
-	ItemCode     string  `json:"itemcode"` // 20
-	ItemName     string  `json:"itemname"` // 100
+	ItemCode     string  `json:"itemcode"`
+	ItemName     string  `json:"itemname"`
 	Price        float32 `json:"price"`
 	Quantity     int     `json:"quantity"`
 	Discount     float32 `json:"discount"`
@@ -121,10 +121,10 @@ type Payments struct {
 // Users struct
 type Users struct {
 	ID        int          `json:"id,omitempty"`
-	FirstName string       `json:"firstname,omitempty"` // 100
-	LastName  string       `json:"lastname,omitempty"`  // 100
-	Email     string       `json:"email,omitempty"`     // 100
-	Password  string       `json:"password,omitempty"`  // 100
+	FirstName string       `json:"firstname,omitempty"`
+	LastName  string       `json:"lastname,omitempty"`
+	Email     string       `json:"email,omitempty"`
+	Password  string       `json:"password,omitempty"`
 	IsAdmin   bool         `json:"isadmin"`
 	CreatedBy int          `json:"created_by,omitempty"`
 	CreatedAt sql.NullTime `json:"created_at,omitempty"`
@@ -135,11 +135,11 @@ type Users struct {
 // Store struct
 type Store struct {
 	ID               int          `json:"id,omitempty"`
-	Name             string       `json:"name,omitempty"`    // 100
-	Address          string       `json:"address,omitempty"` // 100
-	Phone            string       `json:"phone,omitempty"`   // 20
-	City             string       `json:"city,omitempty"`    // 100
-	Email            string       `json:"email,omitempty"`   // 100
+	Name             string       `json:"name,omitempty"`
+	Address          string       `json:"address,omitempty"`
+	Phone            string       `json:"phone,omitempty"`
+	City             string       `json:"city,omitempty"`
+	Email            string       `json:"email,omitempty"`
 	OrdersAPI        string       `json:"orders,omitempty"`
 	ProductsAPI      string       `json:"products,omitempty"`
 	CustomersAPI     string       `json:"customers,omitempty"`
@@ -209,7 +209,7 @@ type Transfers struct {
 	FromWhs   string            `json:"fromwhs"`
 	ToWhs     string            `json:"towhs"`
 	Comment   string            `json:"comment"`
-	Canceled  bool              `json:"canceled,omitempty"` // 15
+	Canceled  bool              `json:"canceled,omitempty"`
 	Synced    bool              `json:"synced"`
 	Status    string            `json:"status"`
 	Items     []Transfereditems `json:"items"`
@@ -226,11 +226,22 @@ type Transfers struct {
 type Transfereditems struct {
 	ID           int    `json:"id"`
 	TransferID   int    `json:"transferid"`
-	ItemCode     string `json:"itemcode"` // 20
-	ItemName     string `json:"itemname"` // 100
+	ItemCode     string `json:"itemcode"`
+	ItemName     string `json:"itemname"`
 	Quantity     int    `json:"quantity"`
 	OnHand       int    `json:"onhand"`
 	SerialNumber string `json:"serialnumber"`
+}
+
+// ACL struct
+type ACL struct {
+	ID        int    `json:"id"`
+	RoleName  int    `json:"rolename"`
+	MenuName  string `json:"menuname"`
+	CanCreate bool   `json:"cancreate"`
+	CanUpdate bool   `json:"canupdate"`
+	CanDelete bool   `json:"candelete"`
+	CanView   bool   `json:"canview"`
 }
 
 // REMEMBER TO MODIFY THE migrations.sql ONCE MODIFIED via an alter statement.

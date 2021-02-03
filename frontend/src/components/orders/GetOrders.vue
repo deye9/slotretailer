@@ -107,7 +107,7 @@ export default {
       const id = row.id;
       this.$router.push({ name: "returnorder", params: {id} });
     },
-    printOrder(row) {
+    printOrder() {
       // const id = row.id;
       let IDString = Math.random().toString(36).substring(7);
 

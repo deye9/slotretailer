@@ -54,6 +54,10 @@
                         <router-link :to="{ name: 'sync' }" class="dropdown-item">
                             Sync Details
                         </router-link>
+                        <div class="dropdown-divider"></div>
+                        <router-link :to="{ name: 'acl' }" class="dropdown-item">
+                            Access Control
+                        </router-link>
                     </div>
                 </li>
             </ul>

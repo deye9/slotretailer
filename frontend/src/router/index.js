@@ -6,6 +6,7 @@ import Router from 'vue-router';
 import Sync from "@/pages/Sync";
 import Login from "@/pages/Login";
 import Search from "@/pages/Search";
+import AccessControl from "@/pages/ACL";
 
 import Dashboard from "@/pages/Dashboard";
 import AuditLogs from "@/pages/AuditLogs";
@@ -45,7 +46,9 @@ import TransferDetails from "@/components/transfers/TransferDetails";
 import FinalizeTransfer from "@/components/transfers/FinalizeTransfer";
 
 import vSelect from "vue-select";
-import {ClientTable} from 'vue-tables-2';
+import {
+    ClientTable
+} from 'vue-tables-2';
 
 Vue.use(Router);
 Vue.component("v-select", vSelect);
@@ -59,173 +62,179 @@ Router.prototype.push = function push(location) {
 const router = new Router({
     mode: 'history',
     linkExactActiveClass: 'active',
-    routes: [
-    {
-        path: "/",
-        name: "login",
-        component: Login
-    }, 
-    {
-        path: "/search/:q",
-        name: "search",
-        component: Search
-    },  
-    {
-        path: "/sync",
-        name: "sync",
-        component: Sync
-    },
-    {
-        path: "/users",
-        name: "users",
-        component: Users,
-        children: [{
+    routes: [{
             path: "/",
-            name: "userlist",
-            component: GetUsers
-        }, {
-            path: "new",
-            name: "newuser",
-            component: NewUser
+            name: "login",
+            component: Login
         },
         {
-            path: "edit/:id",
-            name: "edituser",
-            component: EditUser
+            path: "/search/:q",
+            name: "search",
+            component: Search
+        },
+        {
+            path: "/sync",
+            name: "sync",
+            component: Sync
+        },
+        {
+            path: "/users",
+            name: "users",
+            component: Users,
+            children: [{
+                    path: "/",
+                    name: "userlist",
+                    component: GetUsers
+                }, {
+                    path: "new",
+                    name: "newuser",
+                    component: NewUser
+                },
+                {
+                    path: "edit/:id",
+                    name: "edituser",
+                    component: EditUser
+                }
+            ]
+        },
+        {
+            path: "/orders",
+            name: "orders",
+            component: Orders,
+            children: [{
+                    path: "/",
+                    name: "orderlist",
+                    component: GetOrders
+                },
+                {
+                    path: "new",
+                    name: "neworder",
+                    component: NewOrder
+                },
+                {
+                    path: "return",
+                    name: "returnorder",
+                    component: ReturnOrder
+                },
+                {
+                    path: "details/:id",
+                    name: "orderdetail",
+                    component: OrderDetails
+                }
+            ]
+        },
+        {
+            path: "/reports",
+            name: "reports",
+            component: Reports,
+            children: [{
+                    path: "/",
+                    name: "reportlist",
+                    component: GetReports
+                },
+                {
+                    path: "display/:id",
+                    name: "reportdetails",
+                    component: Report
+                },
+                {
+                    path: "new",
+                    name: "newreport",
+                    component: NewReport
+                },
+                {
+                    path: "edit/:id",
+                    name: "editreport",
+                    component: EditReport
+                }
+            ]
+        },
+        {
+            path: "/products",
+            name: "products",
+            component: Products,
+            children: [{
+                    path: "/",
+                    name: "productlist",
+                    component: GetProducts
+                },
+                {
+                    path: "details/:id",
+                    name: "productdetails",
+                    component: ProductDetails
+                }
+            ]
+        },
+        {
+            path: "/customers",
+            name: "customers",
+            component: Customers,
+            children: [{
+                    path: "/",
+                    name: "customerlist",
+                    component: GetCustomers
+                }, {
+                    path: "new",
+                    name: "newcustomer",
+                    component: NewCustomer
+                },
+                {
+                    path: "edit/:id",
+                    name: "editcustomer",
+                    component: EditCustomer
+                }
+            ]
+        },
+        {
+            path: "/transfers",
+            name: "transfers",
+            component: StockTransfers,
+            children: [{
+                    path: "/",
+                    name: "transferlist",
+                    component: GetTransfers
+                },
+                {
+                    path: "new",
+                    name: "newtransfer",
+                    component: NewTransfer
+                },
+                {
+                    path: "edit/:id",
+                    name: "edittransfer",
+                    component: EditTransfer
+                },
+                {
+                    path: "finalize/:id",
+                    name: "finalizeTransfer",
+                    component: FinalizeTransfer
+                },
+                {
+                    path: "details/:id",
+                    name: "transferdetail",
+                    component: TransferDetails
+                }
+            ]
+        },
+        {
+            path: "/dashboard",
+            name: "dashboard",
+            component: Dashboard
+        },
+        {
+            path: "/store/",
+            name: "store",
+            component: RetailStore
+        },
+        {
+            path: "/auditlogs",
+            name: "auditlogs",
+            component: AuditLogs
+        }, {
+            path: "/acl",
+            name: "acl",
+            component: AccessControl
         }
-        ]
-    },
-    {
-        path: "/orders",
-        name: "orders",
-        component: Orders,
-        children: [{
-                path: "/",
-                name: "orderlist",
-                component: GetOrders
-            },
-            {
-                path: "new",
-                name: "neworder",
-                component: NewOrder
-            },
-            {
-                path: "return",
-                name: "returnorder",
-                component: ReturnOrder
-            },
-            {
-                path: "details/:id",
-                name: "orderdetail",
-                component: OrderDetails
-            }
-        ]
-    },
-    {
-        path: "/reports",
-        name: "reports",
-        component: Reports,
-        children: [{
-                path: "/",
-                name: "reportlist",
-                component: GetReports
-            },
-            {
-                path: "display/:id",
-                name: "reportdetails",
-                component: Report
-            },
-            {
-                path: "new",
-                name: "newreport",
-                component: NewReport
-            },
-            {
-                path: "edit/:id",
-                name: "editreport",
-                component: EditReport
-            }
-        ]
-    },
-    {
-        path: "/products",
-        name: "products",
-        component: Products,
-        children: [{
-            path: "/",
-            name: "productlist",
-            component: GetProducts
-        },
-        {
-            path: "details/:id",
-            name: "productdetails",
-            component: ProductDetails
-        }]
-    },
-    {
-        path: "/customers",
-        name: "customers",
-        component: Customers,
-        children: [{
-            path: "/",
-            name: "customerlist",
-            component: GetCustomers
-        }, {
-            path: "new",
-            name: "newcustomer",
-            component: NewCustomer
-        },
-        {
-            path: "edit/:id",
-            name: "editcustomer",
-            component: EditCustomer
-        }]
-    },
-    {
-        path: "/transfers",
-        name: "transfers",
-        component: StockTransfers,
-        children: [{
-            path: "/",
-            name: "transferlist",
-            component: GetTransfers
-        },
-        {
-            path: "new",
-            name: "newtransfer",
-            component: NewTransfer
-        },
-        {
-            path: "edit/:id",
-            name: "edittransfer",
-            component: EditTransfer
-        },
-        {
-            path: "finalize/:id",
-            name: "finalizeTransfer",
-            component: FinalizeTransfer
-        },
-        {
-            path: "details/:id",
-            name: "transferdetail",
-            component: TransferDetails
-        }]
-    },
-    {
-        path: "/dashboard",
-        name: "dashboard",
-        component: Dashboard
-    },
-    {
-        path: "/store/",
-        name: "store",
-        component: RetailStore
-    }, 
-    {
-        path: "/auditlogs",
-        name: "auditlogs",
-        component: AuditLogs
-    }
     ]
 });
 

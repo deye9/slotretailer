@@ -181,6 +181,16 @@ CREATE TABLE IF NOT EXISTS transfereditems (
     quantity    INT
 );
 
+CREATE TABLE IF NOT EXISTS acl (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  rolename VARCHAR(45) NULL,
+  menuname VARCHAR(45) NULL,
+  cancreate TINYINT NULL,
+  canupdate TINYINT NULL,
+  candelete TINYINT NULL,
+  canview TINYINT NULL
+);
+
 ALTER table orders add column comment text;
 ALTER table orders add column returned boolean DEFAULT false;
 ALTER table store add column logrotation text NOT NULL;
@@ -212,6 +222,8 @@ REPLACE INTO reports (id, title, query, created_by) VALUES (3, "Todays Top Selle
 REPLACE INTO reports (id, title, query, created_by) VALUES (4, "Store Inventory Level", "select p.* from store s inner join products p on s.sapkey = p.warehouse;", 1);
 REPLACE INTO reports (id, title, query, created_by) VALUES (5, "Global Inventory Level", "select * from products p;", 1);
 REPLACE INTO reports (`id`, `title`, `query`, `created_by`) VALUES (6, "Daily Sales Report", "select itemname, quantity, price * quantity as Amount from ordereditems i inner join orders o on o.id = i.orderid where date(created_at) = date(now());", 1);
+REPLACE INTO acl (id, rolename, menuname, cancreate, canupdate, candelete, canview) VALUES (1, "Admin", "acl", true, true, true, true);
+REPLACE INTO acl (id, rolename, menuname, cancreate, canupdate, candelete, canview) VALUES (2, "Admin", "customers", true, true, true, true);
 
 INSERT INTO store (`id`,`name`,`address`,`phone`,`city`,`email`,`orders`,`products`,`customers`,`creditcard`,`sync_interval`,`sapkey`,`created_by`,`created_at`,`updated_at`,`deleted_at`,`logrotation`,`transfers`,`vat`,`warehouses`, `pricelist`, `productpricelist`, `cashaccount`, `storecashaccount`, `banktransfer`, `cheques`) VALUES (1,'New Store','Enter Store Address','080','Lagos','storename@slot.com','http://197.255.32.34:5000/Orders','http://197.255.32.34:5000/Products','http://197.255.32.34:5000/Customers','http://197.255.32.34:5000/CreditCards',30,'',1,'2020-12-08 21:46:36',NULL,NULL,'1','http://197.255.32.34:5000/TransferRequests',0,'http://197.255.32.34:5000/Warehouses', 'http://197.255.32.34:5000/pricelists', 1, 'http://197.255.32.34:5000/CashAccounts', '12330001', 'http://197.255.32.34:5000/BankTranserAccounts', 'http://197.255.32.34:5000/Banks');
 REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) VALUES ('super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true);
