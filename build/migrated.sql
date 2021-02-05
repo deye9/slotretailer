@@ -222,10 +222,22 @@ REPLACE INTO reports (id, title, query, created_by) VALUES (3, "Todays Top Selle
 REPLACE INTO reports (id, title, query, created_by) VALUES (4, "Store Inventory Level", "select p.* from store s inner join products p on s.sapkey = p.warehouse;", 1);
 REPLACE INTO reports (id, title, query, created_by) VALUES (5, "Global Inventory Level", "select * from products p;", 1);
 REPLACE INTO reports (`id`, `title`, `query`, `created_by`) VALUES (6, "Daily Sales Report", "select itemname, quantity, price * quantity as Amount from ordereditems i inner join orders o on o.id = i.orderid where date(created_at) = date(now());", 1);
-REPLACE INTO acl (id, rolename, menuname, cancreate, canupdate, candelete, canview) VALUES (1, "Admin", "acl", true, true, true, true);
-REPLACE INTO acl (id, rolename, menuname, cancreate, canupdate, candelete, canview) VALUES (2, "Admin", "customers", true, true, true, true);
 
-INSERT INTO store (`id`,`name`,`address`,`phone`,`city`,`email`,`orders`,`products`,`customers`,`creditcard`,`sync_interval`,`sapkey`,`created_by`,`created_at`,`updated_at`,`deleted_at`,`logrotation`,`transfers`,`vat`,`warehouses`, `pricelist`, `productpricelist`, `cashaccount`, `storecashaccount`, `banktransfer`, `cheques`) VALUES (1,'New Store','Enter Store Address','080','Lagos','storename@slot.com','http://197.255.32.34:5000/Orders','http://197.255.32.34:5000/Products','http://197.255.32.34:5000/Customers','http://197.255.32.34:5000/CreditCards',30,'',1,'2020-12-08 21:46:36',NULL,NULL,'1','http://197.255.32.34:5000/TransferRequests',0,'http://197.255.32.34:5000/Warehouses', 'http://197.255.32.34:5000/pricelists', 1, 'http://197.255.32.34:5000/CashAccounts', '12330001', 'http://197.255.32.34:5000/BankTranserAccounts', 'http://197.255.32.34:5000/Banks');
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (1,'Admin','acl',1,1,1,1);
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (2,'Admin','customers',1,1,1,1);
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (3,'Admin','login',1,1,1,1);
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (4,'Admin','search',1,1,1,1);
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (5,'Admin','sync',1,1,1,1);
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (6,'Admin','users',1,1,1,1);
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (7,'Admin','orders',1,1,1,1);
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (8,'Admin','reports',1,1,1,1);
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (9,'Admin','products',1,1,1,1);
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (10,'Admin','transfers',1,1,1,1);
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (11,'Admin','dashboard',1,1,1,1);
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (12,'Admin','store',1,1,1,1);
+REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (13,'Admin','auditlogs',1,1,1,1);
+
+REPLACE INTO store (`id`,`name`,`address`,`phone`,`city`,`email`,`orders`,`products`,`customers`,`creditcard`,`sync_interval`,`sapkey`,`created_by`,`created_at`,`updated_at`,`deleted_at`,`logrotation`,`transfers`,`vat`,`warehouses`, `pricelist`, `productpricelist`, `cashaccount`, `storecashaccount`, `banktransfer`, `cheques`) VALUES (1,'New Store','Enter Store Address','080','Lagos','storename@slot.com','http://197.255.32.34:5000/Orders','http://197.255.32.34:5000/Products','http://197.255.32.34:5000/Customers','http://197.255.32.34:5000/CreditCards',30,'',1,'2020-12-08 21:46:36',NULL,NULL,'1','http://197.255.32.34:5000/TransferRequests',0,'http://197.255.32.34:5000/Warehouses', 'http://197.255.32.34:5000/pricelists', 1, 'http://197.255.32.34:5000/CashAccounts', '12330001', 'http://197.255.32.34:5000/BankTranserAccounts', 'http://197.255.32.34:5000/Banks');
 REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) VALUES ('super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true);
 
 -- REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');

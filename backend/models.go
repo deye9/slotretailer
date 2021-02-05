@@ -236,7 +236,7 @@ type Transfereditems struct {
 // ACL struct
 type ACL struct {
 	ID        int    `json:"id"`
-	RoleName  int    `json:"rolename"`
+	RoleName  string `json:"rolename"`
 	MenuName  string `json:"menuname"`
 	CanCreate bool   `json:"cancreate"`
 	CanUpdate bool   `json:"canupdate"`
