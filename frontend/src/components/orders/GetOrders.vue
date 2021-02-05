@@ -5,8 +5,8 @@
         <h3>Sales Order</h3>
       </div>
       <div class="col-4">
-        <router-link :to="{name: 'neworder'}" class="btn btn-info btn-sm mr-2">New Order</router-link>
-        <router-link :to="{name: 'returnorder'}" class="btn btn-info btn-sm mr-2">Returns</router-link>
+        <router-link :to="{name: 'neworder'}" class="btn btn-info btn-sm mr-2" v-if="userPermission('orders', 'cancreate')">New Order</router-link>
+        <router-link :to="{name: 'returnorder'}" class="btn btn-info btn-sm mr-2" v-if="userPermission('orders', 'cancreate')">Returns</router-link>
       </div>
     </div>
     <hr />
@@ -25,11 +25,11 @@
         {{row.returned}}
       </div>
       <div id="actions" slot="actions" slot-scope="{row}">
-        <a class="btn btn-primary btn-sm mr-2" title="Print Sales Order" @click="printOrder(row)" v-show="allowDelete">
+        <a class="btn btn-primary btn-sm mr-2" title="Print Sales Order" @click="printOrder(row)">
           <i class="bi bi-pencil-fill">&nbsp;</i>
           Print
         </a>
-        <a class="btn btn-primary btn-sm mr-2" title="Order Details" @click="displayInfo(row)" v-show="allowDelete">
+        <a class="btn btn-primary btn-sm mr-2" title="Order Details" @click="displayInfo(row)">
           <i class="bi bi-pencil-fill">&nbsp;</i>
           Details
         </a>        
@@ -38,7 +38,7 @@
           Return
           Allow return if the difference btw the created_date and today is less than 7 days
         </a> -->
-        <a class="btn btn-danger btn-sm" title="Delete Sales Order" @click="removeRow(row, event);" v-show="allowDelete">
+        <a class="btn btn-danger btn-sm" title="Delete Sales Order" @click="removeRow(row, event);" v-if="userPermission('orders', 'candelete')">
           <i class="bi bi-trash-fill">&nbsp;</i>
           Delete
         </a>
@@ -56,12 +56,8 @@ export default {
       data: [],
       columns: [],
       options: {},
-      allowDelete: false,
       dateColumns:['created_at','updated_at', 'deleted_at']
     };
-  },
-  created() {
-    this.allowDelete = this.$store.state.isAdmin;
   },
   mounted() {
     this.$refs.myTable.setLoadingState(true);

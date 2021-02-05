@@ -5,7 +5,7 @@
         <h3>Inventory Transfer Request(s)</h3>
       </div>
       <div class="col-4">
-        <router-link :to="{ name: 'newtransfer' }" class="btn btn-info btn-sm float-right">New Transfer Request</router-link>
+        <router-link :to="{ name: 'newtransfer' }" class="btn btn-info btn-sm float-right" v-if="userPermission('transfers', 'cancreate')">New Transfer Request</router-link>
       </div>
     </div>
 
@@ -175,13 +175,9 @@ export default {
       outgoing: [],
       options: {},
       incomingtrans: [],
-      allowDelete: false,
       incomingcolumns: [],
       dateColumns:['created_at','updated_at', 'deleted_at']
     };
-  },
-  created() {
-    this.allowDelete = this.$store.state.isLoggedIn;
   },
   mounted() {
     this.$refs.myTable.setLoadingState(true);

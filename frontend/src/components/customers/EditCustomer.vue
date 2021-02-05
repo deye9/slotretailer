@@ -53,7 +53,7 @@
       </div>
     </div>
 
-    <button type="submit" id="update" class="btn btn-primary btn-sm float-right" @click="Modification">
+    <button type="submit" id="update" class="btn btn-primary btn-sm float-right" @click="Modification" v-if="userPermission('customers', 'canupdate')">
       Update Customer
     </button>
   </section>

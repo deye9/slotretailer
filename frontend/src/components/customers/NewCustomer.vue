@@ -84,7 +84,7 @@
       </div>
     </div>
 
-    <button type="submit" id="register" class="btn btn-primary btn-sm float-right" @click="Registration">
+    <button type="submit" id="register" class="btn btn-primary btn-sm float-right" @click="Registration" v-if="userPermission('customers', 'cancreate')">
       Register Customer
     </button>
 

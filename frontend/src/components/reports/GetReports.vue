@@ -5,18 +5,18 @@
                 <h3>Registered Reports</h3>
             </div>
             <div class="col-4">
-                <router-link :to="{name: 'newreport'}" class="btn btn-info btn-sm float-right">Create Report</router-link>
+                <router-link :to="{name: 'newreport'}" class="btn btn-info btn-sm float-right" v-if="userPermission('reports', 'cancreate')">Create Report</router-link>
             </div>
         </div>
         <hr />
 
         <v-client-table ref="myTable" id="myTable" :columns="columns" v-model="data" :options="options">
             <div id="actions" slot="actions" slot-scope="{row}">
-                <a class="btn btn-primary btn-sm mr-2" title="Edit Record" @click="displayInfo(row)" v-show="allowDelete">
+                <a class="btn btn-primary btn-sm mr-2" title="Edit Record" @click="displayInfo(row)" v-if="userPermission('reports', 'canupdate')">
                     <i class="bi bi-pencil-fill">&nbsp;</i>
                     Edit
                 </a>
-                <a class="btn btn-danger btn-sm mr-2" title="Delete Record" @click="removeRow(row, event);" v-show="allowDelete">
+                <a class="btn btn-danger btn-sm mr-2" title="Delete Record" @click="removeRow(row, event);" v-if="userPermission('reports', 'candelete')">
                     <i class="bi bi-trash-fill">&nbsp;</i>
                     Delete
                 </a>
@@ -35,15 +35,11 @@
     export default {
         data() {
             return {
-            data: [],
-            columns: [],
-            options: {},
-            allowDelete: false,
-            dateColumns:['created_at','updated_at', 'deleted_at']
+                data: [],
+                columns: [],
+                options: {},
+                dateColumns:['created_at','updated_at', 'deleted_at']
             };
-        },
-        created() {
-            this.allowDelete = this.$store.state.isAdmin;
         },
         mounted() {
             this.$refs.myTable.setLoadingState(true);

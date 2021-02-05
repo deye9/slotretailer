@@ -5,7 +5,7 @@
         <h3>Registered Users</h3>
       </div>
       <div class="col-4">
-        <router-link :to="{name: 'newuser'}" class="btn btn-info btn-sm float-right">New User</router-link>
+        <router-link :to="{name: 'newuser'}" class="btn btn-info btn-sm float-right" v-if="userPermission('users', 'cancreate')">New User</router-link>
       </div>
     </div>
     <hr />
@@ -16,7 +16,7 @@
           <i class="bi bi-pencil-fill">&nbsp;</i>
           Edit
         </a>
-        <a class="btn btn-danger btn-sm" title="Delete Record" @click="removeRow(row, event);">
+        <a class="btn btn-danger btn-sm" title="Delete Record" @click="removeRow(row, event);" v-if="userPermission('users', 'candelete')">
           <i class="bi bi-trash-fill">&nbsp;</i>
           Delete
         </a>

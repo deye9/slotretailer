@@ -14,6 +14,22 @@ Vue.use(Toast, options);
 
 Vue.config.productionTip = false;
 Vue.config.devtools = true;
+Vue.mixin({
+	methods: {
+		userPermission(menuname, action) {
+			if (this.$store.state.user["acl"] === undefined || action === "") {
+				return false;
+			}
+
+			return this.$store.state.user["acl"]
+				.filter((f) => f.menuname === menuname)
+				.map((elem) => ({
+					menuname: elem.menuname,
+					action: elem[action],
+				}))[0].action;
+		}
+	}
+})
 
 import * as Wails from '@wailsapp/runtime';
 
