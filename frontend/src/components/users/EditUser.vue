@@ -21,9 +21,18 @@
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" class="form-control form-control-sm" placeholder="Email Address" v-model="email" required />
+    <div class="form-row">
+      <div class="form-group col">
+        <label for="email">Email</label>
+        <input type="email" class="form-control form-control-sm" placeholder="Email Address" v-model="email" required />
+      </div>
+
+      <div class="form-group col">
+        <label for="role">Role</label>
+        <select class="form-control form-control-sm" v-model="role" >
+          <option :key="r.id" :value="r.id" v-for="r in roles">{{ r.rolename }}</option>
+        </select>
+      </div>
     </div>
 
     <div class="card">
@@ -45,11 +54,6 @@
     <br />
     <div class="form-row">
       <div class="form-group col">
-        <label for="isadmin">Make user a System Administrator</label>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="checkbox" v-model="isadmin" required />
-      </div>
-      <div class="form-group col">
         <button type="submit" class="btn btn-primary btn-sm float-right" @click="UpdateUser">
           Update User
         </button>
@@ -66,8 +70,9 @@ export default {
     return {
       id: 0,
       user: {},
+      roles: [],
+      role: null,
       email: null,
-      isadmin: false,
       password: null,
       lastname: null,
       firstname: null,
@@ -80,17 +85,23 @@ export default {
     this.id = pageURL.substr(pageURL.lastIndexOf("/") + 1);
 
     window.backend.GetUser(parseInt(this.id)).then((user) => {
+      this.role = user.role;
       this.email = user.email;
-      this.isadmin = user.isadmin;
       this.password = user.password;
       this.lastname = user.lastname;
       this.firstname = user.firstname;
       this.created_by = user.created_by;
       this.confirmpassword = user.password;
-    },
-    (err) => {
+    }, (err) => {
       this.$toast.error("Error! " + err);
     });
+
+    // Get all roles alongside their ID's
+    window.backend.GetRoleswithID().then((roles) => {
+      this.roles = roles;
+    }, (err) => {
+      this.$toast.error("Error! " + err);
+    });    
   },
   methods: {
     UpdateUser() {
@@ -101,8 +112,8 @@ export default {
 
       this.user = {
         id: this.id,
+        role: this.role,
         email: this.email,
-        isadmin: this.isadmin,
         password: this.password,
         lastname: this.lastname,
         firstname: this.firstname,
@@ -119,9 +130,8 @@ export default {
       }
 
       window.backend.UpdateUser(this.user).then(() => {
-        this.$router.push("{name: 'userlist'}");
-      },
-      (err) => {
+        this.$router.push({name: 'userlist'});
+      }, (err) => {
         this.$toast.error("Error! " + err);
       });
     },

@@ -48,8 +48,7 @@ export default {
     window.backend.GetStore().then((store) => {
       // Keep the store details in vuex
       this.$store.state.userStore = store;
-    },
-    (err) => {
+    }, (err) => {
       this.$toast.error("Error! " + err);
     });
   },
@@ -71,14 +70,11 @@ export default {
         if (result.id !== undefined) {
           this.$store.state.user = result;
           this.$store.state.isLoggedIn = true;
-          this.$store.state.isAdmin = result.isadmin;
-
           this.$router.push({ name: "dashboard" });
         } else {
           this.$toast.error("Error! Invalid login Credentials.");
         }
-      },
-      (err) => {
+      }, (err) => {
         this.$toast.success("Error! " + err);
       });
     },

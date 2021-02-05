@@ -7,7 +7,7 @@ import (
 
 // Login grants access to valid users
 func Login(email, password string) Users {
-	rows, err := Get(fmt.Sprintf(`select id, firstname, lastname, email, isadmin from users where email = "%s" and password = "%s" limit 1;`, email, password))
+	rows, err := Get(fmt.Sprintf(`select id, firstname, lastname, email from users where email = "%s" and password = "%s" limit 1;`, email, password))
 	if err != nil {
 		CheckError("Error logging user in.", err, false)
 		return Users{}
@@ -18,9 +18,11 @@ func Login(email, password string) Users {
 		var err error
 		var user Users
 
-		if err = rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.IsAdmin); err == nil {
+		if err = rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email); err == nil {
+			user.Permissions, _ = GetUserACL(user.ID)
 			return user
 		}
+
 		CheckError("Error Scanning user.", err, false)
 	}
 
@@ -37,7 +39,7 @@ func GetUser(id int) (user Users, err error) {
 
 	defer rows.Close()
 	for rows.Next() {
-		if err = rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.IsAdmin, &user.CreatedBy, &user.CreatedAt, &user.UpdatedAt, &user.DeletedAt); err != nil {
+		if err = rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.CreatedBy, &user.CreatedAt, &user.UpdatedAt, &user.DeletedAt, &user.Role); err != nil {
 			CheckError("Error Scanning user.", err, false)
 		}
 	}
@@ -46,20 +48,26 @@ func GetUser(id int) (user Users, err error) {
 }
 
 // GetUsers returns an array of users
-func GetUsers() (users []Users, err error) {
+func GetUsers() (users []map[string]interface{}, err error) {
 	var rows *sql.Rows
-	if rows, err = Get(`select * from users where deleted_at is null and id > 1;`); err != nil {
+	if rows, err = Get(`select id, firstname, lastname, email, (select rolename from acl where id = u.id) role from users u where deleted_at is null and id > 1;`); err != nil {
 		CheckError("Error getting users.", err, false)
 		return nil, err
 	}
 
 	defer rows.Close()
 	for rows.Next() {
-		user := Users{}
-		if err = rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password, &user.IsAdmin, &user.CreatedBy, &user.CreatedAt, &user.UpdatedAt, &user.DeletedAt); err != nil {
+		var id, firstname, lastname, email, role string
+		if err = rows.Scan(&id, &firstname, &lastname, &email, &role); err != nil {
 			CheckError("Error Scanning users.", err, false)
 		} else {
-			users = append(users, user)
+			mapD := make(map[string]interface{})
+			mapD["id"] = id
+			mapD["role"] = role
+			mapD["email"] = email
+			mapD["lastname"] = lastname
+			mapD["firstname"] = firstname
+			users = append(users, mapD)
 		}
 	}
 

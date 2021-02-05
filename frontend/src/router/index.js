@@ -239,11 +239,14 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
+    // console.log(this.$store.state.user);
+
     // Redirect all unauthenticated users to the login page
-    if (to.name !== 'login' && !store.state.isLoggedIn) next({
-        name: 'login'
-    })
-    else next()
+    if (to.name !== 'login' && !store.state.isLoggedIn) {
+        next({
+            name: 'login'
+        })
+    } else next()
 });
 
 export default router;

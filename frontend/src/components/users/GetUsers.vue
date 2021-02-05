@@ -26,63 +26,49 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      data: [],
-      columns: [],
-      options: {},
-      dateColumns:['created_at','updated_at', 'deleted_at']
-    };
-  },
-  mounted() {
-    this.$refs.myTable.setLoadingState(true);
-    window.backend.GetUsers().then((users) => {
-      if (users !== null) {
-        const exempt = [
-            "password",
-            "deleted_at",
-            "created_at",
-            "updated_at",
-            "created_by",
-          ],
-          keys = Object.keys(users[0]);
-
-        keys.forEach((key) => {
-          if (!exempt.includes(key)) {
-            this.columns.push(key);
-          }
-        });
-        this.columns.push('actions');
-
-        // Set the dataSource
-        this.data = users;
-      } else {
-        this.$refs.myTable.setLoadingState(false);
-      }
-        this.isBusy = false;
-      },
-    (err) => {
-      this.$toast.error("Error! " + err);
-      this.isBusy = false;
-    });
-  },
-  methods: {
-    displayInfo(row) {
-      const id = row.id;
-      this.$router.push({ name: "edituser", params: {id} });
+  export default {
+    data() {
+      return {
+        data: [],
+        columns: [],
+        options: {},
+        dateColumns:['created_at','updated_at', 'deleted_at']
+      };
     },
-    removeRow(row, index) {
-      index = event.srcElement.parentElement.parentElement.parentNode.rowIndex - 1;
-      window.backend.RemoveUser(parseInt(row.id)).then(() => {
-        // Remove the row from the table
-        document.getElementById("myTable").getElementsByTagName('tbody')[0].deleteRow(index);
-        
-        this.$toast.success("Success! User record has been successfully deleted.");
-      }, (err) => {
-        this.$toast.error("Error! " + err);
+    mounted() {
+      this.$refs.myTable.setLoadingState(true);
+      window.backend.GetUsers().then((users) => {
+        if (users !== null) {
+          this.columns = Object.keys(users[0]);
+          this.columns.push('actions');
+
+          // Set the dataSource
+          this.data = users;
+        } else {
+          this.$refs.myTable.setLoadingState(false);
+        }
+        this.isBusy = false;
+        }, (err) => {
+          this.$toast.error("Error! " + err);
+          this.isBusy = false;
       });
     },
-  }
-};
+    methods: {
+      displayInfo(row) {
+        const id = row.id;
+        this.$router.push({ name: "edituser", params: {id} });
+      },
+      removeRow(row, index) {
+        index = event.srcElement.parentElement.parentElement.parentNode.rowIndex - 1;
+        window.backend.RemoveUser(parseInt(row.id)).then(() => {
+          // Remove the row from the table
+          document.getElementById("myTable").getElementsByTagName('tbody')[0].deleteRow(index);
+          
+          this.$toast.success("Success! User record has been successfully deleted.");
+        }, (err) => {
+          this.$toast.error("Error! " + err);
+        });
+      },
+    }
+  };
 </script>

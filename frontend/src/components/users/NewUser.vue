@@ -21,9 +21,18 @@
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" class="form-control form-control-sm" placeholder="Email Address" v-model="email" required />
+    <div class="form-row">
+      <div class="form-group col">
+        <label for="email">Email</label>
+        <input type="email" class="form-control form-control-sm" placeholder="Email Address" v-model="email" required />
+      </div>
+
+      <div class="form-group col">
+        <label for="role">Role</label>
+        <select class="form-control form-control-sm" v-model="role" >
+          <option :key="r.id" :value="r.id" v-for="r in roles">{{ r.rolename }}</option>
+        </select>
+      </div>
     </div>
 
     <div class="card">
@@ -46,11 +55,6 @@
 
     <div class="form-row">
       <div class="form-group col">
-        <label for="isadmin">Make user a System Administrator</label>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="checkbox" v-model="isadmin" required />
-      </div>
-      <div class="form-group col">
         <button type="submit" class="btn btn-primary btn-sm float-right" @click="RegisterUser">
           Register User
         </button>
@@ -64,9 +68,10 @@ export default {
   data() {
     return {
       user: {},
+      roles: [],
+      role: null,
       email: null,
       isValid: true,
-      isadmin: false,
       password: null,
       lastname: null,
       firstname: null,
@@ -74,6 +79,14 @@ export default {
       confirmpassword: null,
     };
   },
+  async mounted() {
+    // Get all roles alongside their ID's
+    window.backend.GetRoleswithID().then((roles) => {
+        this.roles = roles;
+    }, (err) => {
+        this.$toast.error("Error! " + err);
+    });
+  },  
   methods: {
     RegisterUser() {
       if (this.password !== this.confirmpassword) {
@@ -82,6 +95,7 @@ export default {
       }
 
       this.user = {
+        role: this.role,
         email: this.email,
         password: this.password,
         lastname: this.lastname,
@@ -99,9 +113,8 @@ export default {
       }
 
       window.backend.NewUser(this.user).then(() => {
-        this.$router.push("{name: 'userlist'");
-      },
-      (err) => {
+        this.$router.push({name: 'userlist'});
+      }, (err) => {
         this.$toast.error("Error! " + err);
       });
     },

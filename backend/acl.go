@@ -26,6 +26,59 @@ func GetRoles() (acls []string, err error) {
 	return
 }
 
+// GetUserACL returns an array of the users permission
+func GetUserACL(id int) (acls []map[string]interface{}, err error) {
+	var rows *sql.Rows
+	if rows, err = Get(fmt.Sprintf(`select menuname, cancreate, canupdate, candelete, canview from acl where rolename = (select a.rolename from users u inner join acl a on u.role = a.id where u.id = %d);`, id)); err != nil {
+		CheckError("Error getting User Access Details.", err, false)
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var menuname string
+		var cancreate, canupdate, candelete, canview bool
+
+		if err = rows.Scan(&menuname, &cancreate, &canupdate, &candelete, &canview); err != nil {
+			CheckError("Error Scanning User Access Details.", err, false)
+		} else {
+			userACL := make(map[string]interface{})
+			userACL["canview"] = canview
+			userACL["menuname"] = menuname
+			userACL["cancreate"] = cancreate
+			userACL["canupdate"] = canupdate
+			userACL["candelete"] = candelete
+			acls = append(acls, userACL)
+		}
+	}
+
+	return
+}
+
+// GetRoleswithID returns an array of role Names alongside their unique ID's
+func GetRoleswithID() (acls []map[string]interface{}, err error) {
+	var rows *sql.Rows
+	if rows, err = Get("select distinct rolename, (select id from acl where rolename = a.rolename limit 1) id from acl a order by 1 desc;"); err != nil {
+		CheckError("Error getting Role Names.", err, false)
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var rolename, id string
+		if err = rows.Scan(&rolename, &id); err != nil {
+			CheckError("Error Scanning Customers.", err, false)
+		} else {
+			mapD := make(map[string]interface{})
+			mapD["rolename"] = rolename
+			mapD["id"] = id
+			acls = append(acls, mapD)
+		}
+	}
+
+	return
+}
+
 // GetRoleByName returns an object of the current Role
 func GetRoleByName(name string) (acls []ACL, err error) {
 	var rows *sql.Rows

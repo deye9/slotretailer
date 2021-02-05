@@ -10,58 +10,58 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <router-link :to="{ name: 'dashboard' }" class="nav-link">
+                    <router-link :to="{ name: 'dashboard' }" v-if="canView('dashboard')" class="nav-link">
                         Dashboard
                     </router-link>
                 </li>
                 <li class="nav-item">
-                    <router-link :to="{ name: 'customerlist' }" class="nav-link">
+                    <router-link :to="{ name: 'customerlist' }" v-if="canView('customers')" class="nav-link">
                         Customers
                     </router-link>
                 </li>
                 <li class="nav-item">
-                    <router-link :to="{ name: 'orderlist' }" class="nav-link">
+                    <router-link :to="{ name: 'orderlist' }" v-if="canView('orders')" class="nav-link">
                         Sales Order
                     </router-link>
                 </li>
                 <li class="nav-item">
-                    <router-link :to="{ name: 'reportlist' }" class="nav-link">
+                    <router-link :to="{ name: 'reportlist' }" v-if="canView('reports')" class="nav-link">
                         Reports
                     </router-link>
                 </li>
-                <li class="nav-item dropdown" v-show="this.$store.state.isAdmin">
+                <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Administration
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <router-link :to="{ name: 'userlist' }" class="dropdown-item">
+                        <router-link :to="{ name: 'userlist' }" v-if="canView('users')" class="dropdown-item">
                             User Flow
                         </router-link>
-                        <router-link :to="{ name: 'productlist' }" class="dropdown-item">
+                        <router-link :to="{ name: 'productlist' }" v-if="canView('products')" class="dropdown-item">
                             Inventory
                         </router-link>
                         <div class="dropdown-divider"></div>
-                        <router-link :to="{ name: 'store' }" class="dropdown-item">
+                        <router-link :to="{ name: 'store' }" v-if="canView('store')" class="dropdown-item">
                             Store Details
                         </router-link>
-                        <router-link :to="{ name: 'transferlist' }" class="dropdown-item">
+                        <router-link :to="{ name: 'transferlist' }" v-if="canView('transfers')" class="dropdown-item">
                             Stock Transfers
                         </router-link>
                         <div class="dropdown-divider"></div>
-                        <router-link :to="{ name: 'auditlogs' }" class="dropdown-item">
+                        <router-link :to="{ name: 'auditlogs' }" v-if="canView('auditlogs')" class="dropdown-item">
                             Audit Logs
                         </router-link>
-                        <router-link :to="{ name: 'sync' }" class="dropdown-item">
+                        <router-link :to="{ name: 'sync' }" v-if="canView('sync')" class="dropdown-item">
                             Sync Details
                         </router-link>
                         <div class="dropdown-divider"></div>
-                        <router-link :to="{ name: 'acl' }" class="dropdown-item">
+                        <router-link :to="{ name: 'acl' }" v-if="canView('acl')" class="dropdown-item">
                             Access Control
                         </router-link>
                     </div>
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0 mr-2" @submit.prevent="search">
+            <form class="form-inline my-2 my-lg-0 mr-2" @submit.prevent="search" v-if="canView('search')">
                 <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" v-model="searchTerm">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
             </form>
@@ -102,6 +102,15 @@
                 this.$store.state.isLoggedIn = false;
                 this.$router.push({name: "login"});
             },
+            canView(link) {
+                return this.$store.state.user['acl']
+                    .filter(f => f.menuname === link)
+                    .map(elem => ({ 
+                        menuname: elem.menuname, 
+                        canview: elem.canview 
+                    })
+                )[0].canview;
+            }
         },
     };
 </script>

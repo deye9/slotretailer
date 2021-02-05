@@ -120,16 +120,17 @@ type Payments struct {
 
 // Users struct
 type Users struct {
-	ID        int          `json:"id,omitempty"`
-	FirstName string       `json:"firstname,omitempty"`
-	LastName  string       `json:"lastname,omitempty"`
-	Email     string       `json:"email,omitempty"`
-	Password  string       `json:"password,omitempty"`
-	IsAdmin   bool         `json:"isadmin"`
-	CreatedBy int          `json:"created_by,omitempty"`
-	CreatedAt sql.NullTime `json:"created_at,omitempty"`
-	UpdatedAt sql.NullTime `json:"updated_at,omitempty"`
-	DeletedAt sql.NullTime `json:"deleted_at,omitempty"`
+	ID          int                      `json:"id,omitempty"`
+	FirstName   string                   `json:"firstname,omitempty"`
+	LastName    string                   `json:"lastname,omitempty"`
+	Email       string                   `json:"email,omitempty"`
+	Password    string                   `json:"password,omitempty"`
+	Role        int                      `json:"role,omitempty"`
+	Permissions []map[string]interface{} `json:"acl"`
+	CreatedBy   int                      `json:"created_by,omitempty"`
+	CreatedAt   sql.NullTime             `json:"created_at,omitempty"`
+	UpdatedAt   sql.NullTime             `json:"updated_at,omitempty"`
+	DeletedAt   sql.NullTime             `json:"deleted_at,omitempty"`
 }
 
 // Store struct

@@ -214,6 +214,8 @@ ALTER table transfereditems add column serialnumber VARCHAR(255) DEFAULT ' ';
 ALTER table transfers add column docentry int;
 ALTER table transfers add column docnum int;
 ALTER table transfers add column requestId int;
+ALTER table users add column role int;
+ALTER TABLE users DROP COLUMN isadmin;
 
 -- Default Reports
 REPLACE INTO reports (id, title, query, created_by) VALUES (1, "Todays Orders", "select id as order_id, docnum `Document Number`, canceled `Is Cancelled`, CardCode, CardName,  vatsum `VAT %`, concat('₦', format(doctotal, 2)) `Document Total`, case when Synced <> 0 then \"Yes\" else \"No\" END `Synced`, case when returned <> 0 then \"Yes\" else \"No\" END `Returned`, ifnull( (select concat(firstname, '  ', lastname) from users where users.id = o.discountapprovedby), 'Super Admin') `approved_by` from orders o where deleted_at is null and cast(created_at as date) = CURDATE() order by created_at desc;", 1);
@@ -238,7 +240,7 @@ REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`
 REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (13,'Admin','auditlogs',1,1,1,1);
 
 REPLACE INTO store (`id`,`name`,`address`,`phone`,`city`,`email`,`orders`,`products`,`customers`,`creditcard`,`sync_interval`,`sapkey`,`created_by`,`created_at`,`updated_at`,`deleted_at`,`logrotation`,`transfers`,`vat`,`warehouses`, `pricelist`, `productpricelist`, `cashaccount`, `storecashaccount`, `banktransfer`, `cheques`) VALUES (1,'New Store','Enter Store Address','080','Lagos','storename@slot.com','http://197.255.32.34:5000/Orders','http://197.255.32.34:5000/Products','http://197.255.32.34:5000/Customers','http://197.255.32.34:5000/CreditCards',30,'',1,'2020-12-08 21:46:36',NULL,NULL,'1','http://197.255.32.34:5000/TransferRequests',0,'http://197.255.32.34:5000/Warehouses', 'http://197.255.32.34:5000/pricelists', 1, 'http://197.255.32.34:5000/CashAccounts', '12330001', 'http://197.255.32.34:5000/BankTranserAccounts', 'http://197.255.32.34:5000/Banks');
-REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) VALUES ('super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true);
+REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin, role) VALUES ('super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true, 1);
 
 -- REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');
 

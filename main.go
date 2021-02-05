@@ -32,7 +32,9 @@ func main() {
 	// Access Control List
 	app.Bind(service.GetRoles)
 	app.Bind(service.SaveRole)
+	app.Bind(service.GetUserACL)
 	app.Bind(service.GetRoleByName)
+	app.Bind(service.GetRoleswithID)
 
 	// Sync Details
 	app.Bind(service.GetLog)
