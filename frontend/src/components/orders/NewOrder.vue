@@ -561,11 +561,14 @@ export default {
       }
 
       window.backend.Login(email, password).then((result) => {
-        if (result.id !== undefined && result.isadmin === true) {
+        if (result.id !== undefined) {
           this.email = "";
           this.password = "";
-          this.isAdmin = true;
           this.discountby = result.id;
+
+          if (result.acl[0].rolename.toLowerCase() === "admin") {
+            this.isAdmin = true;
+          }
 
           // Hide the modal
           $('#adminModal').modal('hide');
@@ -577,7 +580,6 @@ export default {
       });
     },
     async getPermission() {
-      // Check for permissions
       if (this.isAdmin === false) {
         // Display admin login Modal
         $('#adminModal').modal('show');
@@ -600,12 +602,6 @@ export default {
       }
     },
     async applyDiscount(rowIndex) {
-      // if (this.items.serialnumbers !== "[]" && this.items[rowIndex].serialnumber === "") {
-      //   this.$toast.error("Error! Product Serial Number is required in order to proceed.");
-      //   $('#serialsModal').modal('show');
-      //   return;
-      // }
-
       // Perform a quick clean up
       if (this.items[rowIndex].price === '₦0.00') {
         event.target.innerText = '₦0.00';

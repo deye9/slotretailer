@@ -1,4 +1,4 @@
-drop database retail;
+drop database IF EXISTS retail;
 
 create database retail;
 USE retail;
@@ -240,7 +240,7 @@ REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`
 REPLACE INTO acl (`id`,`rolename`,`menuname`,`cancreate`,`canupdate`,`candelete`,`canview`) VALUES (13,'Admin','auditlogs',1,1,1,1);
 
 REPLACE INTO store (`id`,`name`,`address`,`phone`,`city`,`email`,`orders`,`products`,`customers`,`creditcard`,`sync_interval`,`sapkey`,`created_by`,`created_at`,`updated_at`,`deleted_at`,`logrotation`,`transfers`,`vat`,`warehouses`, `pricelist`, `productpricelist`, `cashaccount`, `storecashaccount`, `banktransfer`, `cheques`) VALUES (1,'New Store','Enter Store Address','080','Lagos','storename@slot.com','http://197.255.32.34:5000/Orders','http://197.255.32.34:5000/Products','http://197.255.32.34:5000/Customers','http://197.255.32.34:5000/CreditCards',30,'',1,'2020-12-08 21:46:36',NULL,NULL,'1','http://197.255.32.34:5000/TransferRequests',0,'http://197.255.32.34:5000/Warehouses', 'http://197.255.32.34:5000/pricelists', 1, 'http://197.255.32.34:5000/CashAccounts', '12330001', 'http://197.255.32.34:5000/BankTranserAccounts', 'http://197.255.32.34:5000/Banks');
-REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin, role) VALUES ('super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true, 1);
+REPLACE INTO `users` (firstname, lastname, email, password, created_by, role) VALUES ('super', 'admin', 'superadmin@slot.com', 'superadmin', 1, 1);
 
 -- REPLACE INTO `users` (firstname, lastname, email, password, created_by, isadmin) SELECT 'super', 'admin', 'superadmin@slot.com', 'superadmin', 1, true WHERE NOT EXISTS(SELECT * FROM `users` WHERE email = 'superadmin@slot.com' AND password = 'superadmin');
 
@@ -339,7 +339,7 @@ BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
     (null, 
-    JSON_OBJECT('id', new.id, 'firstname', new.firstname, 'lastname', new.lastname, 'email', new.email, 'password', new.password, 'isadmin', new.isadmin, 'created_at', new.created_at, 'created_by', new.created_by), 
+    JSON_OBJECT('id', new.id, 'firstname', new.firstname, 'lastname', new.lastname, 'email', new.email, 'password', new.password, 'role', new.role, 'created_at', new.created_at, 'created_by', new.created_by), 
     'INSERT', new.created_by);
 END $$    
 
@@ -352,8 +352,8 @@ AFTER UPDATE ON users FOR EACH ROW
 BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
-    (JSON_OBJECT('id', old.id, 'firstname', old.firstname, 'lastname', old.lastname, 'email', old.email, 'password', old.password, 'isadmin', old.isadmin, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
-    JSON_OBJECT('id', new.id, 'firstname', new.firstname, 'lastname', new.lastname, 'email', new.email, 'password', new.password, 'isadmin', new.isadmin, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at, 'created_by', new.created_by), 
+    (JSON_OBJECT('id', old.id, 'firstname', old.firstname, 'lastname', old.lastname, 'email', old.email, 'password', old.password, 'role', old.role, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
+    JSON_OBJECT('id', new.id, 'firstname', new.firstname, 'lastname', new.lastname, 'email', new.email, 'password', new.password, 'role', new.role, 'created_at', new.created_at, 'updated_at', new.updated_at, 'deleted_at', new.deleted_at, 'created_by', new.created_by), 
     'UPDATE', new.created_by);
 END $$    
 
@@ -366,7 +366,7 @@ AFTER DELETE ON users FOR EACH ROW
 BEGIN
 	INSERT INTO audits (`old_row_data`, `new_row_data`, `dml_type`, `dml_created_by`) 
     VALUES
-    (JSON_OBJECT('id', old.id, 'firstname', old.firstname, 'lastname', old.lastname, 'email', old.email, 'password', old.password, 'isadmin', old.isadmin, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
+    (JSON_OBJECT('id', old.id, 'firstname', old.firstname, 'lastname', old.lastname, 'email', old.email, 'password', old.password, 'role', old.role, 'created_at', old.created_at, 'updated_at', old.updated_at, 'deleted_at', old.deleted_at, 'created_by', old.created_by),
 	null, 'DELETE', old.created_by);
 END $$    
 

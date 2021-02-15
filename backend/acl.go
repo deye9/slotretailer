@@ -29,21 +29,22 @@ func GetRoles() (acls []string, err error) {
 // GetUserACL returns an array of the users permission
 func GetUserACL(id int) (acls []map[string]interface{}, err error) {
 	var rows *sql.Rows
-	if rows, err = Get(fmt.Sprintf(`select menuname, cancreate, canupdate, candelete, canview from acl where rolename = (select a.rolename from users u inner join acl a on u.role = a.id where u.id = %d);`, id)); err != nil {
+	if rows, err = Get(fmt.Sprintf(`select rolename, menuname, cancreate, canupdate, candelete, canview from acl where rolename = (select a.rolename from users u inner join acl a on u.role = a.id where u.id = %d);`, id)); err != nil {
 		CheckError("Error getting User Access Details.", err, false)
 		return nil, err
 	}
 
 	defer rows.Close()
 	for rows.Next() {
-		var menuname string
+		var rolename, menuname string
 		var cancreate, canupdate, candelete, canview bool
 
-		if err = rows.Scan(&menuname, &cancreate, &canupdate, &candelete, &canview); err != nil {
+		if err = rows.Scan(&rolename, &menuname, &cancreate, &canupdate, &candelete, &canview); err != nil {
 			CheckError("Error Scanning User Access Details.", err, false)
 		} else {
 			userACL := make(map[string]interface{})
 			userACL["canview"] = canview
+			userACL["rolename"] = rolename
 			userACL["menuname"] = menuname
 			userACL["cancreate"] = cancreate
 			userACL["canupdate"] = canupdate
