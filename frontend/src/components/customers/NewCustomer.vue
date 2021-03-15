@@ -1,6 +1,6 @@
 <template>
   <section>
-    <div class="row">
+    <div class="row" v-if="canRegister">
       <div class="col-8">
         <h3>New Customer</h3>
       </div>
@@ -94,6 +94,7 @@
 
 <script>
 export default {
+  props: ['showRegister', 'goBack'],
   data() {
     return {
       customer: {},
@@ -105,6 +106,8 @@ export default {
       phone1: "+234",
       cardname: null,
       created_by: null,
+      canGoBack: this.goBack,
+      // canRegister: this.showRegister,
     };
   },
   methods: {
@@ -173,5 +176,14 @@ export default {
       });
     },
   },
+  computed: {
+    canRegister: function () {
+      if (this.showRegister === false) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+  }
 };
 </script>

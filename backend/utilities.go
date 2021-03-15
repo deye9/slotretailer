@@ -17,7 +17,7 @@ func BasePath() string {
 
 	// Split by the build path as we are not saving into the root
 	// return strings.Split(cwd, "\\build")[0]
-	return strings.Split(cwd, "/build")[0]
+	return strings.Split(cwd, "\\build")[0]
 }
 
 // ReadFile reads a file and returns the data or an error

@@ -6,6 +6,7 @@
       </div>
       <div class="col-4">
         <router-link :to="{name: 'orderlist'}" class="btn btn-info btn-sm float-right">Back</router-link>
+        <button class="btn btn-primary btn-sm mr-2 float-right mr-2" v-if="userPermission('customers', 'cancreate')" data-toggle="modal" data-target="#customerModal">New Customer</button>
       </div>
     </div>
     <hr />
@@ -53,7 +54,7 @@
             <th scope="row">{{ i + 1 }}</th>
             <td>{{ item.itemcode }}</td>
             <td>
-              <v-select @search="fetchOptions" :filterable="false" label="itemname" :options="inventory" :clearable="false" @input="(val) => itemSelected(val, i)" style="min-width: 250px;">
+              <v-select label="itemname" @search="fetchOptions" :filterable="false" :options="inventory" :clearable="false" @input="(val) => itemSelected(val, i)" style="min-width: 250px;">
                 <template slot="no-options">
                   type to search for Product
                 </template>
@@ -278,6 +279,22 @@
         </div>
       </div>
     </div>
+
+    <div class="modal fade" id="customerModal" data-backdrop="static" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header text-center bg-dark text-white">
+            <h5 class="modal-title" id="customerModalLabel">Customer Registration Form</h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <customer id="NewCust" showRegister="false" goBack="false"></customer>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -289,6 +306,16 @@
     text-align: left;
     caption-side: top;
   }
+
+  /* #NewCust {
+    margin-top: 0em;
+    font-size: 14px;
+  }
+
+  #register {
+    display: none;
+  } */
+  
 </style>
 
 <script>
@@ -296,7 +323,7 @@ import _ from 'lodash';
 import $ from "jquery";
 import moment from "moment";
 import "vue-select/dist/vue-select.css";
-// let barcode = '../../assets/js/jquery-barcode.min.js.js';
+import NewCustomer from "@/components/customers/NewCustomer";
 
 export default {
   data() {
@@ -333,6 +360,9 @@ export default {
       currentDate: moment().format("Do of MMMM YYYY"),
       dateColumns:['created_at','updated_at', 'deleted_at'],
     };
+  },
+  components: {
+    'customer': NewCustomer
   },
   async created() {
     // Determine the state of the Discount element
@@ -386,8 +416,7 @@ export default {
         this.customer = this.customers.filter((customer) => {
           return (
             customer.phone.toLowerCase() === search.toLowerCase() || customer.phone1.toLowerCase() === search.toLowerCase() ||
-            customer.email.toLowerCase() === search.toLowerCase() || customer.cardname.toLowerCase() === search.toLowerCase() ||
-            customer.cardcode.toLowerCase() === search.toLowerCase()
+            customer.email.toLowerCase() === search.toLowerCase()
           );
         })[0];
       }
