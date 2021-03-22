@@ -1,6 +1,6 @@
 <template>
   <section>
-    <div class="row" v-if="canRegister">
+    <div class="row" v-if="canGoBack">
       <div class="col-8">
         <h3>New Customer</h3>
       </div>
@@ -8,7 +8,7 @@
         <router-link :to="{name: 'customerlist'}" class="btn btn-info btn-sm float-right">Back</router-link>
       </div>
     </div>
-    <hr />
+    <hr v-if="canRegister" />
 
     <div class="form-row">
       <div class="form-group col">
@@ -84,7 +84,7 @@
       </div>
     </div>
 
-    <button type="submit" id="register" class="btn btn-primary btn-sm float-right" @click="Registration" v-if="userPermission('customers', 'cancreate')">
+    <button type="submit" id="register" class="btn btn-primary btn-sm float-right" @click="Registration" v-if="userPermission('customers', 'cancreate') && canRegister">
       Register Customer
     </button>
 
@@ -94,7 +94,16 @@
 
 <script>
 export default {
-  props: ['showRegister', 'goBack'],
+  props: {
+    goBack: {
+      type: Boolean,
+      default: true,
+    },
+    showRegister:  {
+      type: Boolean,
+      default: true,
+    }, 
+  },
   data() {
     return {
       customer: {},
@@ -106,8 +115,6 @@ export default {
       phone1: "+234",
       cardname: null,
       created_by: null,
-      canGoBack: this.goBack,
-      // canRegister: this.showRegister,
     };
   },
   methods: {
@@ -179,6 +186,13 @@ export default {
   computed: {
     canRegister: function () {
       if (this.showRegister === false) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+    canGoBack: function () {
+      if (this.goBack === false) {
         return false;
       } else {
         return true;

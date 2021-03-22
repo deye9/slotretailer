@@ -50,7 +50,7 @@ func GetUser(id int) (user Users, err error) {
 // GetUsers returns an array of users
 func GetUsers() (users []map[string]interface{}, err error) {
 	var rows *sql.Rows
-	if rows, err = Get(`select id, firstname, lastname, email, (select rolename from acl where id = u.) role from users u where deleted_at is null and id > 1;`); err != nil {
+	if rows, err = Get(`select id, firstname, lastname, email, (select rolename from acl where id = u.role) role from users u where deleted_at is null and id > 1;`); err != nil {
 		CheckError("Error getting users.", err, false)
 		return nil, err
 	}

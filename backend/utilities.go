@@ -32,17 +32,26 @@ func ReadFile(filepath string) ([]byte, error) {
 // CheckError catches and handles backend errors
 func CheckError(message string, err error, fatal bool) {
 	if err != nil && fatal == false {
-		go func() {
-			// Write the error to the File System.
-			WriteFile(BasePath()+"/build/error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
-		}()
+		// Write the error to the File System.
+		go WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
+		// go func(err error) {
+		// 	fmt.Println("err1 IS: ", err.Error())
+
+		// 	// Write the error to the File System.
+		// 	WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
+		// }(err)
 		return
 	} else if err != nil && fatal == true {
-		go func() {
-			// Write the error to the File System.
-			WriteFile(BasePath()+"/build/error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
-			os.Exit(1)
-		}()
+		// Write the error to the File System.
+		go WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
+		os.Exit(1)
+		// go func(err error) {
+		// 	fmt.Println("err2 IS: ", err.Error())
+
+		// 	// Write the error to the File System.
+		// 	WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
+		// 	os.Exit(1)
+		// }(err)
 	}
 
 	// catch to error.
@@ -51,7 +60,6 @@ func CheckError(message string, err error, fatal bool) {
 
 // WriteFile writes the data into the file specified
 func WriteFile(filepath string, data []byte) (bool, error) {
-
 	// If the file doesn't exist, create it, or append to the file
 	f, _ := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 

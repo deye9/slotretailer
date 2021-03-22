@@ -335,6 +335,11 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 	if err != nil {
 		CheckError("Error POSTING data to URL: "+url, err, false)
 	}
+
+	if strings.Contains(err.Error(), "wsarecv") {
+		return
+	}
+
 	defer res.Body.Close()
 
 	status = res.Status
@@ -348,9 +353,11 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 		Modify(successcommand)
 	} else {
 		CheckError("Error from Endpoint "+url+" for Payload sent. ", errors.New("status is "+status+". "+string(data)), false)
-		// CheckError("Payload is ", errors.New(payload), false)
 	}
 
+	fmt.Println("URL IS: ", url)
+	fmt.Println("data IS: ", string(data))
+	fmt.Println("status IS: ", status)
 	return
 }
 

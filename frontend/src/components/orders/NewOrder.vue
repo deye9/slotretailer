@@ -290,7 +290,11 @@
             </button>
           </div>
           <div class="modal-body">
-            <customer id="NewCust" showRegister="false" goBack="false"></customer>
+            <customer id="NewCust" v-bind:showRegister="false" v-bind:goBack="false" ref="newCust"></customer>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary btn-sm mr-2" @click="registerCustomer">Register Customer</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -307,15 +311,10 @@
     caption-side: top;
   }
 
-  /* #NewCust {
+  #NewCust {
     margin-top: 0em;
     font-size: 14px;
   }
-
-  #register {
-    display: none;
-  } */
-  
 </style>
 
 <script>
@@ -378,18 +377,7 @@ export default {
     }
 
     // Get all customers
-    window.backend.GetCustomers().then((customers) => {
-      if (customers !== null) {
-        this.customers = customers;
-        this.customers.forEach((customer) => {
-          if (customer.cardcode === "0") {
-            customer.cardcode = `R-${customer.id}`;
-          }
-        });
-      }
-    }, (err) => {
-      this.$toast.error("Error! " + err);
-    });
+    this.getCustomers();
 
     // Get all Payment Details
     window.backend.GetPaymentDetails().then((PaymentDetails) => {
@@ -404,6 +392,52 @@ export default {
     });
   },
   methods: {
+    async getCustomers() {
+      // Get all customers
+      window.backend.GetCustomers().then((customers) => {
+        if (customers !== null) {
+          this.customers = customers;
+          this.customers.forEach((customer) => {
+            if (customer.cardcode === "0") {
+              customer.cardcode = `R-${customer.id}`;
+            }
+          });
+        }
+      }, (err) => {
+        this.$toast.error("Error! " + err);
+      });
+    },
+    async registerCustomer() {
+      let customer = {
+          cardcode: 0,
+          synced: false,
+          city: this.$refs.newCust.city,
+          phone: this.$refs.newCust.phone,
+          email: this.$refs.newCust.email,
+          phone1: this.$refs.newCust.phone1,
+          address: this.$refs.newCust.address,
+          cardname: this.$refs.newCust.cardname,
+          created_by: this.$store.state.user.id,
+        };
+
+      // Validate the payload.
+      for (var attribute in customer) {
+        if (customer[attribute] === "" || customer[attribute] === null) {
+          this.$toast.error( "Error! " + attribute + " cannot be " + customer[attribute] );
+          return;
+        }
+      }
+
+      window.backend.NewCustomer(customer).then(async () => {
+        this.$toast.success( `Success! Customer ${customer.cardname} has been successful registered.` );
+        await this.getCustomers();
+
+        // Hide the modal
+        $('#customerModal').modal('hide');
+      }, (err) => {
+        this.$toast.error("Error! " + err);
+      });
+    },
     /**
      * Triggered when the search text changes.
      *
