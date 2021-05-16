@@ -75,7 +75,7 @@
               <input type="number" min="1" step="1" class="form-control form-control-sm" :value="item.quantity" @blur="setQuantity(i)" style="width: 60px;" />
             </td>
             <td>
-              {{ item.price }}
+              <div :contenteditable="isAdmin" @click="getPermission" @keypress="validateInput" @blur="applyPrice(i)" v-text="item.price"></div>
             </td>
             <td>
               <div :contenteditable="isAdmin" @click="getPermission" @keypress="validateInput" @blur="applyDiscount(i)" v-text="item.discount"></div>
@@ -664,6 +664,32 @@ export default {
         event.preventDefault();
       }
     },
+    async applyPrice(rowIndex) {
+      // Perform a quick clean up
+      if (this.items[rowIndex].price === '₦0.00') {
+        event.target.innerText = '₦0.00';
+        this.$toast.error("Error! Price cannot be applied. \nKindly select a product or enter a valid Price.");
+        return;
+      }
+
+      if (event.target.innerText === '' || event.target.innerText < 0 || event.target.innerText > parseFloat(this.items[rowIndex].total.replace("₦", ""))) {
+        event.target.innerText = '₦0.00';
+        this.$toast.error(`Error! Price must be greater than ₦1.00`);
+        return;
+      }
+
+      // Reset the Discount element to its inital state.
+      if (!this.$store.state.isAdmin)
+      {
+        this.isAdmin = false;
+      }
+
+      // Store the data into the items array
+      this.items[rowIndex].price = '₦' + parseFloat(event.target.innerText.replace("₦", "")).toFixed(2);
+
+      // Calculate the totals [invoice subtotal, grand total, vat]
+      await this.totals();
+    },    
     async applyDiscount(rowIndex) {
       // Perform a quick clean up
       if (this.items[rowIndex].price === '₦0.00') {

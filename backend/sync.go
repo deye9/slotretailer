@@ -353,10 +353,6 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 	} else {
 		CheckError("Error from Endpoint "+url+" for Payload sent. ", errors.New("status is "+status+". "+string(data)), false)
 	}
-
-	fmt.Println("URL IS: ", url)
-	fmt.Println("data IS: ", string(data))
-	fmt.Println("status IS: ", status)
 	return
 }
 
