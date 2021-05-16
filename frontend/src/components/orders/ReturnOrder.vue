@@ -858,10 +858,12 @@ export default {
         // this.grandTotal = parseFloat(runningTotal) - parseFloat(this.amtPaid);
         // this.grandTotal = Math.abs(parseFloat(this.grandTotal).toFixed(2)) <= this.grandTotal ? Math.abs(parseFloat(this.grandTotal).toFixed(2)) : 0.0;
       }
-      this.balanceDue = Math.abs(parseFloat(this.grandTotal).toFixed(2)) <= this.grandTotal ? Math.abs(parseFloat(this.grandTotal).toFixed(2)) : 0.0;
+
+      this.balanceDue = parseFloat(this.subTotal).toFixed(2) - parseFloat(this.amtPaid).toFixed(2);
+      // this.balanceDue = Math.abs(parseFloat(this.grandTotal).toFixed(2)) <= this.grandTotal ? Math.abs(parseFloat(this.grandTotal).toFixed(2)) : 0.0;
       if (this.balanceDue <= 0.0) {
         this.amtPaid = this.grandTotal;
-      }
+      } 
     },
     // Payment Section
     transformPayment(payment) {

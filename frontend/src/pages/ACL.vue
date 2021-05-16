@@ -48,6 +48,12 @@
             </td>
             <td>
               <div id="radioBtn" class="btn-group">
+                <a :class="(detail.canview === true) ? 'btn btn-primary btn-sm active' : 'btn btn-primary btn-sm notActive'" :id="detail.menuname + '_canviewY'"  @click="toggleLink(i, true, detail.menuname + '_canview')">YES</a>
+                <a :class="(detail.canview === false) ? 'btn btn-primary btn-sm active' : 'btn btn-primary btn-sm notActive'" :id="detail.menuname + '_canviewN'"  @click="toggleLink(i, false, detail.menuname + '_canview')">NO</a>
+              </div>
+            </td>
+            <td>
+              <div id="radioBtn" class="btn-group">
                 <a :class="(detail.cancreate === true) ? 'btn btn-primary btn-sm active' : 'btn btn-primary btn-sm notActive'" :id="detail.menuname + '_cancreateY'"  @click="toggleLink(i, true, detail.menuname + '_cancreate')">YES</a>
                 <a :class="(detail.cancreate === false) ? 'btn btn-primary btn-sm active' : 'btn btn-primary btn-sm notActive'" :id="detail.menuname + '_cancreateN'"  @click="toggleLink(i, false, detail.menuname + '_cancreate')">NO</a>
               </div>
@@ -64,12 +70,6 @@
                 <a :class="(detail.candelete === false) ? 'btn btn-primary btn-sm active' : 'btn btn-primary btn-sm notActive'" :id="detail.menuname + '_candeleteN'"  @click="toggleLink(i, false, detail.menuname + '_candelete')">NO</a>
               </div>
             </td>
-            <td>
-              <div id="radioBtn" class="btn-group">
-                <a :class="(detail.canview === true) ? 'btn btn-primary btn-sm active' : 'btn btn-primary btn-sm notActive'" :id="detail.menuname + '_canviewY'"  @click="toggleLink(i, true, detail.menuname + '_canview')">YES</a>
-                <a :class="(detail.canview === false) ? 'btn btn-primary btn-sm active' : 'btn btn-primary btn-sm notActive'" :id="detail.menuname + '_canviewN'"  @click="toggleLink(i, false, detail.menuname + '_canview')">NO</a>
-              </div>
-            </td>        
           </tr>
         </tbody>
       </table>

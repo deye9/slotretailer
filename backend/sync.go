@@ -334,10 +334,9 @@ func httppost(url, payload, successcommand string) (status string, data []byte, 
 	res, err := client.Do(req)
 	if err != nil {
 		CheckError("Error POSTING data to URL: "+url, err, false)
-	}
-
-	if strings.Contains(err.Error(), "wsarecv") {
-		return
+		if strings.Contains(err.Error(), "wsarecv") {
+			return
+		}
 	}
 
 	defer res.Body.Close()
