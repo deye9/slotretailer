@@ -1,8 +1,10 @@
 package service
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
+	smtp "net/smtp"
 	"os"
 	"strings"
 	"time"
@@ -35,7 +37,6 @@ func CheckError(message string, err error, fatal bool) {
 		// Write the error to the File System.
 		go WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
 		// go func(err error) {
-		// 	fmt.Println("err1 IS: ", err.Error())
 
 		// 	// Write the error to the File System.
 		// 	WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
@@ -46,7 +47,6 @@ func CheckError(message string, err error, fatal bool) {
 		go WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
 		os.Exit(1)
 		// go func(err error) {
-		// 	fmt.Println("err2 IS: ", err.Error())
 
 		// 	// Write the error to the File System.
 		// 	WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
@@ -143,4 +143,24 @@ func renameFile(oldName, newName string) (err error) {
 	}
 
 	return nil
+}
+
+// SendEmail will send email to given address
+func SendEmail(message string, toAddress []string) (response bool, err error) {
+	const (
+		fromAddress       = "order@slot.ng"
+		fromEmailPassword = "k5qnb45"
+		smtpServer        = "smtp.gmail.com"
+		smptPort          = "587"
+	)
+	var auth = smtp.PlainAuth("", fromAddress, fromEmailPassword, smtpServer)
+	err = smtp.SendMail(smtpServer+":"+smptPort, auth, fromAddress, toAddress, []byte(message))
+
+	if err == nil {
+		return true, nil
+	}
+
+	fmt.Println("Mailing error is: ", err)
+	return false, err
+
 }

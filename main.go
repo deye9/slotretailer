@@ -16,6 +16,10 @@ func main() {
 	service.GetStore()
 	go service.Sync()
 
+	// res, err := service.SendEmail("Hi there Adegbenga", []string{"adegbenga.adeye@andela.com"})
+	// fmt.Println("response is: ", res)
+	// fmt.Println("Error is: ", err)
+
 	js := mewn.String("./frontend/dist/app.js")
 	css := mewn.String("./frontend/dist/app.css")
 

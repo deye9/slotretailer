@@ -245,4 +245,10 @@ type ACL struct {
 	CanView   bool   `json:"canview"`
 }
 
+type emailParamsStruct struct {
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Message string `json:"message"`
+}
+
 // REMEMBER TO MODIFY THE migrations.sql ONCE MODIFIED via an alter statement.

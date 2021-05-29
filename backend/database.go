@@ -29,7 +29,7 @@ func dsn(dbName string) string {
 	var err error = nil
 	var file io.Reader
 
-	if file, err = os.Open(BasePath() + "/build/.env"); err != nil {
+	if file, err = os.Open(BasePath() + "\\build\\.env"); err != nil {
 		CheckError("Unable to read the .env for the database connection setup.", err, true)
 		return ""
 	}
@@ -66,13 +66,13 @@ func dsn(dbName string) string {
 func Setup() {
 	var err error
 
-	if _, err = os.Stat(BasePath() + "/build/.env"); os.IsNotExist(err) {
+	if _, err = os.Stat(BasePath() + "\\build\\.env"); os.IsNotExist(err) {
 		CheckError("No .env file exists for the database connection setup.", err, true)
 		return
 	}
 
 	// Run migrations and create the DB only if there is a valid migration file.
-	if _, err = os.Stat(BasePath() + "/build/migrations.sql"); !os.IsNotExist(err) {
+	if _, err = os.Stat(BasePath() + "\\build\\migrations.sql"); !os.IsNotExist(err) {
 		if DbConn, err = connectDB("sys"); err != nil {
 			CheckError("Error Connecting to the Database", err, true)
 			return
@@ -122,7 +122,7 @@ func runMigrations() (bool, error) {
 	var err error = nil
 	var fileContent []byte
 
-	if fileContent, err = ReadFile(BasePath() + "/build/migrations.sql"); err != nil {
+	if fileContent, err = ReadFile(BasePath() + "\\build\\migrations.sql"); err != nil {
 		CheckError("Error Reading Migrations File: ", err, false)
 		return false, err
 	}
@@ -133,7 +133,7 @@ func runMigrations() (bool, error) {
 	}
 
 	// Rename the migration file
-	renameFile(BasePath()+"/build/migrations.sql", BasePath()+"/build/migrated.sql")
+	renameFile(BasePath()+"\\build\\migrations.sql", BasePath()+"\\build\\migrated.sql")
 	return true, nil
 }
 
