@@ -36,22 +36,11 @@ func CheckError(message string, err error, fatal bool) {
 	if err != nil && fatal == false {
 		// Write the error to the File System.
 		go WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
-		// go func(err error) {
-
-		// 	// Write the error to the File System.
-		// 	WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
-		// }(err)
-		return
+		// return
 	} else if err != nil && fatal == true {
 		// Write the error to the File System.
 		go WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
-		os.Exit(1)
-		// go func(err error) {
-
-		// 	// Write the error to the File System.
-		// 	WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
-		// 	os.Exit(1)
-		// }(err)
+		// os.Exit(1)
 	}
 
 	// catch to error.
@@ -149,7 +138,7 @@ func renameFile(oldName, newName string) (err error) {
 func SendEmail(message string, toAddress []string) (response bool, err error) {
 	const (
 		fromAddress       = "order@slot.ng"
-		fromEmailPassword = "k5qnb45"
+		fromEmailPassword = "=k5qnb45"
 		smtpServer        = "smtp.gmail.com"
 		smptPort          = "587"
 	)

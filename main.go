@@ -14,7 +14,8 @@ func main() {
 
 	// Get the store details
 	service.GetStore()
-	go service.Sync()
+	// service.SAPSync()
+	// go service.Sync()
 
 	// res, err := service.SendEmail("Hi there Adegbenga", []string{"adegbenga.adeye@andela.com"})
 	// fmt.Println("response is: ", res)
@@ -41,6 +42,7 @@ func main() {
 	app.Bind(service.GetRoleswithID)
 
 	// Sync Details
+	app.Bind(service.SAPSync)
 	app.Bind(service.GetLog)
 	app.Bind(service.GetLogs)
 

@@ -109,11 +109,30 @@
         >
       </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="syncModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          
+          <div class="modal-body">
+            <button class="btn btn-primary btn-lg btn-block" type="button" disabled>
+              <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+              Loading data from SAP. 
+              <br />
+              Please wait while we load the latest data.
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <script>
 import moment from "moment";
+import $ from "jquery";
+
 export default {
   data() {
     return {
@@ -128,18 +147,29 @@ export default {
     };
   },
   mounted() {
-    this.getData();
-    // Run every 5 minutes [5 * 60 * 1000 = 300000]
-    setTimeout(() => {
-      this.$refs.myTable.setLoadingState(true);
-      this.getData();
-      this.$refs.myTable.setLoadingState(false);
-    }, 300000);
+    // Display the sync Modal
+    $('#syncModal').modal('show');
+    window.backend.SAPSync().then((response) => {
+      if (response) {
+        // Dispose of the sync Modal
+        $('#syncModal').modal('hide');
+
+        this.getData();
+        // Run every 5 minutes [5 * 60 * 1000 = 300000]
+        setTimeout(() => {
+          this.$refs.myTable.setLoadingState(true);
+          this.getData();
+          this.$refs.myTable.setLoadingState(false);
+        }, 300000);
+      }
+    }, (err) => {
+        this.$toast.error("Error! " + err);
+      }
+    );
   },
   methods: {
     getData() {
-      window.backend.Dashboard().then(
-        (response) => {
+      window.backend.Dashboard().then((response) => {
           let total = 0.0;
           if (response.orders !== null) {
             // Today's Orders

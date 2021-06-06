@@ -17,6 +17,10 @@ Vue.config.devtools = true;
 Vue.mixin({
 	methods: {
 		userPermission(menuname, action) {
+			if (action.toLowerCase() === 'candelete') {
+				return false;
+			}
+
 			if (this.$store.state.user["acl"] === undefined || action === "") {
 				return false;
 			}

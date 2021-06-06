@@ -22,6 +22,9 @@ export default {
   components: {
     Header,
   },
+  mounted() {
+    document.title = "SLOT Systems Retail Manager.";
+  },
 };
 </script>
   

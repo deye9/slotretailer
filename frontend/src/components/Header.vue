@@ -163,6 +163,9 @@ export default {
       searchTerm: "",
     };
   },
+  mounted() {
+    document.title = "SLOT Systems Retail Manager.";
+  },
   methods: {
     search(evt) {
       evt.preventDefault();
