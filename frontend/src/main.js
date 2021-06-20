@@ -35,6 +35,8 @@ Vue.mixin({
 	}
 })
 
+Vue.prototype.$appName = "SLOT Systems Retail Managers.";
+
 import * as Wails from '@wailsapp/runtime';
 
 Wails.Init(() => {

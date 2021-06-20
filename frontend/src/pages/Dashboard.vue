@@ -111,11 +111,10 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="syncModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal" id="syncModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-          
-          <div class="modal-body">
+          <div class="modal-body" id="staticBackdropLabel">
             <button class="btn btn-primary btn-lg btn-block" type="button" disabled>
               <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
               Loading data from SAP. 
@@ -126,12 +125,29 @@
         </div>
       </div>
     </div>
+
+    <div class="modal" id="storeModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="storeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header text-center bg-dark text-white">
+            <h5 class="modal-title" id="storeModalLabel">Enter Store Details</h5>
+            <button type="button" class="close text-white" @click="dismiss" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <retailstore></retailstore>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <script>
 import moment from "moment";
 import $ from "jquery";
+import RetailStore from "@/pages/RetailStore";
 
 export default {
   data() {
@@ -142,32 +158,71 @@ export default {
       options: {},
       itemscolumn: [],
       salesTotal: 0.0,
+      displayRetail: false,
       lastSyncTime: new Date().toLocaleString(),
       dateColumns: ["created_at", "updated_at", "deleted_at"],
     };
   },
+  components: {
+    'retailstore': RetailStore
+  },
   mounted() {
     // Display the sync Modal
     $('#syncModal').modal('show');
-    window.backend.SAPSync().then((response) => {
-      if (response) {
-        // Dispose of the sync Modal
-        $('#syncModal').modal('hide');
 
-        this.getData();
-        // Run every 5 minutes [5 * 60 * 1000 = 300000]
-        setTimeout(() => {
-          this.$refs.myTable.setLoadingState(true);
-          this.getData();
-          this.$refs.myTable.setLoadingState(false);
-        }, 300000);
+    window.backend.SAPSync().then((isValid) => {
+      if (isValid) {
+        this.endSync();
       }
     }, (err) => {
+      console.log(err);
+      alert(err);
+      if (err.toLowerCase() === "missing endpoint from application") {
+        alert(1);
+       this.handleModals();
+      } else {
         this.$toast.error("Error! " + err);
       }
-    );
+    });
   },
   methods: {
+    handleModals() {
+      // Hide of the sync Modal
+      $('#syncModal').modal('hide');
+alert(2);
+      // // Display the store Modal
+      // $("storeModal").modal("show");
+    },
+    dismiss() {
+      // Hide the store Modal
+      $("storeModal").modal("hide");
+
+      // Display the sync Modal
+      $('#syncModal').modal('show');
+      window.backend.SAPSync().then((isValid) => {
+        if (isValid) {
+          this.endSync();
+        }
+      }, (err) => {
+        if (err.toLowerCase() === "missing endpoint from application"){
+          this.handleModals();
+        } else {
+          this.$toast.error("Error! " + err);
+        }
+      })
+    },
+    endSync() {
+      // Dispose of the sync Modal
+      $('#syncModal').modal('hide');
+
+      this.getData();
+      // Run every 5 minutes [5 * 60 * 1000 = 300000]
+      setTimeout(() => {
+        this.$refs.myTable.setLoadingState(true);
+        this.getData();
+        this.$refs.myTable.setLoadingState(false);
+      }, 300000);
+    },
     getData() {
       window.backend.Dashboard().then((response) => {
           let total = 0.0;

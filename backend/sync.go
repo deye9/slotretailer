@@ -23,18 +23,25 @@ var apikeys = [...]string{"customers", "orders", "transfers", "transferRequests"
 // WaitGroup is used to wait for the program to finish goroutines.
 var wg sync.WaitGroup
 
-func SAPSync() (isSynced bool) {
-	hasSynced := make(chan bool) // Declare a unbuffered channel
+func SAPSync() (isSynced bool, err error) {
+	hasSynced := make(chan bool) // Declare an unbuffered channel
+	message := make(chan string) // Declare an unbuffered channel
+
 	wg.Add(1)
-	go Sync(hasSynced)
-	isSynced = <-hasSynced // Read the value from unbuffered channel
+	go Sync(hasSynced, message)
+	isSynced = <-hasSynced // Read the value from the unbuffered channel
+	if isSynced {
+		err = nil
+	} else {
+		err = errors.New(<-message) // Read the value from the unbuffered channel
+	}
 	wg.Wait()
-	// close(hasSynced) // Closes the channel
+
 	return
 }
 
 // Sync will setup the cadence for sync btw the store and the server.
-func Sync(hasSynced chan bool) {
+func Sync(hasSynced chan bool, message chan string) {
 	// Schedule the call to WaitGroup's Done to tell goroutine is completed.
 	defer wg.Done()
 
@@ -48,9 +55,12 @@ func Sync(hasSynced chan bool) {
 	}
 
 	if LocalStore.CreditCardAPI == "" || LocalStore.ProductsAPI == "" || LocalStore.CustomersAPI == "" || LocalStore.SapKey == "" {
-		CheckError("LocalStore endpoint missing.", errors.New("Missing endpoint from application"), false)
-		// Send value to the unbuffered channel
+		err := errors.New("Missing endpoint from application")
+		CheckError("LocalStore endpoint missing.", err, false)
+
+		// Send value to the unbuffered channels
 		hasSynced <- false
+		message <- "Missing endpoint from application"
 		return
 	}
 
@@ -75,79 +85,9 @@ func Sync(hasSynced chan bool) {
 	go scheduler(tick, hasSynced)
 
 	// Send value to the unbuffered channel
+	message <- ""
 	hasSynced <- true
 }
-
-// func SAPSync() bool {
-// 	// WaitGroup is used to wait for the program to finish goroutines.
-// 	var wg sync.WaitGroup
-
-// 	// Declare a unbuffered channel
-// 	hasSynced := make(chan bool)
-
-// 	wg.Add(2)
-// 	go Sync(&wg, hasSynced)
-// 	fmt.Println("It is: ", <-hasSynced)
-// 	wg.Wait()
-
-// 	// Close the channel
-// 	// close(hasSynced)
-// 	return true
-// }
-
-// Sync will setup the cadence for sync btw the store and the server.
-// func Sync(wg *sync.WaitGroup, hasSynced chan bool) {
-// 	// Schedule the call to WaitGroup's Done to tell goroutine is completed.
-// 	defer wg.Done()
-
-// 	// rotateLogs if folder exists else create the sync folder
-// 	if _, err := os.Stat(BasePath() + "/build/sync"); os.IsNotExist(err) {
-// 		if err := os.Mkdir(BasePath()+"/build/sync", 0755); err != nil {
-// 			CheckError("Error ", errors.New("creating the Sync folder"), false)
-// 		}
-// 	} else {
-// 		go rotateLogs()
-// 	}
-
-// 	if LocalStore.CreditCardAPI == "" || LocalStore.ProductsAPI == "" || LocalStore.CustomersAPI == "" || LocalStore.SapKey == "" {
-// 		CheckError("LocalStore endpoint missing.", errors.New("Missing endpoint from application"), false)
-
-// 		// Send value to the unbuffered channel
-// 		hasSynced <- false
-// 		return
-// 	}
-
-// 	APIlinks["orders"] = LocalStore.OrdersAPI                                                             // WIP
-// 	APIlinks["stores"] = LocalStore.WarehousesAPI                                                         // Ready
-// 	APIlinks["cheques"] = LocalStore.ChequesAPI                                                           // Ready
-// 	APIlinks["products"] = LocalStore.ProductsAPI                                                         // Ready
-// 	APIlinks["customers"] = LocalStore.CustomersAPI                                                       // POST ready and GET ready. How to get customers for other stores / across board.
-// 	APIlinks["pricelist"] = LocalStore.PricelistAPI                                                       // Ready
-// 	APIlinks["creditcards"] = LocalStore.CreditCardAPI                                                    // Ready
-// 	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI                                                  // Ready
-// 	APIlinks["banktransfer"] = LocalStore.BankTransferAPI                                                 // Ready
-// 	APIlinks["transferRequests"] = LocalStore.TransfersAPI                                                // Ready
-// 	APIlinks["transfers"] = strings.Replace(LocalStore.TransfersAPI, "TransferRequests", "Transfers", -1) // Ready
-
-// 	duration := LocalStore.SyncInterval
-// 	if duration == 0 {
-// 		duration = 10
-// 	}
-
-// 	tick := time.NewTicker(time.Minute * time.Duration(duration))
-// 	done := make(chan bool)
-// 	go scheduler(tick, done)
-// 	sigs := make(chan os.Signal, 1)
-// 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-// 	<-sigs // recieve only channel
-// 	done <- true
-
-// 	// Send value to the unbuffered channel
-// 	hasSynced <- true
-
-// 	fmt.Printf("Worker %d done\n", 1)
-// 	return
-// }
 
 func scheduler(tick *time.Ticker, done chan bool) {
 	task(time.Now())
