@@ -30,20 +30,16 @@ func SAPSync() (isSynced bool, err error) {
 	wg.Add(1)
 	go Sync(hasSynced, message)
 	isSynced = <-hasSynced // Read the value from the unbuffered channel
+
 	if isSynced {
-		fmt.Println("HI.")
-
 		err = nil
-
+		return
 	} else {
 		err = errors.New(<-message) // Read the value from the unbuffered channel
 	}
-	fmt.Println("HI there.")
-	wg.Wait()
-
 	close(hasSynced)
 	close(message)
-	fmt.Println("HI there man mi")
+	wg.Wait()
 
 	return
 }
@@ -83,7 +79,6 @@ func Sync(hasSynced chan bool, message chan string) {
 	APIlinks["banktransfer"] = LocalStore.BankTransferAPI  // Ready
 	APIlinks["transferRequests"] = LocalStore.TransfersAPI // Ready
 	APIlinks["transfers"] = LocalStore.TransfersAPI        // Ready
-
 	// APIlinks["transfers"] = strings.Replace(LocalStore.TransfersAPI, "TransferRequests", "Transfers", -1) // Ready
 
 	duration := LocalStore.SyncInterval
@@ -92,14 +87,13 @@ func Sync(hasSynced chan bool, message chan string) {
 	}
 
 	tick := time.NewTicker(time.Minute * time.Duration(duration))
-	wg.Add(1)
-	go scheduler(tick, hasSynced)
-	fmt.Println("HI there man")
 
-	// Send value to the unbuffered channel
-	message <- " "
+	done := make(chan bool)
+	go scheduler(tick, done)
+
+	// Send value to the unbuffered channels
 	hasSynced <- true
-
+	message <- ""
 }
 
 func scheduler(tick *time.Ticker, done chan bool) {
