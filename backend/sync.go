@@ -37,6 +37,9 @@ func SAPSync() (isSynced bool, err error) {
 	}
 	wg.Wait()
 
+	close(hasSynced)
+	close(message)
+
 	return
 }
 
@@ -64,17 +67,19 @@ func Sync(hasSynced chan bool, message chan string) {
 		return
 	}
 
-	APIlinks["orders"] = LocalStore.OrdersAPI                                                             // WIP
-	APIlinks["stores"] = LocalStore.WarehousesAPI                                                         // Ready
-	APIlinks["cheques"] = LocalStore.ChequesAPI                                                           // Ready
-	APIlinks["products"] = LocalStore.ProductsAPI                                                         // Ready
-	APIlinks["customers"] = LocalStore.CustomersAPI                                                       // POST ready and GET ready. How to get customers for other stores / across board.
-	APIlinks["pricelist"] = LocalStore.PricelistAPI                                                       // Ready
-	APIlinks["creditcards"] = LocalStore.CreditCardAPI                                                    // Ready
-	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI                                                  // Ready
-	APIlinks["banktransfer"] = LocalStore.BankTransferAPI                                                 // Ready
-	APIlinks["transferRequests"] = LocalStore.TransfersAPI                                                // Ready
-	APIlinks["transfers"] = strings.Replace(LocalStore.TransfersAPI, "TransferRequests", "Transfers", -1) // Ready
+	APIlinks["orders"] = LocalStore.OrdersAPI              // WIP
+	APIlinks["stores"] = LocalStore.WarehousesAPI          // Ready
+	APIlinks["cheques"] = LocalStore.ChequesAPI            // Ready
+	APIlinks["products"] = LocalStore.ProductsAPI          // Ready
+	APIlinks["customers"] = LocalStore.CustomersAPI        // POST ready and GET ready. How to get customers for other stores / across board.
+	APIlinks["pricelist"] = LocalStore.PricelistAPI        // Ready
+	APIlinks["creditcards"] = LocalStore.CreditCardAPI     // Ready
+	APIlinks["cashaccounts"] = LocalStore.CashAccountAPI   // Ready
+	APIlinks["banktransfer"] = LocalStore.BankTransferAPI  // Ready
+	APIlinks["transferRequests"] = LocalStore.TransfersAPI // Ready
+	APIlinks["transfers"] = LocalStore.TransfersAPI        // Ready
+
+	// APIlinks["transfers"] = strings.Replace(LocalStore.TransfersAPI, "TransferRequests", "Transfers", -1) // Ready
 
 	duration := LocalStore.SyncInterval
 	if duration == 0 {
@@ -117,8 +122,8 @@ func task(t time.Time) {
 		// Append the StoreID to the link
 		if key == "products" {
 			link += "?storeId=" + LocalStore.SapKey + "&pricelist=" + LocalStore.ProductPriceList
-		} else if key == "transfers" {
-			link += "?sourceStore=" + LocalStore.SapKey
+			// } else if key == "transfers" {
+			// 	link += "?sourceStore=" + LocalStore.SapKey
 		} else {
 			link += "?storeId=" + LocalStore.SapKey
 		}

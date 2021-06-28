@@ -166,32 +166,39 @@ export default {
   components: {
     'retailstore': RetailStore
   },
-  mounted() {
+  mounted: async function() {
+    alert(11);
     // Display the sync Modal
-    $('#syncModal').modal('show');
+    $('#syncModal').modal('show'); 
 
-    window.backend.SAPSync().then((isValid) => {
-      if (isValid) {
-        this.endSync();
-      }
-    }, (err) => {
-      console.log(err);
-      alert(err);
-      if (err.toLowerCase() === "missing endpoint from application") {
-        alert(1);
-       this.handleModals();
-      } else {
-        this.$toast.error("Error! " + err);
-      }
-    });
+alert(121);
+
+let mkl = await window.backend.SAPSync();
+console.log(mkl);
+
+    // await window.backend.SAPSync().then((isValid) => {
+    //   alert(isValid);
+    //   if (isValid) {
+    //     this.endSync();
+    //   }
+    // }, (err) => {
+    //   if (err.toLowerCase() === "missing endpoint from application") {
+    //    this.handleModals();
+    //   } else {
+    //     this.$toast.error("Error! " + err);
+    //   }
+    // });
+    alert(123);
   },
   methods: {
     handleModals() {
       // Hide of the sync Modal
       $('#syncModal').modal('hide');
-alert(2);
-      // // Display the store Modal
-      // $("storeModal").modal("show");
+
+      // new Promise(resolve => setTimeout(resolve, 45000));
+
+      // Display the store Modal
+      $("storeModal").modal("show");
     },
     dismiss() {
       // Hide the store Modal
@@ -199,6 +206,7 @@ alert(2);
 
       // Display the sync Modal
       $('#syncModal').modal('show');
+
       window.backend.SAPSync().then((isValid) => {
         if (isValid) {
           this.endSync();
