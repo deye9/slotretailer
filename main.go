@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	service "slotretailer/backend"
 
 	"github.com/leaanthony/mewn"
@@ -14,7 +15,9 @@ func main() {
 
 	// Get the store details
 	service.GetStore()
-	// service.SAPSync()
+	isSynced, err := service.SAPSync()
+	fmt.Println("err", err)
+	fmt.Println("isSynced", isSynced)
 	// go service.Sync()
 
 	// res, err := service.SendEmail("Hi there Adegbenga", []string{"adegbenga.adeye@andela.com"})

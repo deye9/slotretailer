@@ -31,14 +31,19 @@ func SAPSync() (isSynced bool, err error) {
 	go Sync(hasSynced, message)
 	isSynced = <-hasSynced // Read the value from the unbuffered channel
 	if isSynced {
+		fmt.Println("HI.")
+
 		err = nil
+
 	} else {
 		err = errors.New(<-message) // Read the value from the unbuffered channel
 	}
+	fmt.Println("HI there.")
 	wg.Wait()
 
 	close(hasSynced)
 	close(message)
+	fmt.Println("HI there man mi")
 
 	return
 }
@@ -58,7 +63,7 @@ func Sync(hasSynced chan bool, message chan string) {
 	}
 
 	if LocalStore.CreditCardAPI == "" || LocalStore.ProductsAPI == "" || LocalStore.CustomersAPI == "" || LocalStore.SapKey == "" {
-		err := errors.New("Missing endpoint from application")
+		err := errors.New("missing endpoint from application")
 		CheckError("LocalStore endpoint missing.", err, false)
 
 		// Send value to the unbuffered channels
@@ -87,11 +92,14 @@ func Sync(hasSynced chan bool, message chan string) {
 	}
 
 	tick := time.NewTicker(time.Minute * time.Duration(duration))
+	wg.Add(1)
 	go scheduler(tick, hasSynced)
+	fmt.Println("HI there man")
 
 	// Send value to the unbuffered channel
-	message <- ""
+	message <- " "
 	hasSynced <- true
+
 }
 
 func scheduler(tick *time.Ticker, done chan bool) {

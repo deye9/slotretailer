@@ -17,9 +17,8 @@ func BasePath() string {
 		log.Fatalln("Error reading the BasePath. ", err)
 	}
 
-	// Split by the build path as we are not saving into the root
-	// return strings.Split(cwd, "\\build")[0]
-	return strings.Split(cwd, "\\build")[0]
+	// Split by the build path as we are not saving into the root {window: \\, mac: /}
+	return strings.Split(cwd, "/build")[0]
 }
 
 // ReadFile reads a file and returns the data or an error
@@ -33,18 +32,17 @@ func ReadFile(filepath string) ([]byte, error) {
 
 // CheckError catches and handles backend errors
 func CheckError(message string, err error, fatal bool) {
-	if err != nil && fatal == false {
+	if err != nil && fatal {
 		// Write the error to the File System.
-		go WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
-		// return
-	} else if err != nil && fatal == true {
-		// Write the error to the File System.
-		go WriteFile(BasePath()+"\\build\\error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
-		// os.Exit(1)
+		go WriteFile(BasePath()+"/error.log", []byte("Fatal Error: "+time.Now().String()+" "+message+": "+err.Error()+"\n"))
+		os.Exit(1)
 	}
 
-	// catch to error.
-	return
+	if err != nil {
+		// Write the error to the File System.
+		WriteFile(BasePath()+"/error.log", []byte(time.Now().String()+" "+message+": "+err.Error()+"\n"))
+		return
+	}
 }
 
 // WriteFile writes the data into the file specified
@@ -57,21 +55,11 @@ func WriteFile(filepath string, data []byte) (bool, error) {
 	}
 
 	if err := f.Close(); err != nil {
+		fmt.Println("Error Closing file: "+filepath, err)
 		// CheckErr("Close File Error.", err, 4)
 	}
 
 	return true, nil
-}
-
-// loads an html file for the user
-func loadFile(fileName string) string {
-	fileName = BasePath() + fileName
-
-	if content, err := ReadFile(fileName); err == nil {
-		return string(content)
-	}
-
-	return ""
 }
 
 // WeekRange returns the start and end date of the selected week
